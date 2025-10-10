@@ -5,7 +5,7 @@ function LandingScreen() {
     <div className='row landing'>
         <div className='col-md-12'>
             <h2>Hotel-Rently</h2>
-            <h1>"placeholder text"</h1>
+            <h1>"TESTMERGE"</h1>
             
             <button>Get Started</button>
             

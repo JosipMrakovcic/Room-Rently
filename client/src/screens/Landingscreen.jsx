@@ -7,7 +7,7 @@ function LandingScreen() {
             <h2>Hotel-Rently</h2>
             <h1>"placeholder text"</h1>
             
-            <button>Get Started</button>
+            <button>Get brawl</button>
             
 
         </div>

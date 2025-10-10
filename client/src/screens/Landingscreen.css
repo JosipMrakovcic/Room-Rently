@@ -1,0 +1,112 @@
+/* Fullscreen gradient background */
+.landing {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #2b5876, #4e4376);
+  color: white;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+/* Add a subtle floating background animation (like moving light) */
+.landing::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: rotateBackground 20s linear infinite;
+  z-index: 0;
+}
+
+@keyframes rotateBackground {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.col-md-12 {
+  z-index: 1;
+}
+
+/* Title styling */
+.landing h2 {
+  font-size: 3rem;
+  letter-spacing: 2px;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  animation: slideDown 1s ease forwards;
+}
+
+.landing h1 {
+  font-size: 1.8rem;
+  font-weight: 400;
+  color: #f8f8f8;
+  max-width: 700px;
+  margin: 0 auto 2rem auto;
+  animation: fadeInUp 1.5s ease forwards;
+}
+
+/* Stylish button */
+.landing button {
+  background: #ffb347;
+  background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
+  color: #2b2b2b;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(255, 204, 51, 0.3);
+  animation: fadeIn 2s ease forwards;
+}
+
+.landing button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(255, 204, 51, 0.4);
+}
+
+/* Smooth animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .landing h2 {
+    font-size: 2.2rem;
+  }
+
+  .landing h1 {
+    font-size: 1.2rem;
+    padding: 0 1rem;
+  }
+
+  .landing button {
+    font-size: 1rem;
+    padding: 0.7rem 1.8rem;
+  }
+}

@@ -1,0 +1,150 @@
+.header {
+  background: linear-gradient(135deg, #003580, #004a99);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.headerContainer {
+  width: 100%;
+  max-width: 1024px;
+  text-align: center;
+  margin: 0px 0px 5px 0px;
+}
+.headerContainer.listmode{
+     margin: 20px 0px 0px 0px;
+}
+.headerList {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 80px; /* Bigger spacing since only two items */
+}
+
+.headerListItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.headerListItem i {
+  font-size: 2.5rem; /* Bigger icon size */
+  margin-bottom: 50px;
+}
+
+.headerListItem span {
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+.headerListItem:hover {
+  transform: scale(1.1);
+  color: #00c6ff;
+}
+.headerListItem.active {
+  padding: 12px 24px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 15px rgba(0, 198, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.headerDesc {
+    margin: 20px 0;
+    font-size: 1.2rem;          /* Slightly bigger for readability */
+    font-weight: 500;
+    color: #ffffff;                /* Softer color than black */
+    line-height: 1.5;
+}
+
+.headerBTN {
+    background-color: rgb(14, 95, 245);
+    color: white;
+    font-weight: 600;           /* Slightly bolder */
+    border: none;
+    padding: 12px 25px;         /* More spacious padding */
+    border-radius: 8px;         /* Rounded corners for a modern look */
+    cursor: pointer;
+    box-shadow: 0px 4px 6px rgba(0,0,0,0.1); /* Soft shadow for depth */
+    transition: all 0.3s ease;  /* Smooth transition on hover */
+    margin: 30px;
+}
+
+.headerBTN:hover {
+    background-color: rgb(10, 70, 200); /* Darker shade on hover */
+    transform: translateY(-2px);        /* Slight lift effect */
+    box-shadow: 0px 6px 10px rgba(0,0,0,0.15); /* Slightly bigger shadow */
+}
+
+.headerSearch{
+height: 30px;
+background-color: white;
+border: 3px solid #febb02;
+display: flex;
+align-items: center;
+justify-content:space-around;
+padding: 10px 0px;
+border-radius: 5px ;
+position: absolute;
+bottom: -30px; 
+width: 100%;
+max-width: 1024px;
+}
+.headerSearchInput{
+    border: none;
+    outline: none;
+}
+.headerSearchText{
+    color: darkslategrey;
+    cursor: pointer;
+}
+
+.date{
+    position: absolute;
+    top :50px;
+    left: 210px; 
+    z-index: 2;
+}
+.options{
+  z-index: 2;
+    padding: 10px;
+position: absolute;
+top: 50px;
+background-color:white;
+color:gray;
+border: 3px solid rgb(255, 174, 0);
+border-radius: 5px;
+}
+.optionitem{
+    width: 200px;
+    display: flex;
+    justify-content: space-between;
+}
+.optioncounter{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: black;
+
+}
+.optioncounterbutton{
+    width: 30px;
+    height: 30px;
+    border: 1px solid lightskyblue;
+    color: #00c6ff;
+    cursor: pointer;
+    background-color: white;
+}
+.optioncounterbutton:disabled{
+    cursor: not-allowed;
+}

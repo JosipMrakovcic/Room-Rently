@@ -1,0 +1,94 @@
+.mail {
+  width: 100%;
+  margin-top: 60px;
+  background: linear-gradient(135deg, #001a66, #0033cc);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 60px 20px;
+  text-align: center;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 50, 0.3);
+}
+
+.mail h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.mail p {
+  font-size: 16px;
+  font-weight: 300;
+  max-width: 500px;
+  color: #e0e0e0;
+}
+
+.mailinputcontainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.mailinputcontainer > input {
+  flex: 1;
+  min-width: 220px;
+  height: 48px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  font-size: 16px;
+  color: #333;
+  transition: box-shadow 0.2s ease;
+}
+
+.mailinputcontainer > input:focus {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
+}
+
+.mailinputcontainer > button {
+  height: 48px;
+  padding: 0 24px;
+  background-color: #0052ff;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.mailinputcontainer > button:hover {
+  background-color: #003fcc;
+  transform: translateY(-2px);
+}
+
+.mailinputcontainer > button:active {
+  transform: scale(0.98);
+}
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+  .mail {
+    padding: 40px 16px;
+  }
+
+  .mail h1 {
+    font-size: 22px;
+  }
+
+  .mail p {
+    font-size: 14px;
+  }
+
+  .mailinputcontainer > button {
+    width: 100%;
+  }
+}

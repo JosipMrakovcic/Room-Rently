@@ -1,0 +1,150 @@
+.listcontainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.listwrapper {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* ===== Search Sidebar ===== */
+.listsearch {
+  flex: 1;
+  background: linear-gradient(135deg, #f3c247, #f9d76a);
+  padding: 20px;
+  border-radius: 16px;
+  position: sticky;
+  top: 100px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  color: #333;
+}
+
+.lstitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #444;
+  margin-bottom: 16px;
+}
+
+.lsitem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.lsitem > label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #222;
+}
+
+.lsitem > input,
+.lsitem > span {
+  height: 38px;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.lsitem > input {
+  background-color: #fff;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.lsitem > input:focus {
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+.lsitem > span {
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #555;
+  transition: background-color 0.2s ease;
+}
+
+.lsitem > span:hover {
+  background-color: #f0f0f0;
+}
+
+.lsoptions {
+  padding: 10px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+}
+
+.lsoptionitem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #444;
+}
+
+.lsoptioninput {
+  width: 60px;
+  padding: 5px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.2s ease;
+}
+
+.lsoptioninput:focus {
+  border-color: #0099cc;
+}
+
+.listsearch > button {
+  padding: 12px;
+  background-color: #008b8b;
+  color: white;
+  font-weight: 600;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+  margin-top: 10px;
+}
+
+.listsearch > button:hover {
+  background-color: #007575;
+  transform: translateY(-2px);
+}
+
+/* ===== Results Section ===== */
+.listresult {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 900px) {
+  .listwrapper {
+    flex-direction: column;
+  }
+
+  .listsearch {
+    position: static;
+    width: 100%;
+  }
+
+  .listresult {
+    width: 100%;
+  }
+}

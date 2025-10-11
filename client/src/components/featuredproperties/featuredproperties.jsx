@@ -1,11 +1,16 @@
 import "./featuredproperties.css";
-
+import { useNavigate } from "react-router-dom";
 const Featuredproperties= ()=>{
+     const navigate = useNavigate()
+    const handleapartman=()=>{
+        navigate("/hotels/1")
+        window.scrollTo(0, 0);
+    }
     return(
         <div className="fp">
-            <div className="fpitem">
+            <div className="fpitem" onClick={handleapartman}>
             <img src="logo192.png" alt="" className="fpimg" />
-            <span className="fpname">Apartments Ani</span>
+            <span className="fpname" >Apartments Ani</span>
             <span className="fpcity">Dramalj</span>
             <span className="fpprice">Starting from 120$</span>
             <div className="fprating">

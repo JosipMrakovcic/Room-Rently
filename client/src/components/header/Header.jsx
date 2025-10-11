@@ -4,8 +4,10 @@ import {DateRange} from 'react-date-range';
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
 import {format} from  'date-fns'; // string format
+import { useNavigate } from "react-router-dom";
 const Header= ({type})=>{
     const [opendate,setOpendate] = useState(false)
+    const [destination,setdestination] = useState("")
     const [date, setDate] = useState([
   {
     startDate: new Date(),
@@ -19,6 +21,10 @@ const Header= ({type})=>{
         children:0,
         room:1,
     })
+    const navigate = useNavigate()
+    const handleSearch=()=>{
+        navigate("/hotels",{state:{destination,date,options}})
+    }
     const handleoption =(name,operation)=>{
         setoptions(prev=>{
             return{
@@ -51,7 +57,7 @@ const Header= ({type})=>{
             <div className="headerSearch">
             <div className="headerSearchItem">
                 {/* ikona*/}
-                <input type="text" placeholder="Where are you going?" className="headerSearchInput"></input>
+                <input type="text" placeholder="Where are you going?" className="headerSearchInput" onChange={e=>setdestination(e.target.value)}></input>
             </div>
             <div className="headerSearchItem" >
                 {/* ikona*/}
@@ -62,6 +68,7 @@ const Header= ({type})=>{
                 moveRangeOnFirstSelection={false}
                 ranges={date}
                 className="date"
+                minDate={new Date()}
                 />}
                 </div>
             <div className="headerSearchItem">
@@ -109,7 +116,7 @@ const Header= ({type})=>{
             </div>
             <div className="headerSearchItem">
                 {/* ikona*/}
-                <button className="headerBTN">Search</button>
+                <button className="headerBTN" onClick={handleSearch}>Search</button>
             </div>
 
             </div>

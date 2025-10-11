@@ -1,0 +1,14 @@
+.footer{
+    width: 100%;
+    max-width: 1024px;
+    font-size: 15px;
+}
+.flists{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 50px;
+}
+.flist{
+    list-style: none;
+}

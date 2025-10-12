@@ -1,25 +1,27 @@
 # POČETAK PROJEKTA(INSTALACIJE)
 
 Prvo imamo problem kako započeti projekt.
-   Potrebno je bilo kreirati mapu u kojoj će biti sadržan naš projekt. u njemu je potrebno u terminalu upisati naredbu 
+   Potrebno je bilo kreirati mapu u kojoj će biti sadržan naš projekt. Pozicionirani u nju potrebno je u terminalu upisati naredbu:
    ```
    npx create-react-app client
    ```
    gdje client predstavlja ime naše aplikacije.
-   Potrebno je navigirati se u navedenu mapu client naredbom u terminalu 
+   Potrebno je pozicionirati se u navedenu mapu client naredbom u terminalu: 
    ```
    cd client
    ```
-   te kako bi pokrenuli našu aplikaciju glavna naredba za to jest
+   te kako bi pokrenuli našu aplikaciju glavna naredba za to jest:
    ```
    npm start
    ```
    tu naredbu je potrebno učestalo koristiti tijekom debugganja kako bi vidjeli našu aplikaciju.
-   Po defaultu naša aplikacija bi trebala biti vidljiva na http://localhost:3000/ ali u terminalu će također biti ispisana adresa za korištenje, nakon toga potrebno je unesti adresu u bilo koji lokalni browser primjerice Google Chrome.
-   Po defaultu dobili smo automatsku instaliranu React frontend stranicu koja ima logo i deskripciju ali služi isključivo za primjer. Većinu toga je bilo potrebno pobrisati
-   iz predefiniranih template datoteka kako bi mogli napredovati sa svojim idejama.
-   Pobrisao sam default htmlove iz App.js te testirao tako da napravim par h1 tagova u htmlu unutar App.js te saveo file nakon čega mi se pojavio h1 tag na google chromeu na lokalnoj stranici.
-   !!!Napisati kako se instalira možda taj početni projekt 
+   Ako skidamo ovaj projekt, potrebno je prije naredbe ``` npm start ``` upisati naredbu:
+   ```
+   npm install
+   ```
+   Po defaultu naša aplikacija bi trebala biti vidljiva na adresi http://localhost:3000/ ali u terminalu će također biti ispisana adresa za korištenje. Nakon toga potrebno je unesti adresu u bilo koji lokalni browser primjerice Google Chrome.
+   Po defaultu dobili smo automatsku instaliranu React frontend stranicu koja ima logo i opis, ali služi isključivo za primjer. Većinu toga je bilo potrebno pobrisati iz predefiniranih template datoteka kako bi mogli napredovati sa svojim idejama.
+   Pobrisao sam default HTML-ove iz App.js te testirao tako da napravim par h1 tagova u HTML-u unutar App.js te saveo file nakon čega mi se pojavio h1 tag na Google Chrome-u na lokalnoj stranici.
    ```
    <h1>Test</h1>
    ```
@@ -62,14 +64,13 @@ koji omogućava da na ruti http://localhost:3000/ imamo početni zaslon(LandingS
 
 Zatim sam u mapi src stvorio novu mapu screens u kojoj sam napravio datoteke LandingScreen.jsx i LandingScreen.css koje će definirati izgled početne stranice.
 
-!!!Objasniti landing screen (.jsx i .css)
 # Landing Screen — React + CSS Animacija
-Cilj
+## Cilj
 
 Ova komponenta predstavlja početni (landing) ekran aplikacije “Hotel-Rently”.
 Korisniku prikazuje naslov, podnaslov i gumb koji vodi na glavnu stranicu (/main).
 
-# React komponenta: LandingScreen.jsx
+## React komponenta: LandingScreen.jsx
 ```
 import React from 'react';
 import './Landingscreen.css';
@@ -95,14 +96,12 @@ function LandingScreen() {
 
 export default LandingScreen;
 ```
-Objašnjenje:
+Dakle, ```useNavigate()``` je hook iz React Routera koji omogućava navigaciju između ruta bez reloadanja stranice.
+```navigate("/main")``` preusmjerava korisnika na rutu /main.
+JSX struktura koristi Bootstrap klase (row, col-md-12) za osnovni layout, i custom klasu .landing za stiliziranje pozadine. Klasa ```row``` označava red, a ```col-md-12``` znači da stupac zauzima cijelu širinu(12/12) na ekranima srednje veličine i većim ekranima.
+Sve animacije i izgled definirani su u Landingscreen.css-u.
 
-useNavigate() — hook iz React Routera koji omogućava navigaciju između ruta bez reloadanja stranice.
-navigate("/main") — preusmjerava korisnika na rutu /main.
-JSX struktura koristi Bootstrap klase (row, col-md-12) za osnovni layout, i custom klasu .landing za stiliziranje pozadine.
-Sve animacije i izgled definirani su u Landingscreen.css.
-
-# CSS stilovi: Landingscreen.css
+## CSS stilovi: Landingscreen.css
 1. Pozadina i osnovni layout
 
 ```
@@ -120,10 +119,10 @@ Sve animacije i izgled definirani su u Landingscreen.css.
   animation: fadeIn 1.5s ease-in-out;
 }
 ```
-Kreira fullscreen gradient pozadinu ,plavo ljubičasti tonovi.
+Kreira fullscreen gradient pozadinu s plavo ljubičastim tonovima.
 Koristi se Flexbox za centriranje sadržaja po sredini ekrana te ulaznu animaciju odnosno fadeIn za efekt postepenog pojavljivanja.
 
-2. Efekt lebdećeg svjetla u pozadini postignut je ovim cssom
+2. Efekt lebdećeg svjetla u pozadini postignut je ovim CSS-om
 ```
 .landing::before {
   content: "";
@@ -137,14 +136,14 @@ Koristi se Flexbox za centriranje sadržaja po sredini ekrana te ulaznu animacij
   z-index: 0;
 }
 ```
-Koristi se pseudo element ::before da doda prozirni sloj svjetla te radial-gradient stvara svjetlosni krug koji se polako rotira pomoću:
+Koristi se pseudo element ```::before``` da doda prozirni sloj svjetla te radial-gradient stvara svjetlosni krug koji se polako rotira pomoću:
 ```
 @keyframes rotateBackground {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 ```
-#3. Tekstualni elementi
+3. Tekstualni elementi
 ```
 .landing h2 {
   font-size: 3rem;
@@ -163,14 +162,7 @@ Koristi se pseudo element ::before da doda prozirni sloj svjetla te radial-gradi
   animation: fadeInUp 1.5s ease forwards;
 }
 ```
-h1 ima animaciju fadeinup ,lagano izlazi odozdo te h2 ima animaciju slidedown spuštanja se s vrha.
-objasnjenje animacije:
-from  početak animacije te nakon toga
-opacity: 0 odnosno element je potpuno nevidljiv.
-transform: translateY(-30px) , pomaknut je 30px prema gore izvan svoje normalne pozicije.
-to, kraj animacije:
-opacity: 1 odnosno element postaje potpuno vidljiv.
-transform: translateY(0) vraća se na svoju početnu poziciju.
+h1 ima animaciju fadeInUp, lagano izlazi odozdo te h2 ima animaciju slidedown spuštanja s vrha.
 
 Animacije:
 ```
@@ -184,7 +176,15 @@ Animacije:
   to { opacity: 1; transform: translateY(0); }
 }
 ```
-4. Dugme (“Get brawl”)
+Objašnjenje animacije:
+```from``` je početak animacije te nakon toga
+```opacity: 0``` znači da je element potpuno nevidljiv.
+```transform: translateY(-30px)``` nam zatim govori da je pomaknut 30px prema gore izvan svoje normalne pozicije.
+```to``` označava kraj animacije:
+```opacity: 1``` odnosno element postaje potpuno vidljiv te se pomoću
+```transform: translateY(0)``` vraća se svoju početnu poziciju.
+Dakle, postepeno element ide prema dolje(ili gore u slučaju fadeInUp) i postaje vidljiv.
+4. Gumb (“Get brawl”)
 ```
 .landing button {
   background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
@@ -205,10 +205,10 @@ Animacije:
   box-shadow: 0 10px 20px rgba(255, 204, 51, 0.4);
 }
 ```
-Koristi gradijentnu pozadinu u žuto-narančastim tonovima i ima zaobljene rubove i sjenu za 3D efekt.
-hover dodaje efekt izbocenja a fadein animacija na gumb se pojavi s blagim pomakom prema gore.
+Koristi gradijentnu pozadinu u žuto-narančastim tonovima te ima zaobljene rubove i sjenu za 3D efekt.
+```::hover``` dodaje efekt izbočenja, a fadeIn animacija na gumb se pojavi postepeno s lakoćom(glatko) te ostane na mjestu nakon završetka animacije.
 
- 5. Responsivnost
+5. Responzivnost
  ```
 @media (max-width: 768px) {
   .landing h2 {
@@ -224,16 +224,9 @@ hover dodaje efekt izbocenja a fadein animacija na gumb se pojavi s blagim pomak
     font-size: 1rem;
     padding: 0.7rem 1.8rem;
   }
-}```
+}
+```
 Automatski prilagođava veličine fontova i padding gumba za manje ekrane.
-
-Ukratko
-Element	Svrha	Efekt
-.landing	Glavni kontejner	fullscreen gradient pozadina + fadein
-::before	pseudo-sloj	Rotirajuće svjetlo
-h2, h1	Naslovi	slidedown i fadein animacije
-button	Navigacijski gumb	s gradijentom, hover efekt, fadein
-@media	Responsivnost	prilagodba za mobilne uređaje
 
 # DODAVANJE OSTALIH STRANICA I NJIHOVIH RUTA
 
@@ -277,12 +270,12 @@ Pobrisao sam import React from 'react' iz svih datoteka jer nam to nije potrebno
 # DODAVANJE NAVIGACIJSKE TRAKE
 
 U src mapu dodao sam mapu components te u njoj mapu navbar s odgovarajućim .jsx i .css datotekama te napravio isti template kao i za rute u mapi pages.
-U Home.jsx sam umjesto same riječi Home stavio **```<Navbar></Navbar>```** koja sad pokazuje komponentu navigacijse trake te je bilo potrebno prenijeti tu navigacijsku traku iz komponenti pomoću putanje naredbom: 
+U Home.jsx sam umjesto same riječi Home stavio ```<Navbar></Navbar>``` koja sad pokazuje komponentu navigacijse trake te je bilo potrebno prenijeti tu navigacijsku traku iz komponenti pomoću putanje naredbom: 
 ```
    import Navbar from "../../components/navbar/navbar";
 ``` 
 
-U Navbar.jsx pod return dodao sam samu strukturu navigacijske trake koja nalikuje na HTML kod s time da se imena klasa označavaju s **```className="imeKlase"```**:
+U Navbar.jsx pod return dodao sam samu strukturu navigacijske trake koja nalikuje na HTML kod s time da se imena klasa označavaju s ```className="imeKlase"```:
 ```
    <div className="navbar">
       <div className="navContainer">
@@ -319,4 +312,4 @@ Izgled navigacijske trake osmišljen je pomoću css-a:
    padding: 0 20px;
    }
 ```
-**```.navbar{}```** određuje gdje će se nalaziti navContainer te koliko će velik biti navbar, koje boje, na kojoj poziciji u odnosu na vrh stranice te pozicijom sticky ostavljamo navigacijsku traku uvijek na vrhu bez obzira pomičemo li se prema dnu stranice. Tu nam još pomaže z-index koji nam govori da navigacijska traka mora biti ispred drugih elemenata jer ima veći z-index. Veličina navContainera je 100% širine stranice, no ograničena je na maksimalnu širinu od 1100 piksela. Boja slova je bijela te su elementi containera pozicionirani tako da između imaju prazan prostor. Dakle naziv stranice je na krajnje lijevoj poziciji te su gumbi na krajnje desnoj poziciji s time da postoji i razmak lijevo i desno od 20 piksela od granica containera i njegovog sadržaja.
+```.navbar{}``` određuje gdje će se nalaziti navContainer te koliko će velik biti navbar, koje boje, na kojoj poziciji u odnosu na vrh stranice te pozicijom sticky ostavljamo navigacijsku traku uvijek na vrhu bez obzira pomičemo li se prema dnu stranice. Tu nam još pomaže z-index koji nam govori da navigacijska traka mora biti ispred drugih elemenata jer ima veći z-index. Veličina navContainera je 100% širine stranice, no ograničena je na maksimalnu širinu od 1100 piksela. Boja slova je bijela te su elementi containera pozicionirani tako da između imaju prazan prostor. Dakle naziv stranice je na krajnje lijevoj poziciji te su gumbi na krajnje desnoj poziciji s time da postoji i razmak lijevo i desno od 20 piksela od granica containera i njegovog sadržaja.

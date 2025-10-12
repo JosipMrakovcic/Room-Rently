@@ -102,7 +102,7 @@ JSX struktura koristi Bootstrap klase (row, col-md-12) za osnovni layout, i cust
 Sve animacije i izgled definirani su u Landingscreen.css-u.
 
 ## CSS stilovi: Landingscreen.css
-1. Pozadina i osnovni layout
+### Pozadina i osnovni layout
 
 ```
 .landing {
@@ -122,7 +122,7 @@ Sve animacije i izgled definirani su u Landingscreen.css-u.
 Kreira fullscreen gradient pozadinu s plavo ljubičastim tonovima.
 Koristi se Flexbox za centriranje sadržaja po sredini ekrana te ulaznu animaciju odnosno fadeIn za efekt postepenog pojavljivanja.
 
-2. Efekt lebdećeg svjetla u pozadini postignut je ovim CSS-om
+### Efekt lebdećeg svjetla u pozadini postignut CSS-om
 ```
 .landing::before {
   content: "";
@@ -143,7 +143,7 @@ Koristi se pseudo element ```::before``` da doda prozirni sloj svjetla te radial
   100% { transform: rotate(360deg); }
 }
 ```
-3. Tekstualni elementi
+### Tekstualni elementi
 ```
 .landing h2 {
   font-size: 3rem;
@@ -164,7 +164,7 @@ Koristi se pseudo element ```::before``` da doda prozirni sloj svjetla te radial
 ```
 h1 ima animaciju fadeInUp, lagano izlazi odozdo te h2 ima animaciju slidedown spuštanja s vrha.
 
-Animacije:
+### Animacije
 ```
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-30px); }
@@ -176,7 +176,7 @@ Animacije:
   to { opacity: 1; transform: translateY(0); }
 }
 ```
-Objašnjenje animacije:
+Objašnjenje animacija:
 ```from``` je početak animacije te nakon toga
 ```opacity: 0``` znači da je element potpuno nevidljiv.
 ```transform: translateY(-30px)``` nam zatim govori da je pomaknut 30px prema gore izvan svoje normalne pozicije.
@@ -184,7 +184,7 @@ Objašnjenje animacije:
 ```opacity: 1``` odnosno element postaje potpuno vidljiv te se pomoću
 ```transform: translateY(0)``` vraća se svoju početnu poziciju.
 Dakle, postepeno element ide prema dolje(ili gore u slučaju fadeInUp) i postaje vidljiv.
-4. Gumb (“Get brawl”)
+### Gumb (“Get brawl”)
 ```
 .landing button {
   background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
@@ -208,7 +208,7 @@ Dakle, postepeno element ide prema dolje(ili gore u slučaju fadeInUp) i postaje
 Koristi gradijentnu pozadinu u žuto-narančastim tonovima te ima zaobljene rubove i sjenu za 3D efekt.
 ```::hover``` dodaje efekt izbočenja, a fadeIn animacija na gumb se pojavi postepeno s lakoćom(glatko) te ostane na mjestu nakon završetka animacije.
 
-5. Responzivnost
+### Responzivnost
  ```
 @media (max-width: 768px) {
   .landing h2 {
@@ -287,7 +287,7 @@ U Navbar.jsx pod return dodao sam samu strukturu navigacijske trake koja nalikuj
       </div>
    </div>
 ```
-dakle dodan je blok element div za navigacijsku traku, container koji zaokružuje sve elemente navigacijske trake, liniski element span koji prikazuje ime stranice, te div koji sadrži gumbe na registraciju i prijavu.
+Dakle dodan je blok element div za navigacijsku traku, container koji zaokružuje sve elemente navigacijske trake, liniski element span koji prikazuje ime stranice te div koji sadrži gumbe na registraciju i prijavu.
 
 Izgled navigacijske trake osmišljen je pomoću css-a: 
 ```

@@ -1,7 +1,28 @@
 # POČETAK PROJEKTA(INSTALACIJE)
 
 Prvo imamo problem kako započeti projekt.
-   !!!Napisati kako se instalira možda taj početni projekt
+   Potrebno je bilo kreirati mapu u kojoj će biti sadržan naš projekt. u njemu je potrebno u terminalu upisati naredbu 
+   ```
+   npx create-react-app client
+   ```
+   gdje client predstavlja ime naše aplikacije.
+   Potrebno je navigirati se u navedenu mapu client naredbom u terminalu 
+   ```
+   cd client
+   ```
+   te kako bi pokrenuli našu aplikaciju glavna naredba za to jest
+   ```
+   npm start
+   ```
+   tu naredbu je potrebno učestalo koristiti tijekom debugganja kako bi vidjeli našu aplikaciju.
+   Po defaultu naša aplikacija bi trebala biti vidljiva na http://localhost:3000/ ali u terminalu će također biti ispisana adresa za korištenje, nakon toga potrebno je unesti adresu u bilo koji lokalni browser primjerice Google Chrome.
+   Po defaultu dobili smo automatsku instaliranu React frontend stranicu koja ima logo i deskripciju ali služi isključivo za primjer. Većinu toga je bilo potrebno pobrisati
+   iz predefiniranih template datoteka kako bi mogli napredovati sa svojim idejama.
+   Pobrisao sam default htmlove iz App.js te testirao tako da napravim par h1 tagova u htmlu unutar App.js te saveo file nakon čega mi se pojavio h1 tag na google chromeu na lokalnoj stranici.
+   !!!Napisati kako se instalira možda taj početni projekt 
+   ```
+   <h1>Test</h1>
+   ```
    
 # POČETNA STRANICA
 
@@ -42,6 +63,177 @@ koji omogućava da na ruti http://localhost:3000/ imamo početni zaslon(LandingS
 Zatim sam u mapi src stvorio novu mapu screens u kojoj sam napravio datoteke LandingScreen.jsx i LandingScreen.css koje će definirati izgled početne stranice.
 
 !!!Objasniti landing screen (.jsx i .css)
+# Landing Screen — React + CSS Animacija
+Cilj
+
+Ova komponenta predstavlja početni (landing) ekran aplikacije “Hotel-Rently”.
+Korisniku prikazuje naslov, podnaslov i gumb koji vodi na glavnu stranicu (/main).
+
+# React komponenta: LandingScreen.jsx
+```
+import React from 'react';
+import './Landingscreen.css';
+import { useNavigate } from "react-router-dom";
+
+function LandingScreen() {
+  const navigate = useNavigate();
+
+  const navigatemain = () => {
+    navigate("/main");
+  };
+
+  return (
+    <div className='row landing'>
+      <div className='col-md-12'>
+        <h2>Hotel-Rently</h2>
+        <h1>"TESTMERGE"</h1>
+        <button onClick={navigatemain}>Get brawl</button>
+      </div>
+    </div>
+  );
+}
+
+export default LandingScreen;
+```
+Objašnjenje:
+
+useNavigate() — hook iz React Routera koji omogućava navigaciju između ruta bez reloadanja stranice.
+navigate("/main") — preusmjerava korisnika na rutu /main.
+JSX struktura koristi Bootstrap klase (row, col-md-12) za osnovni layout, i custom klasu .landing za stiliziranje pozadine.
+Sve animacije i izgled definirani su u Landingscreen.css.
+
+# CSS stilovi: Landingscreen.css
+1. Pozadina i osnovni layout
+
+```
+.landing {
+  height: 100vh; /* Puni ekran po visini */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #2b5876, #4e4376);
+  color: white;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 1.5s ease-in-out;
+}
+```
+Kreira fullscreen gradient pozadinu ,plavo ljubičasti tonovi.
+Koristi se Flexbox za centriranje sadržaja po sredini ekrana te ulaznu animaciju odnosno fadeIn za efekt postepenog pojavljivanja.
+
+2. Efekt lebdećeg svjetla u pozadini postignut je ovim cssom
+```
+.landing::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: rotateBackground 20s linear infinite;
+  z-index: 0;
+}
+```
+Koristi se pseudo element ::before da doda prozirni sloj svjetla te radial-gradient stvara svjetlosni krug koji se polako rotira pomoću:
+```
+@keyframes rotateBackground {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+```
+#3. Tekstualni elementi
+```
+.landing h2 {
+  font-size: 3rem;
+  letter-spacing: 2px;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  animation: slideDown 1s ease forwards;
+}
+
+.landing h1 {
+  font-size: 1.8rem;
+  font-weight: 400;
+  color: #f8f8f8;
+  max-width: 700px;
+  margin: 0 auto 2rem auto;
+  animation: fadeInUp 1.5s ease forwards;
+}
+```
+h1 ima animaciju fadeinup ,lagano izlazi odozdo te h2 ima animaciju slidedown spuštanja se s vrha.
+objasnjenje animacije:
+from  početak animacije te nakon toga
+opacity: 0 odnosno element je potpuno nevidljiv.
+transform: translateY(-30px) , pomaknut je 30px prema gore izvan svoje normalne pozicije.
+to, kraj animacije:
+opacity: 1 odnosno element postaje potpuno vidljiv.
+transform: translateY(0) vraća se na svoju početnu poziciju.
+
+Animacije:
+```
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+```
+4. Dugme (“Get brawl”)
+```
+.landing button {
+  background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
+  color: #2b2b2b;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(255, 204, 51, 0.3);
+  animation: fadeIn 2s ease forwards;
+}
+
+.landing button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(255, 204, 51, 0.4);
+}
+```
+Koristi gradijentnu pozadinu u žuto-narančastim tonovima i ima zaobljene rubove i sjenu za 3D efekt.
+hover dodaje efekt izbocenja a fadein animacija na gumb se pojavi s blagim pomakom prema gore.
+
+ 5. Responsivnost
+ ```
+@media (max-width: 768px) {
+  .landing h2 {
+    font-size: 2.2rem;
+  }
+
+  .landing h1 {
+    font-size: 1.2rem;
+    padding: 0 1rem;
+  }
+
+  .landing button {
+    font-size: 1rem;
+    padding: 0.7rem 1.8rem;
+  }
+}```
+Automatski prilagođava veličine fontova i padding gumba za manje ekrane.
+
+Ukratko
+Element	Svrha	Efekt
+.landing	Glavni kontejner	fullscreen gradient pozadina + fadein
+::before	pseudo-sloj	Rotirajuće svjetlo
+h2, h1	Naslovi	slidedown i fadein animacije
+button	Navigacijski gumb	s gradijentom, hover efekt, fadein
+@media	Responsivnost	prilagodba za mobilne uređaje
 
 # DODAVANJE OSTALIH STRANICA I NJIHOVIH RUTA
 

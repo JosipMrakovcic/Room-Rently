@@ -386,12 +386,12 @@ Uveo sam CSS u Header.jsx kao i prije naredbom:
 ```
 import "./header.css";
 ```
-te naslove Hotels i Apartments koji zasad nemaju ikone, ali se mogu dodati umjesto komentara "ikona" ako bude potrebno. Također, hotele sam označio kao trenutno aktivne i container kao listmode te sam im prema tome dodao CSS stil.
+te naslove Hotels i Apartments koji zasad nemaju ikone, ali se mogu dodati umjesto komentara "ikona" ako bude potrebno. Također, hotele sam označio kao trenutno aktivne te sam im prema tome dodao CSS stil.
 ```
 const Header= ()=>{
    return(
       <div className="header">
-         <div className="headerContainer listmode">
+         <div className="headerContainer">
             <div className="headerList">
                <div className="headerListItem active">
                   {/* ikona*/}
@@ -429,11 +429,8 @@ Ovdje je implementirana pozadinska boja te boja teksta. Zatim raspored elemenata
   text-align: center;
   margin: 0px 0px 5px 0px;
 }
-.headerContainer.listmode{
-     margin: 20px 0px 0px 0px;
-}
 ```
-Širina je napravljena na isti način kao i kod navigacijske trake, a text je poravnat u sredinu te container ima doljnju marginu 5 piksela te container koji je ujedno i listmode ima gornju marginu 20 piksela.
+Širina je napravljena na isti način kao i kod navigacijske trake, a text je poravnat u sredinu te container ima doljnju marginu od 5 piksela.
 ```
 .headerList {
   display: flex;
@@ -756,3 +753,70 @@ Još nam preostaje implementirati izgled izbornika za biranje broja osoba te sob
 }
 ```
 Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar pomaknute prema dolje s sivim tekstom, bijelom pozadinom te žutim obrubom. Svaki item, odnosno npr. biranje broja odraslih osoba poredan je u jedan red širine 200 piksela s time da postoji razmak između spanova(npr. Adult) te gumbova i prikaza odgovarajućih brojeva koji su zajedno u jednom div elementu. Njihov jednostavan prikaz određen je ```.optioncounter{}``` CSS-om. Gumbovi imaju određenu visinu, širinu, obrub te pointer za prelazak s mišem. Ako su gumbi disabled onda će miš pokazivati precrtanu crvenu kružnicu kao znak zabrane.
+
+Dodajmo navbar i header na stranicu /hotels pomoću List.jsx-a:
+```
+import React from "react";
+import "./list.css";
+import Navbar from "../../components/navbar/navbar";
+import Header from "../../components/header/Header";
+
+const List= ()=>{
+   return(
+      <div><Navbar></Navbar><Header type ="list"></Header>
+      </div>
+   )
+}
+export default List
+```
+Ovdje smo također dodali prop type ="list" kako bi na ruti /hotels mogli vidjeti samo dio headera. Sada je u Header.jsx potrebno implementirati taj prop. 
+```
+const Header= ({type})=>{
+   /* isti kod kao i prije*/
+}
+```
+Dakle, prenesli smo taj prop te je od h1 tag-a pa do zadnjeg itema potrebno zatvoriti strukturu s {} zagradama te unutar zagrada ```<></>``` prije toga treba napisati da ako tip nije "list" onda će biti vidljiv ostatak headera, a inače su vidljivi samo spanovi Hotels i Apartments zaokruženi s svojim div elementima. Sada kod izgleda ovako:
+```
+{type !== "list" &&<>
+   /*od h1 pa sve do zadnjeg itema*/
+</>}
+```
+Potrebno je još promijeniti da ako je tip "list" onda imamo dvije klase, a inače samo jednu zbog css-a:
+```
+<div className={type==="list"? "headerContainer listmode":"headerContainer"}>
+```
+U CSS-u nadodamo kod za gornju marginu, kako bi se Hotels i Apartments prikazivali više dolje u usporedbi sa main stranicom:
+```
+.headerContainer.listmode{
+     margin: 20px 0px 0px 0px;
+}
+```
+Na poslijetku, potrebno je za search dodati onclick event handler koji će prebaciti stranicu na adresu /hotels.
+```
+<button className="headerBTN" onClick={handleSearch}>Search</button>
+```
+Sada nam još ostaje napraviti funkciju handleSearch pomoću hooka useNavigate uvezivanjem:
+```
+import { useNavigate } from "react-router-dom";
+```
+te dodatkom sljedećeg koda:
+```
+const [destination,setdestination] = useState("")
+const navigate = useNavigate()
+const handleSearch=()=>{
+   navigate("/hotels",{state:{destination,date,options}})
+}
+```
+na zakomentiranome mjestu(pri vrhu prije returna):
+```
+const Header= ({type})=>{
+   /* ovdje dodati*/
+   return()
+}
+```
+Klikom na gumb "Search" mijenja se adresa na /hotels te se šalje odabrano stanje.
+Odredište se mijenja pomoću promjene u kodu za input:
+```
+<input type="text" placeholder="Where are you going?" className="headerSearchInput" onChange={e=>setdestination(e.target.value)}></input>
+```
+Nakon svake promjene input-a, destination se postavlja na upisanu vrijednost.

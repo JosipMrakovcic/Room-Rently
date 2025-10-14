@@ -231,10 +231,9 @@ Automatski prilagođava veličine fontova i padding gumba za manje ekrane.
 # Dodavanje ostalih stranica te njihovih ruta
 
 Osim početne stranice potrebno je napraviti i druge stranice koje će nam biti potrebne u daljnjoj izradi projekta.
-!!!!!!!!
 U mapi src stvorio sam novu mapu pages te u njoj mape home, list i hotel.
-U njima sam napravio odgovarajuće .jsx i .css datoteke. Pa sam tako za home napravio Home.jsx i home.css te isto i za druge mape.
-Pomoću prethodnih kodova upotrebio sam česti predložak te promjenio imena u Home.jsx dobio sam slijedeći predložak koda:
+U njima sam napravio odgovarajuće .jsx i .css datoteke, pa sam tako za home napravio Home.jsx i home.css te isto i za druge mape.
+Pomoću ekstenzije "ES7+ React/Redux/React-Native snippets" za vscode, automatskom nadopunom koda, samim upisom "rafce" u Home.jsx dobio sam slijedeći predložak koda:
 ```
    import React from 'react'
    const Home= ()=>{
@@ -567,18 +566,16 @@ Elementi tražilice imaju razmak oko sebe. Tražilica ima žuti rub koji je mrvi
 ```
 Polje za unos željenog odredišta više nema obrub te je definirana boja fiksnog teksta i dodan pokazivač pri prelasku mišem preko njih.
 ### Prikaz datuma te kalendara
-S npmjs.com stranice uzet je paket react-date-range:
-
-> **NAPISATI KAKO SE SKINUO PAKET**
-
 Pratio sam youtube [tutorial](https://youtu.be/RkWpJ4XUHuw?si=9tdgdqY7-Q9KxtDY) 
 kako bih instalirao react-date-range paket koji sadrži kvalitetno sučelje za odabir raspona datuma koje
 će nam koristiti prilikom odabira termina u aplikaciji.
 23 minute 46 sekundi je vrijeme u videozapisu kada se objasni instalacija paketa.
 Instalacija paketa dobije se naredbom u terminalu :
-``` npm install react-date-range```
+``` 
+npm install react-date-range
+```
 
-te kod s malim preinakama iz state u date te s dodatkom DateRange importa:
+S ove [stranice](https://hypeserver.github.io/react-date-range/) iz odjeljka "DateRange" preuzeo sam kod koji se prikaže klikom na "VIEW CODE". Kod sam mrvicu promijenio tako što sam umjesto state hooka stavio date hook te sam uveo DateRange:
 ```
 import { useState } from "react";
 import {DateRange} from 'react-date-range';
@@ -598,22 +595,20 @@ const [date, setDate] = useState([
 />
 ```
 Importovi su normalno gdje i svi importovi na vrhu datoteke, konstantu sam stavio u const Header prije returna, a ```<Daterange.../>``` nakon span elementa "date to date". Ovaj kod služi za kalendar u kojemu se može birati otkad do kad želimo rezervirati sobu.
-
-> **OPISATI ŠTO NIJE RADILO I PREPRAVITI AKO KRIVO PIŠEM INSTALACIJU**
-
 Nakon toga da bi sve radilo, bilo je potrebno preko terminala instalirati biblioteku date-fns za formatiranje datuma pomoću naredbe:
 ```
    npm i date-fns
 ```
 No korištenjem naredbe naišao sam na 
-problem koristenja react-date-range packagea.
-Naime verzija paketa nije bila kompatibilna te je 
-rjesenje je bilo unesti ove dvije naredbe koje su prepravile problem kompatibilnosti verzija
-```npm uninstall date-fns```
+problem korištenja react-date-range packagea.
+Naime, verzija paketa nije bila kompatibilna te je 
+rješenje bilo unesti ove dvije naredbe koje su prepravile problem kompatibilnosti verzija
+```
+npm uninstall date-fns
+npm install date-fns@^3.0.0
+```
 
-```npm install date-fns@^3.0.0```
-
-te ju uvesti u kod pomoću importova:
+Biblioteku sam uveo u kod pomoću importova:
 ```
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
@@ -837,3 +832,232 @@ Odredište se mijenja pomoću promjene u kodu za input:
 <input type="text" placeholder="Where are you going?" className="headerSearchInput" onChange={e=>setdestination(e.target.value)}></input>
 ```
 Nakon svake promjene input-a, destination se postavlja na upisanu vrijednost.
+
+# Izrada featured komponente
+
+Do sada smo napravili samo navigacijsku traku te zaglavlje. Potrebno je napraviti još mnogo komponenti koje će popuniti ostatak glavne stranice. U Home.jsx dodat ćemo nakon headera jedan div container:
+```
+<div className="homecontainer"></div>
+```
+te je u mapu components potrebno dodati novu komponentu(mapu) featured s odgovarajućim .css i .jsx datotekama. U homecontainer možemo dodati komponentu featured ```<Featured></Featured>``` te uvesti komponentu u Home.jsx naredbom ```import Featured from "../../components/featured/featured";``` i containeru dati CSS stil:
+```
+.homecontainer{
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    padding: 0 10px;
+}
+```
+Sada se homecontainer nalazi 50 piksela ispod headera. Svaki njegov element je centriran, u svome redu s razmakom između svakog reda(elementa containera) od 30 piksela i padding-om s lijeve i desne strane od 10 piksela.
+
+Preostaje nam izraditi komponentu Featured:
+```
+import "./featured.css";
+const Featured= ()=>{
+    return(
+        <div className="featured">
+            <div className="featureditem">
+                <img src="/among us.png "alt="Featured" />
+                <div className="featuredtitles">
+                    <h1>amongus NOOB</h1>
+                    <h2>123 propeties</h2>
+                </div>
+            </div>
+
+            <div className="featureditem">
+                <img src="/image.png "alt="Featured" />
+                <div className="featuredtitles">
+                    <h1>amongus PRO</h1>
+                    <h2>123 propeties</h2>
+                </div>
+            </div>
+
+            <div className="featureditem">
+                <img src="/amogus1.png "alt="Featured" />
+                <div className="featuredtitles">
+                    <h1>amongus HACKER</h1>
+                    <h2>123 propeties</h2>
+                </div>
+            </div>
+        </div>
+    )
+}
+export default Featured
+```
+Radi jednostavnosti, za sada ćemo dodati 3 statična elementa sa svojim slikama te naslovima. One će označavati najpopularnija mjesta te koliko se posjeda tamo iznajmljuje. Ovi elementi trenutno ne pašu na stranici pa je bilo potrebno pozabaviti se s CSS-om:
+```
+.featured {
+  width: 100%;
+  max-width: 1024px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 1;
+}
+```
+Širina je ista kao i kod ostatka komponenti. Ako smo na manjim ekranima, elementi će se prebaciti u novi red po potrebi. Oni imaju razmak između od 24 piksela, padding sa svih strana od 20 piksela, automatske margine s lijeve i desne strane te su u potpunosti zajedno s granicama unutar featured div-a te ispred ostalih komponenti stranice koji imaju z-index manji od 1 odnosno iza kalendara i izbornika za biranje broja osoba i broja soba.
+```
+.featureditem {
+  position: relative;
+  flex: 1 1 calc(33.333% - 24px);
+  height: 260px;
+  color: white;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.featureditem:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+```
+Svaki element ima relativnu poziciju, visinu od 260 piksela te mu je omogućeno povećanje ako ima mjesta, smanjenje ako nema mjesta te mu je početna širina tećina div-a featured umanjena za 24 piksela zbog razmaka od 24 piksela između elemenata. Tekst je bijele boje te svaki element ima zaobljene rubove i ako su elementi preveliki onda se taj overflow sakrije. Kursor je pokazivač što implicira da se elementi mogu kliknuti. Promjene pozicije i sjene traju 0.3 sekunde, a početna sjena je pomaknuta 4 piksela ispod elementa s zamućenjem radijusa 12 piksela te navedenom bojom sjene. Prelaskom preko elementa mišem, element se pomakne prema gore za 6 piksela te postaje veća i tamnija.
+```
+.featuredimg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease, filter 0.5s ease;
+  filter: brightness(70%);
+}
+
+.featureditem:hover .featuredimg {
+  transform: scale(1.05);
+  filter: brightness(60%);
+}
+
+/* Add a subtle overlay gradient for readability */
+.featureditem::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent 50%);
+}
+```
+Slike su širine i visine 100% featureditem containera te prekrivaju cijeli okvir s time da je višak odrezan. Prikazane su sa 70% svjetline te su tranzicije glatke u trajanju od 0.5 sekundi. Kada se prelazi mišem preko featureditema, onda se slika unutar njega poveća za 5% te se svjetlina smanji na 60%. Da bi tekst na slici bio čitljiviji, dodan je prazan element preko cijelog featureditem-a koji počinje od dna s 60% neprozirnom crnom te na pola featureditem-a postaje potpuno nevidlj.
+```
+.featuredtitles {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 2;
+}
+
+.featuredtitles h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #fff;
+}
+
+.featuredtitles h2 {
+  font-size: 16px;
+  font-weight: 400;
+  color: #f1f1f1;
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+  .featureditem {
+    flex: 1 1 calc(50% - 24px);
+    height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .featureditem {
+    flex: 1 1 100%;
+    height: 200px;
+  }
+
+  .featuredtitles h1 {
+    font-size: 18px;
+  }
+}
+```
+Naslovi se nalaze 20 piksela iznad dna featureditem-a te 20 piksela desno od lijeve granice featureditem-a. Također, nalaze se ispred cijele featured komponente. Naslovi imaju određenu veličinu te debljinu i boju, a glavni naslov mjesta ima i donju marginu od 6 piksela. Na manjim ekranima, svaki featureditem će zauzimati pola odnosno cijelu širinu zaslona, pa će tako u istome redu biti dva odnosno jedan item. Osim toga, određena im je i visina te će na zaslonu širine manje od 480 piksela, glavni naslov koji označava mjesto imati veličinu fonta 18 piksela.
+
+# Komponenta propertylist
+
+Na glavnu stranicu(u Home.jsx), nakon featured komponente, dadao sam naslov za propertylist:
+```
+<h1 className="hometitle">Browse by property type</h1>
+```
+te u CSS stil:
+```
+.hometitle{
+    width: 100%;
+    max-width: 1024px;
+    font-size: 20px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+@media (max-width: 600px){
+    .hometitle{
+        font-size: 16px;
+    }
+}
+```
+kako bi širina odgovarala širini ostalih komponenti te da bi se naslov prikazao na sredini zaslona. Za manje ekrane, smanjena je i veličina fonta.
+Sada dodajmo mapu za komponentu propertylist te odgovarajuće .css i .jsx datoteke. Napravimo HTML stukturu istu kao i za featured komponentu:
+```
+import "./propertylist.css";
+
+const Propertylist= ()=>{
+    return(
+        <div className="pList">
+            <div className="plistItem">
+                <img src="20210710_085121.jpg" alt="" className="plistimg" />
+                <div className="plisttitle">
+                    <h1>Hotels</h1>
+                    <h2>69 hotels</h2>
+                </div>
+            </div>
+
+            <div className="plistItem">
+                <img src="20210710_085154.jpg" alt="" className="plistimg" />
+                <div className="plisttitle">
+                    <h1>Apartments</h1>
+                    <h2>21 Apartments</h2>
+                </div>
+            </div>
+
+            <div className="plistItem">
+                <img src="20210710_085438.jpg" alt="" className="plistimg" />
+                <div className="plisttitle">
+                    <h1>Motels</h1>
+                    <h2>67 Motels</h2>
+                </div>
+            </div>
+
+            <div className="plistItem">
+                <img src="20210710_085443.jpg" alt="" className="plistimg" />
+                <div className="plisttitle">
+                    <h1>Villas</h1>
+                    <h2>420 Villas</h2>
+                </div>
+            </div>
+
+            <div className="plistItem">
+                <img src="20210710_084619.jpg" alt="" className="plistimg" />
+                <div className="plisttitle">
+                    <h1>Rooms</h1>
+                    <h2>41 Rooms</h2>
+                </div>
+            </div>
+        </div>
+    )
+}
+export default Propertylist
+```
+te dodajmo naš propertylist na glavnu stranicu nakon njegovog naslova naredbom ```<Propertylist></Propertylist>```

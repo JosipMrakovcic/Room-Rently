@@ -231,10 +231,10 @@ Automatski prilagođava veličine fontova i padding gumba za manje ekrane.
 # Dodavanje ostalih stranica te njihovih ruta
 
 Osim početne stranice potrebno je napraviti i druge stranice koje će nam biti potrebne u daljnjoj izradi projekta.
-
+!!!!!!!!
 U mapi src stvorio sam novu mapu pages te u njoj mape home, list i hotel.
 U njima sam napravio odgovarajuće .jsx i .css datoteke. Pa sam tako za home napravio Home.jsx i home.css te isto i za druge mape.
-Pomoću automatske nadopune koda, samim upisom "rafce" u Home.jsx dobio sam slijedeći predložak koda:
+Pomoću prethodnih kodova upotrebio sam česti predložak te promjenio imena u Home.jsx dobio sam slijedeći predložak koda:
 ```
    import React from 'react'
    const Home= ()=>{
@@ -568,7 +568,16 @@ Elementi tražilice imaju razmak oko sebe. Tražilica ima žuti rub koji je mrvi
 Polje za unos željenog odredišta više nema obrub te je definirana boja fiksnog teksta i dodan pokazivač pri prelasku mišem preko njih.
 ### Prikaz datuma te kalendara
 S npmjs.com stranice uzet je paket react-date-range:
+
 > **NAPISATI KAKO SE SKINUO PAKET**
+
+Pratio sam youtube [tutorial](https://youtu.be/RkWpJ4XUHuw?si=9tdgdqY7-Q9KxtDY) 
+kako bih instalirao react-date-range paket koji sadrži kvalitetno sučelje za odabir raspona datuma koje
+će nam koristiti prilikom odabira termina u aplikaciji.
+23 minute 46 sekundi je vrijeme u videozapisu kada se objasni instalacija paketa.
+Instalacija paketa dobije se naredbom u terminalu :
+``` npm install react-date-range```
+
 te kod s malim preinakama iz state u date te s dodatkom DateRange importa:
 ```
 import { useState } from "react";
@@ -596,6 +605,14 @@ Nakon toga da bi sve radilo, bilo je potrebno preko terminala instalirati biblio
 ```
    npm i date-fns
 ```
+No korištenjem naredbe naišao sam na 
+problem koristenja react-date-range packagea.
+Naime verzija paketa nije bila kompatibilna te je 
+rjesenje je bilo unesti ove dvije naredbe koje su prepravile problem kompatibilnosti verzija
+```npm uninstall date-fns```
+
+```npm install date-fns@^3.0.0```
+
 te ju uvesti u kod pomoću importova:
 ```
 import 'react-date-range/dist/styles.css'; // main css file

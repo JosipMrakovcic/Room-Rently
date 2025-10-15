@@ -380,12 +380,12 @@ Pod mapu components dodao sam mapu header s odgovarajućim .css i .jsx datotekam
 import Header from "../../components/header/Header";
 ```
 te u samu strukturu istim načinom kao i za navbar ```<Header></Header>``` ispod odgovarajuće implementacije navbar-a.
-## Kartice Hotels i Apartments
+## Kartice Apartments i Rooms
 Uveo sam CSS u Header.jsx kao i prije naredbom:
 ```
 import "./header.css";
 ```
-te naslove Hotels i Apartments koji zasad nemaju ikone, ali se mogu dodati umjesto komentara "ikona" ako bude potrebno. Također, hotele sam označio kao trenutno aktivne te sam im prema tome dodao CSS stil.
+te naslove Apartments i Rooms koji zasad nemaju ikone, ali se mogu dodati umjesto komentara "ikona" ako bude potrebno. Također, apartmane sam označio kao trenutno aktivne te sam im prema tome dodao CSS stil.
 ```
 const Header= ()=>{
    return(
@@ -394,11 +394,11 @@ const Header= ()=>{
             <div className="headerList">
                <div className="headerListItem active">
                   {/* ikona*/}
-                  <span>Hotels</span>
+                  <span>Apartments</span>
                </div>
                <div className="headerListItem">
                   {/* ikona*/}
-                  <span>Apartments</span>
+                  <span>Rooms</span>
                </div>
             </div>
          </div>
@@ -443,7 +443,7 @@ Ovdje je implementirana pozadinska boja te boja teksta. Zatim raspored elemenata
   gap: 80px; /* Bigger spacing since only two items */
 }
 ```
-Elementi hotela i apartmana poravnati su u sredinu te su poredani slijedno po liniji s razmakom od 80 piksela.
+Elementi apartmana i soba poravnati su u sredinu te su poredani slijedno po liniji s razmakom od 80 piksela.
 ```
 .headerListItem {
   display: flex;
@@ -477,7 +477,7 @@ Elementi hotela i apartmana poravnati su u sredinu te su poredani slijedno po li
   transition: all 0.3s ease;
 }
 ```
-Zasada nepostojeća ikona udaljena je od odgovarajućih opisa (Hotels i Apartments) 12 pixela, elementi su poravnati u sredinu te se prelaskom mišem prikazuje pointer. Napravljen je i CSS za ikone kojih trenutno nema te veličina slova i debljina za span elemente Hotels i Apartments. Prelaskom preko njih, boja teksta se mijenja u plavu te se elementi povećavaju 1.1 puta. Hotels koji je active ima svoj padding sa svih strana. Granica mu je kružnog oblika sivo-bijele boje te ima sjenu i zamućena je.
+Zasada nepostojeća ikona udaljena je od odgovarajućih opisa (Apartments i Rooms) 12 pixela, elementi su poravnati u sredinu te se prelaskom mišem prikazuje pointer. Napravljen je i CSS za ikone kojih trenutno nema te veličina slova i debljina za span elemente Apartments i Rooms. Prelaskom preko njih, boja teksta se mijenja u plavu te se elementi povećavaju 1.1 puta. Apartments koji je active ima svoj padding sa svih strana. Granica mu je kružnog oblika sivo-bijele boje te ima sjenu i zamućena je.
 
 ## Naslov, odlomak te gumb
 U Header.jsx nakon headerList-a dodan naslov i odlomak te gumb za prijavu ili registraciju:
@@ -786,7 +786,9 @@ Još nam preostaje implementirati izgled izbornika za biranje broja osoba te sob
    cursor: not-allowed;
 }
 ```
-Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar pomaknute prema dolje s sivim tekstom, bijelom pozadinom te žutim obrubom. Svaki item, odnosno npr. biranje broja odraslih osoba poredan je u jedan red širine 200 piksela s time da postoji razmak između spanova(npr. Adult) te gumbova i prikaza odgovarajućih brojeva koji su zajedno u jednom div elementu. Njihov jednostavan prikaz određen je ```.optioncounter{}``` CSS-om. Gumbovi imaju određenu visinu, širinu, obrub te pointer za prelazak s mišem. Ako su gumbi disabled onda će miš pokazivati precrtanu crvenu kružnicu kao znak zabrane. Komponenta je u potpunosti responzivna i optimizirana za tablete(max-width: 768px), mobitele(max-width: 480px) te vrlo male ekrane(max-width: 360px). Glavne prilagodbe su redukcija fontova i margina.```headerSearch``` prelazi u vertikalni layout, date i options elementi pozicioniraju se kao donji “sheet” na ekranu, a gumb i tekst postaju manji te razmaci proporcionalno kraći.
+Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar pomaknute prema dolje s sivim tekstom, bijelom pozadinom te žutim obrubom. Svaki item, odnosno npr. biranje broja odraslih osoba poredan je u jedan red širine 200 piksela s time da postoji razmak između spanova(npr. Adult) te gumbova i prikaza odgovarajućih brojeva koji su zajedno u jednom div elementu. Njihov jednostavan prikaz određen je ```.optioncounter{}``` CSS-om. Gumbovi imaju određenu visinu, širinu, obrub te pointer za prelazak s mišem. Ako su gumbi disabled onda će miš pokazivati precrtanu crvenu kružnicu kao znak zabrane. 
+
+Komponenta je u potpunosti responzivna i optimizirana za tablete(max-width: 768px), mobitele(max-width: 480px) te vrlo male ekrane(max-width: 360px). Glavne prilagodbe su redukcija fontova i margina.```headerSearch``` prelazi u vertikalni layout, date i options elementi pozicioniraju se kao donji “sheet” na ekranu, a gumb i tekst postaju manji te razmaci proporcionalno kraći.
 ```/* Responsive Design - Tablet */
 @media screen and (max-width: 768px) {
   
@@ -905,12 +907,6 @@ Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar p
     text-align: center;
   }
   
-  .headerDesc {
-    font-size: 0.9rem;
-    margin: 15px 10px;
-    padding: 0 10px;
-  }
-  
   .headerBTN {
     padding: 8px 16px;
     margin: 0px;
@@ -980,10 +976,6 @@ Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar p
     padding: 0 10px;
     margin: 10px 0;
   }
-
-  .header {
-    padding: 20px 0; /* tighter header spacing */
-  }
 }
 
 /* Extra Small Devices */
@@ -1017,24 +1009,11 @@ Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar p
     width: calc(100% - 20px);
   }
 }
-
-/* Additional utility for mobile date/options positioning */
-.mobile-bottom-sheet {
-  position: fixed !important;         /* Fiksira element u odnosu na prozor preglednika */
-  bottom: 0 !important;               /* Postavlja ga na dno ekrana */
-  left: 0 !important;                 /* Širina se proteže od lijevog do desnog ruba */
-  right: 0 !important;
-  border-radius: 15px 15px 0 0 !important; /* Zaobljeni gornji rubovi za estetski izgled */
-  box-shadow: 0 -5px 20px rgba(0,0,0,0.3) !important; /* Sjena iznad panela za efekt izdizanja */
-  max-height: 80vh !important;        /* Panel zauzima maksimalno 80% visine ekrana */
-  overflow-y: auto !important;        /* Ako je sadržaj predugačak, omogućava skrolanje */
-}
 ```
-```.mobile-bottom-sheet``` klasa služi za pozicioniranje elemenata poput kalendara i options prozora u donji dio ekrana kada se koristi mobilni prikaz.
-Cilj joj je simulirati izgled tzv. “bottom sheet” panela, kakvi se često koriste u mobilnim aplikacijama npr. Booking, Google Maps,itd.
-U Komentarima za pojedine linije su objašnjeni značaji, ali ti isti nisu u kodu.
+Promjene u responzivnosti služe za pozicioniranje elemenata poput kalendara i options prozora u donji dio ekrana kada se koristi mobilni prikaz.
+Cilj im je simulirati izgled tzv. “bottom sheet” panela, kakvi se često koriste u mobilnim aplikacijama npr. Booking, Google Maps,itd.
 
-Dodajmo navbar i header na stranicu /hotels pomoću List.jsx-a:
+Dodajmo sada navbar i header na stranicu /hotels pomoću List.jsx-a:
 ```
 import React from "react";
 import "./list.css";
@@ -1055,7 +1034,7 @@ const Header= ({type})=>{
    /* isti kod kao i prije*/
 }
 ```
-Dakle, prenesli smo taj prop te je od h1 tag-a pa do zadnjeg itema potrebno zatvoriti strukturu s {} zagradama te unutar zagrada ```<></>``` prije toga treba napisati da ako tip nije "list" onda će biti vidljiv ostatak headera, a inače su vidljivi samo spanovi Hotels i Apartments zaokruženi s svojim div elementima. Sada kod izgleda ovako:
+Dakle, prenesli smo taj prop te je od h1 tag-a pa do zadnjeg itema potrebno zatvoriti strukturu s {} zagradama te unutar zagrada ```<></>``` prije toga treba napisati da ako tip nije "list" onda će biti vidljiv ostatak headera, a inače su vidljivi samo spanovi Apartments i Rooms zaokruženi s svojim div elementima. Sada kod izgleda ovako:
 ```
 {type !== "list" &&<>
    /*od h1 pa sve do zadnjeg itema*/
@@ -1065,7 +1044,7 @@ Potrebno je još promijeniti da ako je tip "list" onda imamo dvije klase, a ina�
 ```
 <div className={type==="list"? "headerContainer listmode":"headerContainer"}>
 ```
-U CSS-u nadodamo kod za gornju marginu, kako bi se Hotels i Apartments prikazivali više dolje u usporedbi sa main stranicom:
+U CSS-u nadodamo kod za gornju marginu, kako bi se Apartments i Rooms prikazivali više dolje u usporedbi sa main stranicom:
 ```
 .headerContainer.listmode{
      margin: 20px 0px 0px 0px;
@@ -1103,7 +1082,7 @@ Nakon svake promjene input-a, destination se postavlja na upisanu vrijednost.
 
 # Izrada featured komponente
 
-Do sada smo napravili samo navigacijsku traku te zaglavlje. Potrebno je napraviti još mnogo komponenti koje će popuniti ostatak glavne stranice. U Home.jsx dodat ćemo nakon headera jedan div container:
+Do sada smo napravili samo navigacijsku traku te zaglavlje. Potrebno je napraviti još mnogo komponenti koje će popuniti ostatak glavne stranice. Featured komponenta služi nam za kategoriziranje smještaja. U Home.jsx dodat ćemo nakon headera jedan div container:
 ```
 <div className="homecontainer"></div>
 ```
@@ -1154,7 +1133,7 @@ const Featured= ()=>{
 }
 export default Featured
 ```
-Radi jednostavnosti, za sada ćemo dodati 3 statična elementa sa svojim slikama te naslovima. One će označavati najpopularnija mjesta te koliko se posjeda tamo iznajmljuje. Ovi elementi trenutno ne pašu na stranici pa je bilo potrebno pozabaviti se s CSS-om:
+Radi jednostavnosti, za sada ćemo dodati 3 statična elementa sa svojim slikama te naslovima. One će označavati kategorije(npr. pogled na more) za lakše filtriranje soba i apartmana. Ovi elementi trenutno ne pašu na stranici pa je bilo potrebno pozabaviti se s CSS-om:
 ```
 .featured {
   width: 100%;
@@ -1256,7 +1235,7 @@ Naslovi se nalaze 20 piksela iznad dna featureditem-a te 20 piksela desno od lij
 
 # Komponenta propertylist
 
-Na glavnu stranicu(u Home.jsx), nakon featured komponente, dadao sam naslov za propertylist:
+Da bi korisnik lakše filtrirao svoje preference, dodali smo komponentu propertylist koja omogućuje korisniku da odabere tip apartmana ili sobe(npr. dvokrevetna). Na glavnu stranicu(u Home.jsx), nakon featured komponente, dadao sam naslov za propertylist:
 ```
 <h1 className="hometitle">Browse by property type</h1>
 ```
@@ -1407,3 +1386,7 @@ Glavni container kao i njegovi elementi(itemi) i slike imaju standardni stil koj
 }
 ```
 Budući da je visina fiksna, ovdje naslovi neće biti preko nego ispod slike. Naslovi imaju padding sa svih strana, poravnat tekst u lijevo te bijelu pozadinu. Veći naslov ima određen veći i deblji font tamnije boje te je donjom marginom odvojen od manjeg naslova. Za manje ekrane određena su dva elementa liste u svakome redu, a za najmanje ekrane imamo samo jedan element u redu te je visina slike umanjena za 20 piksela.
+
+# Komponenta featuredproperties
+
+Još nam za lakši odabir nedostaje komponenta za najpopularnije apartmane, odnosno sobe.

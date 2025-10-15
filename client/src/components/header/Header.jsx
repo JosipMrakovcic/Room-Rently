@@ -40,12 +40,12 @@ const Header= ({type})=>{
 
             <div className="headerListItem active" >
                 {/* ikona*/}
-            <span>Hotels</span>
+            <span>Apartments</span>
             </div>
 
             <div className="headerListItem">
                 {/* ikona*/}
-            <span>Apartments</span>
+            <span>Rooms</span>
             </div>
             
             </div>

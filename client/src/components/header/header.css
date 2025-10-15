@@ -296,12 +296,6 @@
     text-align: center;
   }
   
-  .headerDesc {
-    font-size: 0.9rem;
-    margin: 15px 10px;
-    padding: 0 10px;
-  }
-  
   .headerBTN {
     padding: 8px 16px;
     margin: 0px;
@@ -371,10 +365,6 @@
     padding: 0 10px;
     margin: 10px 0;
   }
-
-  .header {
-    padding: 20px 0; /* tighter header spacing */
-  }
 }
 
 /* Extra Small Devices */
@@ -407,17 +397,4 @@
     margin: 15px 10px 0 10px;
     width: calc(100% - 20px);
   }
-}
-
-/* Additional utility for mobile date/options positioning */
-.mobile-bottom-sheet {
-  position: fixed !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  top: auto !important;
-  border-radius: 15px 15px 0 0 !important;
-  box-shadow: 0 -5px 20px rgba(0,0,0,0.3) !important;
-  max-height: 80vh !important;
-  overflow-y: auto !important;
 }

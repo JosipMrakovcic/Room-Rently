@@ -1032,7 +1032,7 @@ Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar p
 ```
 ```.mobile-bottom-sheet``` klasa služi za pozicioniranje elemenata poput kalendara i options prozora u donji dio ekrana kada se koristi mobilni prikaz.
 Cilj joj je simulirati izgled tzv. “bottom sheet” panela, kakvi se često koriste u mobilnim aplikacijama npr. Booking, Google Maps,itd.
-U Komentarima za pojedine linije su objašnjeni značaji ali ti isti nisu u kodu.
+U Komentarima za pojedine linije su objašnjeni značaji, ali ti isti nisu u kodu.
 
 Dodajmo navbar i header na stranicu /hotels pomoću List.jsx-a:
 ```

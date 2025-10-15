@@ -427,6 +427,11 @@ Ovdje je implementirana pozadinska boja te boja teksta. Zatim raspored elemenata
   max-width: 1024px;
   text-align: center;
   margin: 0px 0px 5px 0px;
+  padding: 0 20px; /*Dodan padding za mobilne uređaje */
+  box-sizing: border-box;
+}
+.headerContainer.listmode {
+  margin: 20px 0px 0px 0px;
 }
 ```
 Širina je napravljena na isti način kao i kod navigacijske trake, a text je poravnat u sredinu te container ima doljnju marginu od 5 piksela.
@@ -502,6 +507,8 @@ popraćen CSS-om:
     box-shadow: 0px 4px 6px rgba(0,0,0,0.1); /* Soft shadow for depth */
     transition: all 0.3s ease;  /* Smooth transition on hover */
     margin: 30px;
+   max-width: 90%; /* Osigurava da button ne prelazi širinu ekrana */
+   box-sizing: border-box;
 }
 
 .headerBTN:hover {
@@ -510,6 +517,7 @@ popraćen CSS-om:
     box-shadow: 0px 6px 10px rgba(0,0,0,0.15); /* Slightly bigger shadow */
 }
 ```
+
 Odlomak ima svoje gornje i donje margine od 20 piksela te su definirana veličina, debljina i boja fonta kao i visina retka. Gumb je malo svjetlije boje od ostatka zaglavlja te su definirana obilježja fonta. Maknut je obrub, dodan razmak sa svih strana te zakrivljeni oblik granica. Također, implementirane su margine, pokazivač miša te sjena i promjena u malo tamniju boju te pomak prema gore prilikom hover-a.
 
 ## Tražilica
@@ -539,18 +547,19 @@ Nakon što smo implementirali osnovne stavke, imamo problem implementacije traž
 Ona trenutno ima fiksne tekstove no poslije ćemo to promijeniti. Sada je potrebno promijeniti izgled tražilici u CSS-u:
 ```
 .headerSearch{
-   height: 30px;
-   background-color: white;
-   border: 3px solid #febb02;
-   display: flex;
-   align-items: center;
-   justify-content:space-around;
-   padding: 10px 0px;
-   border-radius: 5px ;
-   position: absolute;
-   bottom: -30px; 
-   width: 100%;
-   max-width: 1024px;
+   height: 50px;
+  background-color: white;
+  border: 3px solid #febb02;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px 0px;
+  border-radius: 5px;
+  position: absolute;
+  bottom: -30px;
+  width: 100%;
+  max-width: 1024px;
+  box-sizing: border-box;
 }
 ```
 Elementi tražilice imaju razmak oko sebe. Tražilica ima žuti rub koji je mrvicu zakrivljen te je tražilica pomaknuta 30 piksela na dolje u odnosu na zaglavlje i ima širinu istu kao i zaglavlje.
@@ -558,10 +567,15 @@ Elementi tražilice imaju razmak oko sebe. Tražilica ima žuti rub koji je mrvi
 .headerSearchInput{
     border: none;
     outline: none;
+    width: 100%;
+   padding: 0 10px;
+   box-sizing: border-box;
 }
 .headerSearchText{
     color: darkslategrey;
     cursor: pointer;
+    padding: 0 10px;
+   white-space: nowrap;
 }
 ```
 Polje za unos željenog odredišta više nema obrub te je definirana boja fiksnog teksta i dodan pokazivač pri prelasku mišem preko njih.
@@ -620,11 +634,14 @@ Da bi to lijepo izgledao dodao sam klasu pod ```<DateRange.../>```:
 ```
 i u CSS-u:
 ```
-.date{
-    position: absolute;
-    top :50px;
-    left: 210px; 
-    z-index: 2;
+/* Date Picker - Desktop */
+.date {
+  position: absolute;
+  top: 50px;
+  left: 210px;
+  z-index: 2;
+  transform: scale(0.9); /* Smanjen date picker */
+  transform-origin: top left;
 }
 ```
 Sada se biranje datuma nalazi ispod samog span elementa te ispred pozadine.
@@ -729,42 +746,304 @@ Kao što smo i u prijašnjem kodu napisali, ta funkcija prima dva parametra, ime
 #### Izgled izbornika za odabir broja osoba i soba
 Još nam preostaje implementirati izgled izbornika za biranje broja osoba te soba.
 ```
-.options{
-   z-index: 2;
-   padding: 10px;
-   position: absolute;
-   top: 50px;
-   background-color:white;
-   color:gray;
-   border: 3px solid rgb(255, 174, 0);
-   border-radius: 5px;
+/* Options - Desktop */
+.options {
+  z-index: 2;
+  padding: 8px; /* Smanjen padding */
+  position: absolute;
+  top: 50px;
+  background-color: white;
+  color: gray;
+  border: 2px solid rgb(255, 174, 0); /* Smanjen border */
+  border-radius: 5px;
+  transform: scale(0.9); /* Smanjene opcije */
+  transform-origin: top left;
 }
 .optionitem{
-   width: 200px;
-   display: flex;
-   justify-content: space-between;
+   width: 180px; /* Smanjena širina */
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
 }
 .optioncounter{
    display: flex;
    align-items: center;
-   gap: 10px;
-   font-size: 12px;
+   gap: 8px; /* Smanjen gap */
+  font-size: 11px; /* Smanjen font */
    color: black;
 
 }
 .optioncounterbutton{
-   width: 30px;
-   height: 30px;
-   border: 1px solid lightskyblue;
-   color: #00c6ff;
-   cursor: pointer;
-   background-color: white;
+   width: 25px; /* Smanjeni buttoni */
+  height: 25px;
+  border: 1px solid lightskyblue;
+  color: #00c6ff;
+  cursor: pointer;
+  background-color: white;
+  font-size: 0.8rem; /* Smanjen font u buttonima */
 }
 .optioncounterbutton:disabled{
    cursor: not-allowed;
 }
 ```
 Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar pomaknute prema dolje s sivim tekstom, bijelom pozadinom te žutim obrubom. Svaki item, odnosno npr. biranje broja odraslih osoba poredan je u jedan red širine 200 piksela s time da postoji razmak između spanova(npr. Adult) te gumbova i prikaza odgovarajućih brojeva koji su zajedno u jednom div elementu. Njihov jednostavan prikaz određen je ```.optioncounter{}``` CSS-om. Gumbovi imaju određenu visinu, širinu, obrub te pointer za prelazak s mišem. Ako su gumbi disabled onda će miš pokazivati precrtanu crvenu kružnicu kao znak zabrane.
+Responsive dizajn:
+Komponenta je u potpunosti responsivna i optimizirana za:
+Tablete (max-width: 768px)
+Mobitele (max-width: 480px)
+Vrlo male ekrane (max-width: 360px)
+Glavne prilagodbe:
+Redukcija fontova i margina.
+headerSearch prelazi u vertikalni layout.
+date i options elementi pozicioniraju se kao donji “sheet” na ekranu.
+Gumb i tekst postaju manji, a razmaci proporcionalno kraći.
+```/* Responsive Design - Tablet */
+@media screen and (max-width: 768px) {
+  
+  .headerList {
+    gap: 40px;
+  }
+  
+  .headerListItem i {
+    font-size: 2rem;
+    margin-bottom: 30px;
+  }
+  
+  .headerListItem span {
+    font-size: 1.1rem;
+  }
+  
+  .headerBTN {
+    padding: 10px 8px;
+    margin: 0px;
+    font-size: 0.9rem;
+    max-width: 85%;
+  }
+  
+  .headerSearch {
+    height: auto;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    bottom: -40px;
+    position: relative;
+     margin: 0 20px 30px 20px;
+    width: calc(100% - 40px);
+  }
+  
+  .headerSearchItem {
+    width: 100%;
+    padding: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .date {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 50%;
+    transform: scale(0.6) translateX(-50%);
+    transform-origin: bottom center;
+  }
+  
+  .options {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 50%;
+    transform: scale(1.1) translateX(-50%);
+    transform-origin: bottom center;
+    max-height: 50vh;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  
+  .optionitem {
+    width: 160px;
+    font-size: 0.9rem;
+  }
+  
+  .optioncounterbutton {
+    width: 22px;
+    height: 22px;
+  }
+  .headerContainer h1 {
+    font-size: 1.8rem; /* smaller title */
+    margin-bottom: 10px;
+  }
+
+  .headerDesc {
+    font-size: 1rem; /* smaller text */
+    padding: 0 15px;
+    margin: 15px 0;
+  }
+
+  .header {
+    padding: 30px 0; /* reduced vertical padding */
+  }
+}
+
+/* Responsive Design - Mobile */
+@media screen and (max-width: 480px) {
+  .header {
+    padding: 20px 0;
+  }
+  
+  .headerContainer {
+    padding: 0 15px;
+  }
+  
+  .headerList {
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
+  
+  .headerListItem {
+    min-width: 100px;
+  }
+  
+  .headerListItem i {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+  
+  .headerListItem span {
+    font-size: 0.8rem;
+    text-align: center;
+  }
+  
+  .headerDesc {
+    font-size: 0.9rem;
+    margin: 15px 10px;
+    padding: 0 10px;
+  }
+  
+  .headerBTN {
+    padding: 8px 16px;
+    margin: 0px;
+    font-size: 0.8rem;
+    max-width: 80%;
+  }
+  
+  .headerSearch {
+    margin: 0 20px 30px 20px;
+    width: calc(100% - 30px);
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  .headerSearchItem {
+    padding: 6px;
+    font-size: 0.9rem;
+  }
+  
+  .headerSearchInput {
+    font-size: 0.9rem;
+    padding: 0 8px;
+  }
+  
+  .headerSearchText {
+    font-size: 0.9rem;
+    padding: 0 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .date {
+    transform: scale(0.7) translateX(-50%);
+  }
+  
+  .options {
+    transform: scale(1.1) translateX(-50%);
+    padding: 8px;
+    max-height: 60vh;
+  }
+  
+  .optionitem {
+    width: 140px;
+    font-size: 0.8rem;
+    margin-bottom: 6px;
+  }
+  
+  .optioncounter {
+    gap: 6px;
+    font-size: 0.7rem;
+  }
+  
+  .optioncounterbutton {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+  }
+   .headerContainer h1 {
+    font-size: 1.4rem; /* much smaller title */
+    margin-bottom: 8px;
+  }
+
+  .headerDesc {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    padding: 0 10px;
+    margin: 10px 0;
+  }
+
+  .header {
+    padding: 20px 0; /* tighter header spacing */
+  }
+}
+
+/* Extra Small Devices */
+@media screen and (max-width: 360px) {
+  .headerList {
+    gap: 10px;
+  }
+  
+  .headerListItem {
+    min-width: 80px;
+  }
+  
+  .headerListItem i {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+  }
+  
+  .headerListItem span {
+    font-size: 0.7rem;
+  }
+  
+  .headerBTN {
+    padding: 6px 12px;
+    margin: 10px;
+    font-size: 0.75rem;
+    max-width: 75%;
+  }
+  
+  .headerSearch {
+    margin: 15px 10px 0 10px;
+    width: calc(100% - 20px);
+  }
+}
+
+/* Additional utility for mobile date/options positioning */
+.mobile-bottom-sheet {
+  position: fixed !important;         /* Fiksira element u odnosu na prozor preglednika */
+  bottom: 0 !important;               /* Postavlja ga na dno ekrana */
+  left: 0 !important;                 /* Širina se proteže od lijevog do desnog ruba */
+  right: 0 !important;
+  border-radius: 15px 15px 0 0 !important; /* Zaobljeni gornji rubovi za estetski izgled */
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.3) !important; /* Sjena iznad panela za efekt izdizanja */
+  max-height: 80vh !important;        /* Panel zauzima maksimalno 80% visine ekrana */
+  overflow-y: auto !important;        /* Ako je sadržaj predugačak, omogućava skrolanje */
+}
+```
+.mobile-bottom-sheet
+Ova klasa služi za pozicioniranje elemenata poput date pickera ili options prozora u donji dio ekrana kada se koristi mobilni prikaz.
+Cilj joj je simulirati izgled tzv. “bottom sheet” panela, kakvi se često koriste u mobilnim aplikacijama npr. Booking, Google Maps,itd.
+U Komentarima za pojedine linije su objašnjeni značaji ali ti isti nisu u kodu.
 
 Dodajmo navbar i header na stranicu /hotels pomoću List.jsx-a:
 ```

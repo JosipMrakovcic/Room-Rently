@@ -95,7 +95,7 @@
 
 /* Header Search - Desktop */
 .headerSearch {
-  height: 30px;
+  height: 50px;
   background-color: white;
   border: 3px solid #febb02;
   display: flex;
@@ -180,6 +180,7 @@
 
 /* Responsive Design - Tablet */
 @media screen and (max-width: 768px) {
+  
   .headerList {
     gap: 40px;
   }
@@ -194,8 +195,8 @@
   }
   
   .headerBTN {
-    padding: 10px 20px;
-    margin: 20px;
+    padding: 10px 8px;
+    margin: 0px;
     font-size: 0.9rem;
     max-width: 85%;
   }
@@ -207,7 +208,7 @@
     padding: 12px;
     bottom: -40px;
     position: relative;
-    margin: 0 20px;
+     margin: 0 20px 30px 20px;
     width: calc(100% - 40px);
   }
   
@@ -224,7 +225,7 @@
     top: auto;
     bottom: 0;
     left: 50%;
-    transform: scale(0.8) translateX(-50%);
+    transform: scale(0.6) translateX(-50%);
     transform-origin: bottom center;
   }
   
@@ -233,7 +234,7 @@
     top: auto;
     bottom: 0;
     left: 50%;
-    transform: scale(0.8) translateX(-50%);
+    transform: scale(1.1) translateX(-50%);
     transform-origin: bottom center;
     max-height: 50vh;
     overflow-y: auto;
@@ -248,6 +249,20 @@
   .optioncounterbutton {
     width: 22px;
     height: 22px;
+  }
+  .headerContainer h1 {
+    font-size: 1.8rem; /* smaller title */
+    margin-bottom: 10px;
+  }
+
+  .headerDesc {
+    font-size: 1rem; /* smaller text */
+    padding: 0 15px;
+    margin: 15px 0;
+  }
+
+  .header {
+    padding: 30px 0; /* reduced vertical padding */
   }
 }
 
@@ -289,13 +304,13 @@
   
   .headerBTN {
     padding: 8px 16px;
-    margin: 15px;
+    margin: 0px;
     font-size: 0.8rem;
     max-width: 80%;
   }
   
   .headerSearch {
-    margin: 20px 15px 0 15px;
+    margin: 0 20px 30px 20px;
     width: calc(100% - 30px);
     gap: 10px;
     padding: 10px;
@@ -320,11 +335,11 @@
   }
   
   .date {
-    transform: scale(0.8) translateX(-50%);
+    transform: scale(0.7) translateX(-50%);
   }
   
   .options {
-    transform: scale(1.2) translateX(-50%);
+    transform: scale(1.1) translateX(-50%);
     padding: 8px;
     max-height: 60vh;
   }
@@ -344,6 +359,21 @@
     width: 20px;
     height: 20px;
     font-size: 0.7rem;
+  }
+   .headerContainer h1 {
+    font-size: 1.4rem; /* much smaller title */
+    margin-bottom: 8px;
+  }
+
+  .headerDesc {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    padding: 0 10px;
+    margin: 10px 0;
+  }
+
+  .header {
+    padding: 20px 0; /* tighter header spacing */
   }
 }
 

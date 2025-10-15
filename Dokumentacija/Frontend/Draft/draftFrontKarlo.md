@@ -1028,22 +1028,10 @@ Gumb i tekst postaju manji, a razmaci proporcionalno kraći.
   }
 }
 
-/* Additional utility for mobile date/options positioning */
-.mobile-bottom-sheet {
-  position: fixed !important;         /* Fiksira element u odnosu na prozor preglednika */
-  bottom: 0 !important;               /* Postavlja ga na dno ekrana */
-  left: 0 !important;                 /* Širina se proteže od lijevog do desnog ruba */
-  right: 0 !important;
-  border-radius: 15px 15px 0 0 !important; /* Zaobljeni gornji rubovi za estetski izgled */
-  box-shadow: 0 -5px 20px rgba(0,0,0,0.3) !important; /* Sjena iznad panela za efekt izdizanja */
-  max-height: 80vh !important;        /* Panel zauzima maksimalno 80% visine ekrana */
-  overflow-y: auto !important;        /* Ako je sadržaj predugačak, omogućava skrolanje */
-}
 ```
-.mobile-bottom-sheet
-Ova klasa služi za pozicioniranje elemenata poput date pickera ili options prozora u donji dio ekrana kada se koristi mobilni prikaz.
+
+Promjene u responzivnosti služe za pozicioniranje elemenata poput date pickera ili options prozora u donji dio ekrana kada se koristi mobilni prikaz.
 Cilj joj je simulirati izgled tzv. “bottom sheet” panela, kakvi se često koriste u mobilnim aplikacijama npr. Booking, Google Maps,itd.
-U Komentarima za pojedine linije su objašnjeni značaji ali ti isti nisu u kodu.
 
 Dodajmo navbar i header na stranicu /hotels pomoću List.jsx-a:
 ```

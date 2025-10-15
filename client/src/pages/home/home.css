@@ -1,11 +1,23 @@
-.homecontainer{
+.homecontainer {
     margin-top: 50px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 30px;
+    padding: 0 10px; /* Add some horizontal padding for small screens */
 }
-.hometitle{
-    width: 1024px;
+
+.hometitle {
+    width: 100%;       /* Take full available width */
+    max-width: 1024px; /* But no wider than 1024px */
     font-size: 20px;
+    box-sizing: border-box; /* Ensures padding doesn't break width */
+    text-align: center; /* Optional, to center text on smaller screens */
+}
+
+/* Optional: adjust font size for very small screens */
+@media (max-width: 600px) {
+    .hometitle {
+        font-size: 16px;
+    }
 }

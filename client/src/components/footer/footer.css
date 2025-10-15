@@ -11,4 +11,10 @@
 }
 .flist{
     list-style: none;
+    padding: 0;
+}
+.flistitem{
+    margin-bottom: 10px;
+    color: rgb(23, 23, 104);
+    cursor: pointer;
 }

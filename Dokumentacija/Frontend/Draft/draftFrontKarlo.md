@@ -786,17 +786,7 @@ Još nam preostaje implementirati izgled izbornika za biranje broja osoba te sob
    cursor: not-allowed;
 }
 ```
-Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar pomaknute prema dolje s sivim tekstom, bijelom pozadinom te žutim obrubom. Svaki item, odnosno npr. biranje broja odraslih osoba poredan je u jedan red širine 200 piksela s time da postoji razmak između spanova(npr. Adult) te gumbova i prikaza odgovarajućih brojeva koji su zajedno u jednom div elementu. Njihov jednostavan prikaz određen je ```.optioncounter{}``` CSS-om. Gumbovi imaju određenu visinu, širinu, obrub te pointer za prelazak s mišem. Ako su gumbi disabled onda će miš pokazivati precrtanu crvenu kružnicu kao znak zabrane.
-Responsive dizajn:
-Komponenta je u potpunosti responsivna i optimizirana za:
-Tablete (max-width: 768px)
-Mobitele (max-width: 480px)
-Vrlo male ekrane (max-width: 360px)
-Glavne prilagodbe:
-Redukcija fontova i margina.
-headerSearch prelazi u vertikalni layout.
-date i options elementi pozicioniraju se kao donji “sheet” na ekranu.
-Gumb i tekst postaju manji, a razmaci proporcionalno kraći.
+Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar pomaknute prema dolje s sivim tekstom, bijelom pozadinom te žutim obrubom. Svaki item, odnosno npr. biranje broja odraslih osoba poredan je u jedan red širine 200 piksela s time da postoji razmak između spanova(npr. Adult) te gumbova i prikaza odgovarajućih brojeva koji su zajedno u jednom div elementu. Njihov jednostavan prikaz određen je ```.optioncounter{}``` CSS-om. Gumbovi imaju određenu visinu, širinu, obrub te pointer za prelazak s mišem. Ako su gumbi disabled onda će miš pokazivati precrtanu crvenu kružnicu kao znak zabrane. Komponenta je u potpunosti responzivna i optimizirana za tablete(max-width: 768px), mobitele(max-width: 480px) te vrlo male ekrane(max-width: 360px). Glavne prilagodbe su redukcija fontova i margina.```headerSearch``` prelazi u vertikalni layout, date i options elementi pozicioniraju se kao donji “sheet” na ekranu, a gumb i tekst postaju manji te razmaci proporcionalno kraći.
 ```/* Responsive Design - Tablet */
 @media screen and (max-width: 768px) {
   
@@ -1327,4 +1317,82 @@ const Propertylist= ()=>{
 }
 export default Propertylist
 ```
-te dodajmo naš propertylist na glavnu stranicu nakon njegovog naslova naredbom ```<Propertylist></Propertylist>```
+te dodajmo naš propertylist na glavnu stranicu nakon njegovog naslova naredbom ```<Propertylist></Propertylist>```. Sada je potrebno komponenti dati svoj stil:
+```
+.pList {
+  width: 100%;
+  max-width: 1024px;
+  display: flex;
+  flex-wrap: wrap; /* allows wrapping on smaller screens */
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.plistItem {
+  flex: 1 1 calc(33.333% - 24px); /* 3 items per row */
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: #fff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.plistItem:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.plistimg {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.plistItem:hover .plistimg {
+  transform: scale(1.05);
+}
+```
+Glavni container kao i njegovi elementi(itemi) i slike imaju standardni stil koji smo koristili i kod featured komponente gdje je isti i objašnjen. Razlike u odnosu na njega su to da ovdje nemamo definiranu visinu itema, z-index containera i izmjenu svjetline slika, a imamo definiranu visinu slika od 180 piksela. Ostatak CSS stila:
+```
+.plisttitle {
+  padding: 14px 16px;
+  text-align: left;
+  background-color: #fff;
+}
+
+.plisttitle > h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 6px;
+}
+
+.plisttitle > h2 {
+  font-size: 16px;
+  font-weight: 400;
+  color: #666;
+}
+
+/* Add some responsive behavior */
+@media (max-width: 768px) {
+  .plistItem {
+    flex: 1 1 calc(50% - 24px); /* 2 items per row on tablet */
+  }
+}
+
+@media (max-width: 480px) {
+  .plistItem {
+    flex: 1 1 100%; /* full width on small screens */
+  }
+
+  .plistimg {
+    height: 160px;
+  }
+}
+```
+Budući da je visina fiksna, ovdje naslovi neće biti preko nego ispod slike. Naslovi imaju padding sa svih strana, poravnat tekst u lijevo te bijelu pozadinu. Veći naslov ima određen veći i deblji font tamnije boje te je donjom marginom odvojen od manjeg naslova. Za manje ekrane određena su dva elementa liste u svakome redu, a za najmanje ekrane imamo samo jedan element u redu te je visina slike umanjena za 20 piksela.

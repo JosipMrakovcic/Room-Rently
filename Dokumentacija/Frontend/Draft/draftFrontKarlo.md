@@ -67,34 +67,38 @@ Zatim sam u mapi src stvorio novu mapu screens u kojoj sam napravio datoteke Lan
 # Landing Screen — React + CSS Animacija
 ## Cilj
 
-Ova komponenta predstavlja početni (landing) ekran aplikacije “Hotel-Rently”.
+Ova komponenta predstavlja početni (landing) ekran aplikacije “Room-Rently”.
 Korisniku prikazuje naslov, podnaslov i gumb koji vodi na glavnu stranicu (/main).
 
 ## React komponenta: LandingScreen.jsx
 ```
-import React from 'react';
+import React from 'react'
 import './Landingscreen.css';
 import { useNavigate } from "react-router-dom";
-
 function LandingScreen() {
-  const navigate = useNavigate();
-
-  const navigatemain = () => {
-    navigate("/main");
-  };
-
+  const navigate = useNavigate()
+    const navigatemain=()=>{
+        navigate("/main")
+    }
   return (
     <div className='row landing'>
-      <div className='col-md-12'>
-        <h2>Hotel-Rently</h2>
-        <h1>"TESTMERGE"</h1>
-        <button onClick={navigatemain}>Get brawl</button>
-      </div>
+        <div className='col-md-12'>
+            <h2>Room-Rently</h2>
+            <h1>"Find your perfect stay — from cozy rooms to modern apartments.
+            Simple search and effortless booking with Room-Rently."</h1>
+            
+            <button onClick={navigatemain}>Find a Place to Stay</button>
+            
+
+        </div>
+    
+    
+    
     </div>
-  );
+  )
 }
 
-export default LandingScreen;
+export default LandingScreen
 ```
 Dakle, ```useNavigate()``` je hook iz React Routera koji omogućava navigaciju između ruta bez reloadanja stranice.
 ```navigate("/main")``` preusmjerava korisnika na rutu /main.
@@ -184,7 +188,7 @@ Objašnjenje animacija:
 ```opacity: 1``` odnosno element postaje potpuno vidljiv te se pomoću
 ```transform: translateY(0)``` vraća se svoju početnu poziciju.
 Dakle, postepeno element ide prema dolje(ili gore u slučaju fadeInUp) i postaje vidljiv.
-### Gumb (“Get brawl”)
+### Gumb (“Find a Place to Stay”)
 ```
 .landing button {
   background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
@@ -286,7 +290,7 @@ const Navbar= ()=>{
     return(
         <div className="navbar">
             <div className="navContainer">
-            <span className="logo" onClick={navigatelandingscreen}>Hotel-Rently</span>
+            <span className="logo" onClick={navigatelandingscreen}>Room-Rently</span>
             <div className="navItems">
                 <button className="navButton">Register</button>
                 <button className="navButton">Login</button>
@@ -483,8 +487,8 @@ Zasada nepostojeća ikona udaljena je od odgovarajućih opisa (Apartments i Room
 ## Naslov, odlomak te gumb
 U Header.jsx nakon headerList-a dodan naslov i odlomak te gumb za prijavu ili registraciju:
 ```
-<h1 className="headerTitle">Josipova stranica? Možda ali nema Miku : ( </h1>
-<p className="headerDesc">noob u fortu</p>
+<h1 className="headerTitle">Room-Rently  | Find Your Perfect Apartment or Holiday Stay</h1>
+<p className="headerDesc">Discover comfortable apartments, rooms, and villas for rent across stunning locations. Easy booking and the best prices — only with Room-Rently.</p>
 <button className="headerBTN">Sign in/Register</button>
 ```
 popraćen CSS-om:
@@ -529,7 +533,7 @@ Nakon što smo implementirali osnovne stavke, imamo problem implementacije traž
 <div className="headerSearch">
    <div className="headerSearchItem">
       {/* ikona*/}
-      <input type="text" placeholder="Where are you going?" className="headerSearchInput"></input>
+      <input type="text" placeholder="Search by apartment name" className="headerSearchInput"></input>
    </div>
    <div className="headerSearchItem">
       {/* ikona*/}
@@ -1077,7 +1081,7 @@ const Header= ({type})=>{
 Klikom na gumb "Search" mijenja se adresa na /hotels te se šalje odabrano stanje.
 Ime apartmana ili sobe se mijenja pomoću promjene u kodu za input:
 ```
-<input type="text" placeholder="Where are you going?" className="headerSearchInput" onChange={e=>setdestination(e.target.value)}></input>
+<input type="text" placeholder="Search by apartment name" className="headerSearchInput" onChange={e=>setdestination(e.target.value)}></input>
 ```
 Nakon svake promjene input-a, destination(ime apartmana/sobe) se postavlja na upisanu vrijednost.
 
@@ -1107,26 +1111,26 @@ const Featured= ()=>{
     return(
         <div className="featured">
             <div className="featureditem">
-                <img src="/among us.png "alt="Featured" />
+                <img src="/pogledmore.jpg"alt="Featured" />
                 <div className="featuredtitles">
-                    <h1>amongus NOOB</h1>
-                    <h2>123 propeties</h2>
+                    <h1>Sea view</h1>
+                    <h2>3 available apartments</h2>
                 </div>
             </div>
 
             <div className="featureditem">
-                <img src="/image.png "alt="Featured" />
+                <img src="/poglednalivadu.webp "alt="Featured" />
                 <div className="featuredtitles">
-                    <h1>amongus PRO</h1>
-                    <h2>123 propeties</h2>
+                    <h1>Village view</h1>
+                    <h2>123 available apartments</h2>
                 </div>
             </div>
 
             <div className="featureditem">
-                <img src="/amogus1.png "alt="Featured" />
+                <img src="/poglednajezero.jpg"alt="Featured" />
                 <div className="featuredtitles">
-                    <h1>amongus HACKER</h1>
-                    <h2>123 propeties</h2>
+                    <h1>Lake view</h1>
+                    <h2>167 available apartments</h2>
                 </div>
             </div>
         </div>
@@ -1238,7 +1242,7 @@ Naslovi se nalaze 20 piksela iznad dna featureditem-a te 20 piksela desno od lij
 
 Da bi korisnik lakše filtrirao svoje preference, dodali smo komponentu propertylist koja omogućuje korisniku da odabere tip apartmana ili sobe(npr. dvokrevetna). Na glavnu stranicu(u Home.jsx), nakon featured komponente, dadao sam naslov za propertylist:
 ```
-<h1 className="hometitle">Browse by property type</h1>
+<h1 className="hometitle">Browse apartments by capacity</h1>
 ```
 te u CSS stil:
 ```
@@ -1267,15 +1271,15 @@ const Propertylist= ()=>{
             <div className="plistItem">
                 <img src="20210710_085121.jpg" alt="" className="plistimg" />
                 <div className="plisttitle">
-                    <h1>Hotels</h1>
-                    <h2>69 hotels</h2>
+                    <h1>1 Bed</h1>
+                    <h2>69 Apartments</h2>
                 </div>
             </div>
 
             <div className="plistItem">
                 <img src="20210710_085154.jpg" alt="" className="plistimg" />
                 <div className="plisttitle">
-                    <h1>Apartments</h1>
+                    <h1>2 Beds</h1>
                     <h2>21 Apartments</h2>
                 </div>
             </div>
@@ -1283,24 +1287,24 @@ const Propertylist= ()=>{
             <div className="plistItem">
                 <img src="20210710_085438.jpg" alt="" className="plistimg" />
                 <div className="plisttitle">
-                    <h1>Motels</h1>
-                    <h2>67 Motels</h2>
+                    <h1>3 Beds</h1>
+                    <h2>67 Apartments</h2>
                 </div>
             </div>
 
             <div className="plistItem">
                 <img src="20210710_085443.jpg" alt="" className="plistimg" />
                 <div className="plisttitle">
-                    <h1>Villas</h1>
-                    <h2>420 Villas</h2>
+                    <h1>4 Beds</h1>
+                    <h2>420 Apartments</h2>
                 </div>
             </div>
 
             <div className="plistItem">
                 <img src="20210710_084619.jpg" alt="" className="plistimg" />
                 <div className="plisttitle">
-                    <h1>Rooms</h1>
-                    <h2>41 Rooms</h2>
+                    <h1>5 Beds</h1>
+                    <h2>41 Apartments</h2>
                 </div>
             </div>
         </div>
@@ -1395,7 +1399,7 @@ Još nam za lakši odabir nedostaje komponenta za najpopularnije apartmane, odno
 import Featuredproperties from "../../components/featuredproperties/featuredproperties";
 
 /* Nakon propetylist-a */
-<h1 className="hometitle">Homes guests love</h1>
+<h1 className="hometitle">Apartments guests love</h1>
 <Featuredproperties></Featuredproperties>
 ```
 U mapu komponents, potrebno je dodati featuredproperties mapu te odgovarajuće .css i .jsx datoteke. Sada je potrebno napisati strukturu featuredproperties-a te ćemo za sad napraviti navigaciju za prvi element koja će klikom na njega voditi na stranicu /hotels/1 na početak stranice:
@@ -1411,9 +1415,9 @@ const Featuredproperties= ()=>{
     return(
         <div className="fp">
             <div className="fpitem" onClick={handleapartman}>
-            <img src="logo192.png" alt="" className="fpimg" />
-            <span className="fpname" >Apartments Ani</span>
-            <span className="fpcity">Dramalj</span>
+            <img src="/20210710_084500.jpg" alt="" className="fpimg" />
+            <span className="fpname">Apartments Ani</span>
+            <span className="fploc">Paviljon 3</span>
             <span className="fpprice">Starting from 120$</span>
             <div className="fprating">
                 <button>9.9</button>
@@ -1422,10 +1426,10 @@ const Featuredproperties= ()=>{
             </div>
 
             <div className="fpitem">
-            <img src="logo192.png" alt="" className="fpimg" />
+            <img src="/20200705_090916.jpg" alt="" className="fpimg" />
             <span className="fpname">Apartments Miku</span>
-            <span className="fpcity">Rijeka</span>
-            <span className="fpprice">Starting from 1$</span>
+            <span className="fploc">Paviljon 2</span>
+            <span className="fpprice">Starting from 41$</span>
             <div className="fprating">
                 <button>9.1</button>
                 <span>Excellent</span>
@@ -1433,9 +1437,9 @@ const Featuredproperties= ()=>{
             </div>
 
             <div className="fpitem">
-            <img src="logo192.png" alt="" className="fpimg" />
+            <img src="/20200705_091411.jpg" alt="" className="fpimg" />
             <span className="fpname">Apartments Krapić</span>
-            <span className="fpcity">Opatija</span>
+            <span className="fploc">Paviljon 1</span>
             <span className="fpprice">Starting from 12000$</span>
             <div className="fprating">
                 <button>10.0</button>
@@ -1444,9 +1448,9 @@ const Featuredproperties= ()=>{
             </div>
 
             <div className="fpitem">
-            <img src="logo192.png" alt="" className="fpimg" />
-            <span className="fpname">Hotel trivago</span>
-            <span className="fpcity">Pitomača</span>
+            <img src="/20200705_091230.jpg" alt="" className="fpimg" />
+            <span className="fpname">Apartmani Jakov</span>
+            <span className="fploc">Paviljon 4</span>
             <span className="fpprice">Starting from 150$</span>
             <div className="fprating">
                 <button>9.5</button>

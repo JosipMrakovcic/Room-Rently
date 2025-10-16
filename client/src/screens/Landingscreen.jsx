@@ -9,10 +9,11 @@ function LandingScreen() {
   return (
     <div className='row landing'>
         <div className='col-md-12'>
-            <h2>Hotel-Rently</h2>
-            <h1>"TESTMERGE"</h1>
+            <h2>Room-Rently</h2>
+            <h1>"Find your perfect stay — from cozy rooms to modern apartments.
+            Simple search and effortless booking with Room-Rently."</h1>
             
-            <button onClick={navigatemain}>Get brawl</button>
+            <button onClick={navigatemain}>Find a Place to Stay</button>
             
 
         </div>

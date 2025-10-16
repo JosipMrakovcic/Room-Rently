@@ -50,14 +50,14 @@ const Header= ({type})=>{
             
             </div>
 
-            {type !== "list" &&<><h1 className="headerTitle">Josipova stranica? Možda ali nema Miku : ( </h1>
-            <p className="headerDesc">noob u fortu</p>
+            {type !== "list" &&<><h1 className="headerTitle">Room-Rently  | Find Your Perfect Apartment or Holiday Stay</h1>
+            <p className="headerDesc">Discover comfortable apartments, rooms, and villas for rent across stunning locations. Easy booking and the best prices — only with Room-Rently.</p>
             <button className="headerBTN">Sign in/Register</button>
 
             <div className="headerSearch">
             <div className="headerSearchItem">
                 {/* ikona*/}
-                <input type="text" placeholder="Where are you going?" className="headerSearchInput" onChange={e=>setdestination(e.target.value)}></input>
+                <input type="text" placeholder="Search by apartment name" className="headerSearchInput" onChange={e=>setdestination(e.target.value)}></input>
             </div>
             <div className="headerSearchItem" >
                 {/* ikona*/}

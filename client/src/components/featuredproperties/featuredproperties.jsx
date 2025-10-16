@@ -9,9 +9,9 @@ const Featuredproperties= ()=>{
     return(
         <div className="fp">
             <div className="fpitem" onClick={handleapartman}>
-            <img src="logo192.png" alt="" className="fpimg" />
-            <span className="fpname" >Apartments Ani</span>
-            <span className="fploc">Dramalj</span>
+            <img src="/20210710_084500.jpg" alt="" className="fpimg" />
+            <span className="fpname">Apartments Ani</span>
+            <span className="fploc">Paviljon 3</span>
             <span className="fpprice">Starting from 120$</span>
             <div className="fprating">
                 <button>9.9</button>
@@ -20,10 +20,10 @@ const Featuredproperties= ()=>{
             </div>
 
             <div className="fpitem">
-            <img src="logo192.png" alt="" className="fpimg" />
+            <img src="/20200705_090916.jpg" alt="" className="fpimg" />
             <span className="fpname">Apartments Miku</span>
-            <span className="fploc">Rijeka</span>
-            <span className="fpprice">Starting from 1$</span>
+            <span className="fploc">Paviljon 2</span>
+            <span className="fpprice">Starting from 41$</span>
             <div className="fprating">
                 <button>9.1</button>
                 <span>Excellent</span>
@@ -31,9 +31,9 @@ const Featuredproperties= ()=>{
             </div>
 
             <div className="fpitem">
-            <img src="logo192.png" alt="" className="fpimg" />
+            <img src="/20200705_091411.jpg" alt="" className="fpimg" />
             <span className="fpname">Apartments Krapić</span>
-            <span className="fploc">Opatija</span>
+            <span className="fploc">Paviljon 1</span>
             <span className="fpprice">Starting from 12000$</span>
             <div className="fprating">
                 <button>10.0</button>
@@ -42,9 +42,9 @@ const Featuredproperties= ()=>{
             </div>
 
             <div className="fpitem">
-            <img src="logo192.png" alt="" className="fpimg" />
-            <span className="fpname">Hotel trivago</span>
-            <span className="fploc">Pitomača</span>
+            <img src="/20200705_091230.jpg" alt="" className="fpimg" />
+            <span className="fpname">Apartmani Jakov</span>
+            <span className="fploc">Paviljon 4</span>
             <span className="fpprice">Starting from 150$</span>
             <div className="fprating">
                 <button>9.5</button>

@@ -20,7 +20,7 @@ const List=  ()=>{
                 <div className="listsearch">
                     <h1 className="lstitle">Search</h1>
                     <div className="lsitem">
-                        <label >Destination</label>
+                        <label >Apartment name</label>
                         <input placeholder={destination} type="text" />
                     </div>
                     <div className="lsitem">

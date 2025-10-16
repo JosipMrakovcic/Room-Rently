@@ -1460,4 +1460,107 @@ const Featuredproperties= ()=>{
 }
 export default Featuredproperties
 ```
-Svaki element(popularni apartman/soba) imati će svoju sliku, ime, lokaciju(broj sobe i sl.), cijenu te ocjenu korisnika s gumbom i opisom ocjene.
+Svaki element(popularni apartman/soba) imati će svoju sliku, ime, lokaciju(broj paviljona i sl.), cijenu te ocjenu korisnika s gumbom i opisom ocjene. Sada je potrebno ovoj komponenti dodati CSS stil:
+```
+.fp {
+  width: 100%;
+  max-width: 1024px;
+  display: flex;
+  flex-wrap: wrap; /* Makes it responsive */
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 auto; /* Center on the page */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.fpitem {
+  flex: 1 1 calc(25% - 24px); /* Four items per row */
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.fpitem:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+.fpimg {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+```
+Isto kao i za propertylist, no sada ćemo umjesto 3 elementa po redu imati dva te će visina slike biti 20 piksela veća.
+```
+.fpname {
+  padding: 10px;
+  font-weight: 700;
+  font-size: 18px;
+  color: #222;
+}
+
+.fploc {
+  padding: 10px;
+  font-weight: 400;
+  font-size: 15px;
+  color: #666;
+}
+
+.fpprice {
+  padding: 10px;
+  font-weight: 500;
+  font-size: 16px;
+  color: #111;
+}
+
+.fprating {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+```
+Za ime apartmana/sobe, lokaciju te cijenu definirani su padding, veličina fonta te debljina i boja. Za ocjenu definiran je padding i gornja margina te su gumbu i spanu centrirane visine. 
+```
+.fprating > button {
+  background-color: #001f54;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  margin-right: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.fprating > button:hover {
+  background-color: #003b8e;
+}
+
+.fprating > span {
+  font-size: 16px;
+  color: #333;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .fpitem {
+    flex: 1 1 calc(50% - 24px);
+  }
+}
+
+@media (max-width: 480px) {
+  .fpitem {
+    flex: 1 1 100%;
+  }
+}
+```
+Gumbovima je definirana pozadinska boja, boja teksta, zakrivljena nevidljiva granica, padding sa svih strana te desna margina. Tekst je podebljan te se pokazivačem miša implicira da se gumb može stisnuti. Kada stavimo miš na gumb, boja gumba također lagano prelazi u svjetliju plavu boju. Također, definirani su veličina fonta te boja za span element. Za manje ekrane, prikazuje se dva odnosno jedan element u svakome redu.

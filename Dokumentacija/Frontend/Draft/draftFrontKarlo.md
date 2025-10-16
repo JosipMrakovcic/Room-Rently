@@ -1460,4 +1460,4 @@ const Featuredproperties= ()=>{
 }
 export default Featuredproperties
 ```
-Svaki element(popularni apartman/soba) imati će svoju sliku, ime, lokaciju(broj sobe i sl.), cijenu te ocjenu korisnika s gumbom te opis ocjene.
+Svaki element(popularni apartman/soba) imati će svoju sliku, ime, lokaciju(broj sobe i sl.), cijenu te ocjenu korisnika s gumbom i opisom ocjene.

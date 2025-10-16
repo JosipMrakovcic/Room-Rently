@@ -381,6 +381,7 @@ import Header from "../../components/header/Header";
 ```
 te u samu strukturu istim načinom kao i za navbar ```<Header></Header>``` ispod odgovarajuće implementacije navbar-a.
 ## Kartice Apartments i Rooms
+Kako bi razlikovali apartmane i sobe, dodali smo kartice Apartments i Rooms. Klikom na Rooms, umjesto apartmana, na stranici će se prikazati sobe.
 Uveo sam CSS u Header.jsx kao i prije naredbom:
 ```
 import "./header.css";
@@ -521,7 +522,7 @@ popraćen CSS-om:
 Odlomak ima svoje gornje i donje margine od 20 piksela te su definirana veličina, debljina i boja fonta kao i visina retka. Gumb je malo svjetlije boje od ostatka zaglavlja te su definirana obilježja fonta. Maknut je obrub, dodan razmak sa svih strana te zakrivljeni oblik granica. Također, implementirane su margine, pokazivač miša te sjena i promjena u malo tamniju boju te pomak prema gore prilikom hover-a.
 
 ## Tražilica
-### Implementacija kostura te input elementa za odabir odredišta
+### Implementacija kostura te input elementa za odabir imena apartmana ili sobe
 Nakon što smo implementirali osnovne stavke, imamo problem implementacije tražilice. Dakle, nakon gumba imamo tražilicu:
 
 ```
@@ -578,7 +579,7 @@ Elementi tražilice imaju razmak oko sebe. Tražilica ima žuti rub koji je mrvi
    white-space: nowrap;
 }
 ```
-Polje za unos željenog odredišta više nema obrub te je definirana boja fiksnog teksta i dodan pokazivač pri prelasku mišem preko njih.
+Polje za unos željenog imena apartmana odnosno sobe više nema obrub te je definirana boja fiksnog teksta i dodan pokazivač pri prelasku mišem preko njih.
 ### Prikaz datuma te kalendara
 Pratio sam youtube [tutorial](https://youtu.be/RkWpJ4XUHuw?si=9tdgdqY7-Q9KxtDY) 
 kako bih instalirao react-date-range paket koji sadrži kvalitetno sučelje za odabir raspona datuma koje
@@ -1074,11 +1075,11 @@ const Header= ({type})=>{
 }
 ```
 Klikom na gumb "Search" mijenja se adresa na /hotels te se šalje odabrano stanje.
-Odredište se mijenja pomoću promjene u kodu za input:
+Ime apartmana ili sobe se mijenja pomoću promjene u kodu za input:
 ```
 <input type="text" placeholder="Where are you going?" className="headerSearchInput" onChange={e=>setdestination(e.target.value)}></input>
 ```
-Nakon svake promjene input-a, destination se postavlja na upisanu vrijednost.
+Nakon svake promjene input-a, destination(ime apartmana/sobe) se postavlja na upisanu vrijednost.
 
 # Izrada featured komponente
 
@@ -1231,7 +1232,7 @@ Slike su širine i visine 100% featureditem containera te prekrivaju cijeli okvi
   }
 }
 ```
-Naslovi se nalaze 20 piksela iznad dna featureditem-a te 20 piksela desno od lijeve granice featureditem-a. Također, nalaze se ispred cijele featured komponente. Naslovi imaju određenu veličinu te debljinu i boju, a glavni naslov mjesta ima i donju marginu od 6 piksela. Na manjim ekranima, svaki featureditem će zauzimati pola odnosno cijelu širinu zaslona, pa će tako u istome redu biti dva odnosno jedan item. Osim toga, određena im je i visina te će na zaslonu širine manje od 480 piksela, glavni naslov koji označava mjesto imati veličinu fonta 18 piksela.
+Naslovi se nalaze 20 piksela iznad dna featureditem-a te 20 piksela desno od lijeve granice featureditem-a. Također, nalaze se ispred cijele featured komponente. Naslovi imaju određenu veličinu te debljinu i boju, a glavni naslov mjesta ima i donju marginu od 6 piksela. Na manjim ekranima, svaki featureditem će zauzimati pola odnosno cijelu širinu zaslona, pa će tako u istome redu biti dva odnosno jedan item. Osim toga, određena im je i visina te će na zaslonu širine manje od 480 piksela, glavni naslov koji označava kategoriju imati veličinu fonta 18 piksela.
 
 # Komponenta propertylist
 
@@ -1389,4 +1390,74 @@ Budući da je visina fiksna, ovdje naslovi neće biti preko nego ispod slike. Na
 
 # Komponenta featuredproperties
 
-Još nam za lakši odabir nedostaje komponenta za najpopularnije apartmane, odnosno sobe.
+Još nam za lakši odabir nedostaje komponenta za najpopularnije apartmane, odnosno sobe. Na glavnu stranicu(u Home.jsx) potrebno je dodati naslov za featuredproperties te komponentu featuredproperties koju još nismo napravili:
+```
+import Featuredproperties from "../../components/featuredproperties/featuredproperties";
+
+/* Nakon propetylist-a */
+<h1 className="hometitle">Homes guests love</h1>
+<Featuredproperties></Featuredproperties>
+```
+U mapu komponents, potrebno je dodati featuredproperties mapu te odgovarajuće .css i .jsx datoteke. Sada je potrebno napisati strukturu featuredproperties-a te ćemo za sad napraviti navigaciju za prvi element koja će klikom na njega voditi na stranicu /hotels/1 na početak stranice:
+```
+import "./featuredproperties.css";
+import { useNavigate } from "react-router-dom";
+const Featuredproperties= ()=>{
+     const navigate = useNavigate()
+    const handleapartman=()=>{
+        navigate("/hotels/1")
+        window.scrollTo(0, 0);
+    }
+    return(
+        <div className="fp">
+            <div className="fpitem" onClick={handleapartman}>
+            <img src="logo192.png" alt="" className="fpimg" />
+            <span className="fpname" >Apartments Ani</span>
+            <span className="fpcity">Dramalj</span>
+            <span className="fpprice">Starting from 120$</span>
+            <div className="fprating">
+                <button>9.9</button>
+                <span>Excellent</span>
+            </div>
+            </div>
+
+            <div className="fpitem">
+            <img src="logo192.png" alt="" className="fpimg" />
+            <span className="fpname">Apartments Miku</span>
+            <span className="fpcity">Rijeka</span>
+            <span className="fpprice">Starting from 1$</span>
+            <div className="fprating">
+                <button>9.1</button>
+                <span>Excellent</span>
+            </div>
+            </div>
+
+            <div className="fpitem">
+            <img src="logo192.png" alt="" className="fpimg" />
+            <span className="fpname">Apartments Krapić</span>
+            <span className="fpcity">Opatija</span>
+            <span className="fpprice">Starting from 12000$</span>
+            <div className="fprating">
+                <button>10.0</button>
+                <span>Excellent</span>
+            </div>
+            </div>
+
+            <div className="fpitem">
+            <img src="logo192.png" alt="" className="fpimg" />
+            <span className="fpname">Hotel trivago</span>
+            <span className="fpcity">Pitomača</span>
+            <span className="fpprice">Starting from 150$</span>
+            <div className="fprating">
+                <button>9.5</button>
+                <span>Excellent</span>
+            </div>
+            </div>
+
+            
+        </div>
+    )
+}
+export default Featuredproperties
+```
+Svaki element(popularni apartman/soba) imati će svoju sliku, ime, lokaciju(broj sobe i sl.), cijenu te ocjenu korisnika s gumbom te opis ocjene.

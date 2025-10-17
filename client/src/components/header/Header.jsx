@@ -51,7 +51,7 @@ const Header= ({type})=>{
             </div>
 
             {type !== "list" &&<><h1 className="headerTitle">Room-Rently  | Find Your Perfect Apartment or Holiday Stay</h1>
-            <p className="headerDesc">Discover comfortable apartments, rooms, and villas for rent across stunning locations. Easy booking and the best prices — only with Room-Rently.</p>
+            <p className="headerDesc">Discover comfortable apartments and rooms for rent across stunning locations. Easy booking and the best prices, only with Room-Rently.</p>
             <button className="headerBTN">Sign in/Register</button>
 
             <div className="headerSearch">

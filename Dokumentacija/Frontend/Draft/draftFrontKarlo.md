@@ -84,7 +84,7 @@ function LandingScreen() {
     <div className='row landing'>
         <div className='col-md-12'>
             <h2>Room-Rently</h2>
-            <h1>"Find your perfect stay — from cozy rooms to modern apartments.
+            <h1>"Find your perfect stay from cozy rooms to modern apartments.
             Simple search and effortless booking with Room-Rently."</h1>
             
             <button onClick={navigatemain}>Find a Place to Stay</button>
@@ -488,7 +488,7 @@ Zasada nepostojeća ikona udaljena je od odgovarajućih opisa (Apartments i Room
 U Header.jsx nakon headerList-a dodan naslov i odlomak te gumb za prijavu ili registraciju:
 ```
 <h1 className="headerTitle">Room-Rently  | Find Your Perfect Apartment or Holiday Stay</h1>
-<p className="headerDesc">Discover comfortable apartments, rooms, and villas for rent across stunning locations. Easy booking and the best prices — only with Room-Rently.</p>
+<p className="headerDesc">Discover comfortable apartments and rooms for rent across stunning locations. Easy booking and the best prices, only with Room-Rently.</p>
 <button className="headerBTN">Sign in/Register</button>
 ```
 popraćen CSS-om:

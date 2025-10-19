@@ -301,6 +301,7 @@ const Navbar= ()=>{
 }
 export default Navbar
 ```
+
 Dakle dodan je blok element div za navigacijsku traku, container koji zaokružuje sve elemente navigacijske trake, liniski element span koji prikazuje ime stranice te div koji sadrži gumbe na registraciju i prijavu. Kao što je već prije objašnjeno, ```useNavigate()``` je hook iz React Routera te se pomoću njega, klikom na naslov stranice, zbog ```onClick={navigatelandingscreen}``` prebacujemo na početnu stranicu.
 
 Izgled navigacijske trake osmišljen je pomoću css-a: 
@@ -375,6 +376,188 @@ Određena je veličina slova teksta imena stranice te kada pređemo mišem preko
 ```
 
 ```.navItems{}``` određuje kako će gumbovi biti raspoređeni u njihovom containeru, dakle vodoravno te na srednjoj visini. ```.navButton{}``` osmišljen je s istim već objašnjenim funkcionalnostima kao i gumb na početnoj stranici. Određene su boje, razmak, veličina fonta, pokazivač miša te margine i obrub. ```:hover``` definira da će prelaskom mišem gumb otići prema gore, a ```:active``` da će se malo smanjiti klikom na njega.
+
+
+# Dodavanje Google prijave u navigacijsku traku
+
+Kako bismo omogućili autentifikaciju korisnika putem Google računa, u komponentu navigacijske trake Navbar.jsx dodan je kod koji koristi biblioteku @react-oauth/google za prijavu i odjavu, te bibliteku axios za dohvat podataka o korisniku.
+Na ovaj način korisnik se može prijaviti pomoću Google računa, a njegovo ime i profilna slika prikazuju se u navigacijskoj traci.
+za instalirati navedene pakete potrebno je unesti ove dvije naredbe u radnom direktoriju:
+``` npm install @react-oauth/google@latest ```
+te
+``` npm install axios ```
+
+Na početku su uvezeni potrebni moduli:
+
+```jsx
+import "./navbar.css";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useGoogleLogin, googleLogout } from "@react-oauth/google";
+import axios from "axios";
+```
+useNavigate je hook iz React Routera koji omogućuje prebacivanje korisnika na drugu rutu u ovom slučaju natrag na početnu stranicu klikom na logotip.
+useState i useEffect su React hookovi za upravljanje lokalnim stanjem i efektima unutar komponente.
+useGoogleLogin i googleLogout dolaze iz biblioteke @react-oauth/google i koriste se za upravljanje procesima prijave i odjave.
+axios je HTTP klijent koji se koristi za dohvat korisničkih podataka s Google-ovog API-ja nakon što korisnik potvrdi prijavu.
+
+```jsx
+ const navigate = useNavigate();
+
+  // ✅ Load saved user from localStorage when the component mounts
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("googleUser");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+```
+Na početku komponente koristi se React Router hook useNavigate() koji omogućuje preusmjeravanje korisnika između različitih ruta unutar aplikacije.
+Pomoću njega kasnije možemo jednostavno, klikom na naziv stranice (logotip), vratiti korisnika na početnu stranicu.
+
+```jsx
+const [user, setUser] = useState(() => {
+  const savedUser = localStorage.getItem("googleUser");
+  return savedUser ? JSON.parse(savedUser) : null;
+});
+```
+Zatim se koristi React hook useState() za stvaranje stanja user koje će čuvati informacije o trenutno prijavljenom korisniku.
+Kako bi se omogućilo da korisnik ostane prijavljen i nakon što osvježi stranicu, početna vrijednost user nije prazna, već se dohvaća iz localStorage-a odsnosno trajna pohrana u pregledniku.
+
+## Google prijava korisnika
+
+Za implementaciju prijave putem Google računa koristi se hook useGoogleLogin() iz biblioteke @react-oauth/google.
+Ovaj hook vraća funkciju login, koja se poziva prilikom klika na gumb “Login with Google”.
+Kod izgleda ovako:
+```jsx
+const login = useGoogleLogin({
+  onSuccess: async (tokenResponse) => {
+    try {
+      const res = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+      });
+
+      setUser(res.data);
+      localStorage.setItem("googleUser", JSON.stringify(res.data)); // persist
+      console.log("User info:", res.data);
+    } catch (err) {
+      console.error("Error fetching user info:", err);
+    }
+  },
+  onError: (error) => console.log("Login Failed:", error),
+});
+```
+Funkcija useGoogleLogin() otvara Googleov prozor za autentifikaciju.
+Nakon što se korisnik uspješno prijavi, Google vraća access_token jedinstveni token koji dokazuje da je korisnik autentificiran.
+
+Zatim se koristi Axios za slanje GET zahtjeva prema Google API-u na adresu
+```https://www.googleapis.com/oauth2/v3/userinfo.```
+Ova adresa vraća osnovne podatke o korisniku (ime, e-mail adresu, profilnu sliku,...), a token se šalje u zaglavlju zahtjeva (Authorization header) u formatu:
+```Authorization: Bearer <access_token>```
+Nakon što Google vrati odgovor res.data sadrži objekt s korisničkim podacima,
+pomoću setUser(res.data) ti se podaci spremaju u trenutno stanje komponente ,
+a pomoću localStorage.setItem("googleUser", JSON.stringify(res.data)) podaci se trajno pohranjuju u preglednik, čime se osigurava da korisnik ostane prijavljen i nakon ponovnog učitavanja stranice.
+
+Ako dođe do greške (npr. korisnik prekine prijavu ili token istekne), poruka o grešci ispisuje se u konzolu pomoću console.log("Login Failed:", error).
+
+## Google odjava korisnika
+
+Za omogućavanje odjave korisnika koristi se funkcija logout, koja kombinira Google logout funkcionalnost, resetiranje lokalnog stanja i brisanje podataka iz preglednika:
+```jsx
+  const logout = () => {
+  googleLogout();
+  setUser(null);
+  localStorage.removeItem("googleUser");
+};
+```
+googleLogout() poziva funkciju iz biblioteke @react-oauth/google, koja briše sesiju korisnika na strani Google-a i efektivno ga odjavljuje.
+setUser(null) resetira stanje user unutar React komponente, čime se u navigacijskoj traci ponovno prikazuje gumb Login with Google umjesto podataka o korisniku.
+localStorage.removeItem("googleUser") uklanja spremljene podatke iz localStorage-a, osiguravajući da se korisnički podaci ne zadrže prilikom navigacije između ruta ili osvježavanja stranice.
+
+Glavni kod kao i prije ostaje:
+```
+const Navbar = () => {
+  //...
+
+const navigatelandingscreen = () => navigate("/");
+
+  return (
+    <div className="navbar">
+      <div className="navContainer">
+        <span className="logo" onClick={navigatelandingscreen}>
+          Room-Rently
+        </span>
+
+        <div className="navItems">
+          {!user ? (
+            <button className="navButton" onClick={() => login()}>
+              Login with Google
+            </button>
+          ) : (
+            <>
+              <img
+                src={user.picture}
+                alt="profile"
+                style={{
+                  width: "35px",
+                  height: "35px",
+                  borderRadius: "50%",
+                  marginRight: "10px",
+                }}
+              />
+              <span>{user.name}</span>
+              <button className="navButton" onClick={logout}>
+                Logout
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+```
+Preskocio sam djelove koje sam sad gore objasnio te sam ih izostavio iz koda kako bi objasnio ostatak nije objašnjen.
+const navigatelandingscreen = () => navigate("/");
+Funkcija navigatelandingscreen koristi React Router hook navigate() za preusmjeravanje korisnika na početnu stranicu (/) kada klikne na logotip.
+!!!KArlo ostatak je objasnjenn kod tebe i sad nisam siguran kako da to uklopimo pa mozda bolje da napises sta mislis za to mozda
+!!! bolje da ubacis tu ono odozgora ili ovaj Google login prebaci gore, nemogu ja pobrisat ovo tvoje pa radije ti preformatiraj !!!jer ces sigurno to bolje
+Dinamički prikaz korisničkih elemenata u navigacijskoj traci
+
+Ovaj blok koda koristi uvjetno renderiranje (!user ? ... : ...) kako bi se sadržaj navigacijske trake prilagodio statusu prijave korisnika:
+```jsx
+{!user ? (
+  <button className="navButton" onClick={() => login()}>
+    Login with Google
+  </button>
+) : (
+  <>
+    <img
+      src={user.picture}
+      alt="profile"
+      style={{
+        width: "35px",
+        height: "35px",
+        borderRadius: "50%",
+        marginRight: "10px",
+      }}
+    />
+    <span>{user.name}</span>
+    <button className="navButton" onClick={logout}>
+      Logout
+    </button>
+  </>
+)}
+export default Navbar;
+```
+Ako korisnik nije prijavljen (!user)
+Prikazuje se gumb „Login with Google“.
+Klikom na gumb poziva se funkcija login(), koja otvara Google prozor za autentifikaciju.
+Inače ako bude prijavljen
+Prikazuje se profilna slika korisnika i ova inline css svojstva:
+Veličina slike je 35x35 px
+Rubovi su zaobljeni ```(borderRadius: "50%")```
+Razmak između slike i imena korisnika ```(marginRight: "10px")```
+Ispisuje se ime korisnika ```(<span>{user.name}</span>)``` koji je dobiven gore iz dohvata sa Google API-ja.
+Prikazuje se gumb za odjavu (Logout), koji poziva funkciju logout() i briše korisničke podatke iz stanja i localStorage-a.
 
 # Izrada zaglavlja
 ## Dodavanje mapi te uvezivanje u Home.jsx

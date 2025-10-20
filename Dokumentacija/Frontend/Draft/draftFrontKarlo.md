@@ -2,27 +2,27 @@
 
 Prvo imamo problem kako započeti projekt.
    Potrebno je bilo kreirati mapu u kojoj će biti sadržan naš projekt. Pozicionirani u nju potrebno je u terminalu upisati naredbu:
-   ```
+   ```bash
    npx create-react-app client
    ```
    gdje client predstavlja ime naše aplikacije.
    Potrebno je pozicionirati se u navedenu mapu client naredbom u terminalu: 
-   ```
+   ```bash
    cd client
    ```
    te kako bi pokrenuli našu aplikaciju glavna naredba za to jest:
-   ```
+   ```bash
    npm start
    ```
    tu naredbu je potrebno učestalo koristiti tijekom debugganja kako bi vidjeli našu aplikaciju.
-   Ako skidamo ovaj projekt, potrebno je prije naredbe ``` npm start ``` upisati naredbu:
-   ```
+   Ako skidamo ovaj projekt, potrebno je prije naredbe ` npm start ` upisati naredbu:
+   ```bash
    npm install
    ```
    Po defaultu naša aplikacija bi trebala biti vidljiva na adresi http://localhost:3000/ ali u terminalu će također biti ispisana adresa za korištenje. Nakon toga potrebno je unesti adresu u bilo koji lokalni browser primjerice Google Chrome.
    Po defaultu dobili smo automatsku instaliranu React frontend stranicu koja ima logo i opis, ali služi isključivo za primjer. Većinu toga je bilo potrebno pobrisati iz predefiniranih template datoteka kako bi mogli napredovati sa svojim idejama.
    Pobrisao sam default HTML-ove iz App.js te testirao tako da napravim par h1 tagova u HTML-u unutar App.js te saveo file nakon čega mi se pojavio h1 tag na Google Chrome-u na lokalnoj stranici.
-   ```
+   ```jsx
    <h1>Test</h1>
    ```
    
@@ -31,13 +31,13 @@ Prvo imamo problem kako započeti projekt.
 Nakon instalacije svega potrebnoga za početak projekta, trebalo je napraviti početnu stranicu.
 
 Instalirao sam react-router-dom pomoću naredbe:
-```
+```bash
    npm i react-router-dom
 ```
 
 te sam zatim u App.js implementirao kod:
 
-```
+```jsx
    import LandingScreen from './screens/Landingscreen';
 
    import{
@@ -71,7 +71,7 @@ Ova komponenta predstavlja početni (landing) ekran aplikacije “Room-Rently”
 Korisniku prikazuje naslov, podnaslov i gumb koji vodi na glavnu stranicu (/main).
 
 ## React komponenta: LandingScreen.jsx
-```
+```jsx
 import React from 'react'
 import './Landingscreen.css';
 import { useNavigate } from "react-router-dom";
@@ -100,15 +100,15 @@ function LandingScreen() {
 
 export default LandingScreen
 ```
-Dakle, ```useNavigate()``` je hook iz React Routera koji omogućava navigaciju između ruta bez reloadanja stranice.
-```navigate("/main")``` preusmjerava korisnika na rutu /main.
-JSX struktura koristi Bootstrap klase (row, col-md-12) za osnovni layout, i custom klasu .landing za stiliziranje pozadine. Klasa ```row``` označava red, a ```col-md-12``` znači da stupac zauzima cijelu širinu(12/12) na ekranima srednje veličine i većim ekranima.
+Dakle, `useNavigate()` je hook iz React Routera koji omogućava navigaciju između ruta bez reloadanja stranice.
+`navigate("/main")` preusmjerava korisnika na rutu /main.
+JSX struktura koristi Bootstrap klase (row, col-md-12) za osnovni layout, i custom klasu `landing` za stiliziranje pozadine. Klasa `row` označava red, a `col-md-12` znači da stupac zauzima cijelu širinu(12/12) na ekranima srednje veličine i većim ekranima.
 Sve animacije i izgled definirani su u Landingscreen.css-u.
 
 ## CSS stilovi: Landingscreen.css
 ### Pozadina i osnovni layout
 
-```
+```css
 .landing {
   height: 100vh; /* Puni ekran po visini */
   width: 100%;
@@ -127,7 +127,7 @@ Kreira fullscreen gradient pozadinu s plavo ljubičastim tonovima.
 Koristi se Flexbox za centriranje sadržaja po sredini ekrana te ulaznu animaciju odnosno fadeIn za efekt postepenog pojavljivanja.
 
 ### Efekt lebdećeg svjetla u pozadini postignut CSS-om
-```
+```css
 .landing::before {
   content: "";
   position: absolute;
@@ -140,15 +140,15 @@ Koristi se Flexbox za centriranje sadržaja po sredini ekrana te ulaznu animacij
   z-index: 0;
 }
 ```
-Koristi se pseudo element ```::before``` da doda prozirni sloj svjetla te radial-gradient stvara svjetlosni krug koji se polako rotira pomoću:
-```
+Koristi se pseudo element `::before` da doda prozirni sloj svjetla te radial-gradient stvara svjetlosni krug koji se polako rotira pomoću:
+```css
 @keyframes rotateBackground {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 ```
 ### Tekstualni elementi
-```
+```css
 .landing h2 {
   font-size: 3rem;
   letter-spacing: 2px;
@@ -169,7 +169,7 @@ Koristi se pseudo element ```::before``` da doda prozirni sloj svjetla te radial
 h1 ima animaciju fadeInUp, lagano izlazi odozdo te h2 ima animaciju slidedown spuštanja s vrha.
 
 ### Animacije
-```
+```css
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-30px); }
   to { opacity: 1; transform: translateY(0); }
@@ -181,15 +181,15 @@ h1 ima animaciju fadeInUp, lagano izlazi odozdo te h2 ima animaciju slidedown sp
 }
 ```
 Objašnjenje animacija:
-```from``` je početak animacije te nakon toga
-```opacity: 0``` znači da je element potpuno nevidljiv.
-```transform: translateY(-30px)``` nam zatim govori da je pomaknut 30px prema gore izvan svoje normalne pozicije.
-```to``` označava kraj animacije:
-```opacity: 1``` odnosno element postaje potpuno vidljiv te se pomoću
-```transform: translateY(0)``` vraća se svoju početnu poziciju.
+`from` je početak animacije te nakon toga
+`opacity: 0` znači da je element potpuno nevidljiv.
+`transform: translateY(-30px)` nam zatim govori da je pomaknut 30px prema gore izvan svoje normalne pozicije.
+`to` označava kraj animacije:
+`opacity: 1` odnosno element postaje potpuno vidljiv te se pomoću
+`transform: translateY(0)` vraća se svoju početnu poziciju.
 Dakle, postepeno element ide prema dolje(ili gore u slučaju fadeInUp) i postaje vidljiv.
 ### Gumb (“Find a Place to Stay”)
-```
+```css
 .landing button {
   background: linear-gradient(90deg, #ffb347 0%, #ffcc33 100%);
   color: #2b2b2b;
@@ -210,10 +210,10 @@ Dakle, postepeno element ide prema dolje(ili gore u slučaju fadeInUp) i postaje
 }
 ```
 Koristi gradijentnu pozadinu u žuto-narančastim tonovima te ima zaobljene rubove i sjenu za 3D efekt.
-```::hover``` dodaje efekt izbočenja, a fadeIn animacija na gumb se pojavi postepeno s lakoćom(glatko) te ostane na mjestu nakon završetka animacije.
+`::hover` dodaje efekt izbočenja, a fadeIn animacija na gumb se pojavi postepeno s lakoćom(glatko) te ostane na mjestu nakon završetka animacije.
 
 ### Responzivnost
- ```
+ ```css
 @media (max-width: 768px) {
   .landing h2 {
     font-size: 2.2rem;
@@ -238,7 +238,7 @@ Osim početne stranice potrebno je napraviti i druge stranice koje će nam biti 
 U mapi src stvorio sam novu mapu pages te u njoj mape home, list i hotel.
 U njima sam napravio odgovarajuće .jsx i .css datoteke, pa sam tako za home napravio Home.jsx i home.css te isto i za druge mape.
 Pomoću ekstenzije "ES7+ React/Redux/React-Native snippets" za vscode, automatskom nadopunom koda, samim upisom "rafce" u Home.jsx dobio sam slijedeći predložak koda:
-```
+```jsx
    import React from 'react'
    const Home= ()=>{
       return(
@@ -252,13 +252,13 @@ Pomoću ekstenzije "ES7+ React/Redux/React-Native snippets" za vscode, automatsk
 
 koji na stranici prikazuje samo riječ Home.
 Zatim sam isto napravio i za List.jsx i Hotel.jsx te sam u App.js dodao rute:
-```
+```jsx
    import Home from './pages/home/Home';
    import List from './pages/list/List';
    import Hotel from './pages/hotel/Hotel';
 ```
 te u samu funkciju:
-```
+```jsx
    <Route path="/main" element={<Home></Home>}></Route>
    <Route path="/hotels" element={<List/>}></Route>
    <Route path="/hotels/:id" element={<Hotel/>}></Route>
@@ -266,20 +266,20 @@ te u samu funkciju:
 kako bi se dodavanjem puteva(path) na adresu http://localhost:3000/ prikazivale sve tri nove stranice.
 
 Pobrisao sam import React from 'react' iz svih datoteka jer nam to nije potrebno te sam umjesto toga povezao sve .jsx datoteke s njihovim odgovarajućim .css datotekama kako bi te stranice dobile nekakav izgled. Primjer koda u Home.jsx:
-```   
+```jsx   
    import "./home.css"; 
 ```
 
 # Dodavanje navigacijske trake
 
 U src mapu dodao sam mapu components te u njoj mapu navbar s odgovarajućim .jsx i .css datotekama te napravio isti template kao i za rute u mapi pages.
-U Home.jsx sam umjesto same riječi Home stavio ```<Navbar></Navbar>``` koja sad pokazuje komponentu navigacijse trake te je bilo potrebno prenijeti tu navigacijsku traku iz komponenti pomoću putanje naredbom: 
-```
+U Home.jsx sam umjesto same riječi Home stavio `<Navbar></Navbar>` koja sad pokazuje komponentu navigacijse trake te je bilo potrebno prenijeti tu navigacijsku traku iz komponenti pomoću putanje naredbom: 
+```jsx
    import Navbar from "../../components/navbar/navbar";
 ``` 
 
-U Navbar.jsx pod return dodao sam samu strukturu navigacijske trake koja nalikuje na HTML kod s time da se imena klasa označavaju s ```className="imeKlase"```:
-```
+U Navbar.jsx pod return dodao sam samu strukturu navigacijske trake koja nalikuje na HTML kod s time da se imena klasa označavaju s `className="imeKlase"`:
+```jsx
 import "./navbar.css";
 import { useNavigate } from "react-router-dom";
 const Navbar= ()=>{
@@ -302,10 +302,10 @@ const Navbar= ()=>{
 export default Navbar
 ```
 
-Dakle dodan je blok element div za navigacijsku traku, container koji zaokružuje sve elemente navigacijske trake, liniski element span koji prikazuje ime stranice te div koji sadrži gumbe na registraciju i prijavu. Kao što je već prije objašnjeno, ```useNavigate()``` je hook iz React Routera te se pomoću njega, klikom na naslov stranice, zbog ```onClick={navigatelandingscreen}``` prebacujemo na početnu stranicu.
+Dakle dodan je blok element div za navigacijsku traku, container koji zaokružuje sve elemente navigacijske trake, liniski element span koji prikazuje ime stranice te div koji sadrži gumbe na registraciju i prijavu. Kao što je već prije objašnjeno, `useNavigate()` je hook iz React Routera te se pomoću njega, klikom na naslov stranice, zbog `onClick={navigatelandingscreen}` prebacujemo na početnu stranicu.
 
 Izgled navigacijske trake osmišljen je pomoću css-a: 
-```
+```css
    .navbar {
    height: 60px;
    background: linear-gradient(90deg, #0077ff, #00c6ff);
@@ -327,9 +327,9 @@ Izgled navigacijske trake osmišljen je pomoću css-a:
    padding: 0 20px;
    }
 ```
-```.navbar{}``` određuje gdje će se nalaziti navContainer te koliko će velik biti navbar, koje boje, na kojoj poziciji u odnosu na vrh stranice te pozicijom sticky ostavljamo navigacijsku traku uvijek na vrhu bez obzira pomičemo li se prema dnu stranice. Tu nam još pomaže z-index koji nam govori da navigacijska traka mora biti ispred drugih elemenata jer ima veći z-index. Veličina navContainera je 100% širine stranice, no ograničena je na maksimalnu širinu od 1100 piksela. Boja slova je bijela te su elementi containera pozicionirani tako da između imaju prazan prostor. Dakle naziv stranice je na krajnje lijevoj poziciji te su gumbi na krajnje desnoj poziciji s time da postoji i razmak lijevo i desno od 20 piksela od granica containera i njegovog sadržaja.
+`.navbar{}` određuje gdje će se nalaziti navContainer te koliko će velik biti navbar, koje boje, na kojoj poziciji u odnosu na vrh stranice te pozicijom sticky ostavljamo navigacijsku traku uvijek na vrhu bez obzira pomičemo li se prema dnu stranice. Tu nam još pomaže z-index koji nam govori da navigacijska traka mora biti ispred drugih elemenata jer ima veći z-index. Veličina navContainera je 100% širine stranice, no ograničena je na maksimalnu širinu od 1100 piksela. Boja slova je bijela te su elementi containera pozicionirani tako da između imaju prazan prostor. Dakle naziv stranice je na krajnje lijevoj poziciji te su gumbi na krajnje desnoj poziciji s time da postoji i razmak lijevo i desno od 20 piksela od granica containera i njegovog sadržaja.
 
-```
+```css
 .logo {
   font-weight: 600;
   font-size: 1.5rem;
@@ -343,9 +343,9 @@ Izgled navigacijske trake osmišljen je pomoću css-a:
   color: #e0f7ff;
 }
 ```
-Određena je veličina slova teksta imena stranice te kada pređemo mišem preko njega, strelica se pretvori u oblik pokazivača što nam daje do znanja da se može kliknuti na njega. Također, ```:hover``` definira povećanje teksta te boju naslova prelaskom mišem, dok je u ```.logo{}``` definirano koliko dugo će trebati da se postigne to povećanje.
+Određena je veličina slova teksta imena stranice te kada pređemo mišem preko njega, strelica se pretvori u oblik pokazivača što nam daje do znanja da se može kliknuti na njega. Također, `:hover` definira povećanje teksta te boju naslova prelaskom mišem, dok je u `.logo{}` definirano koliko dugo će trebati da se postigne to povećanje.
 
-```
+```css
 .navItems {
   display: flex;
   align-items: center;
@@ -375,56 +375,46 @@ Određena je veličina slova teksta imena stranice te kada pređemo mišem preko
 }
 ```
 
-```.navItems{}``` određuje kako će gumbovi biti raspoređeni u njihovom containeru, dakle vodoravno te na srednjoj visini. ```.navButton{}``` osmišljen je s istim već objašnjenim funkcionalnostima kao i gumb na početnoj stranici. Određene su boje, razmak, veličina fonta, pokazivač miša te margine i obrub. ```:hover``` definira da će prelaskom mišem gumb otići prema gore, a ```:active``` da će se malo smanjiti klikom na njega.
+`.navItems{}` određuje kako će gumbovi biti raspoređeni u njihovom containeru, dakle vodoravno te na srednjoj visini. `.navButton{}` osmišljen je s istim već objašnjenim funkcionalnostima kao i gumb na početnoj stranici. Određene su boje, razmak, veličina fonta, pokazivač miša te margine i obrub. `:hover` definira da će prelaskom mišem gumb otići prema gore, a `:active` da će se malo smanjiti klikom na njega.
 
 
-# Dodavanje Google prijave u navigacijsku traku
+## Dodavanje Google prijave u navigacijsku traku
 
-Kako bismo omogućili autentifikaciju korisnika putem Google računa, u komponentu navigacijske trake Navbar.jsx dodan je kod koji koristi biblioteku @react-oauth/google za prijavu i odjavu, te bibliteku axios za dohvat podataka o korisniku.
+Kako bismo omogućili autentifikaciju korisnika putem Google računa, u komponentu navigacijske trake Navbar.jsx dodan je kod koji koristi biblioteku `@react-oauth/google` za prijavu i odjavu, te bibliteku `axios` za dohvat podataka o korisniku.
 Na ovaj način korisnik se može prijaviti pomoću Google računa, a njegovo ime i profilna slika prikazuju se u navigacijskoj traci.
 za instalirati navedene pakete potrebno je unesti ove dvije naredbe u radnom direktoriju:
-``` npm install @react-oauth/google@latest ```
+```bash
+npm install @react-oauth/google@latest 
+```
 te
-``` npm install axios ```
+```bash
+npm install axios 
+```
 
 Na početku su uvezeni potrebni moduli:
 
 ```jsx
-import "./navbar.css";
-import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useGoogleLogin, googleLogout } from "@react-oauth/google";
 import axios from "axios";
 ```
-useNavigate je hook iz React Routera koji omogućuje prebacivanje korisnika na drugu rutu u ovom slučaju natrag na početnu stranicu klikom na logotip.
-useState i useEffect su React hookovi za upravljanje lokalnim stanjem i efektima unutar komponente.
-useGoogleLogin i googleLogout dolaze iz biblioteke @react-oauth/google i koriste se za upravljanje procesima prijave i odjave.
-axios je HTTP klijent koji se koristi za dohvat korisničkih podataka s Google-ovog API-ja nakon što korisnik potvrdi prijavu.
+`useState` i `useEffect` su React hookovi za upravljanje lokalnim stanjem i efektima unutar komponente.
+`useGoogleLogin` i `googleLogout` dolaze iz biblioteke `@react-oauth/google` i koriste se za upravljanje procesima prijave i odjave.
+`axios` je HTTP klijent koji se koristi za dohvat korisničkih podataka s Google-ovog API-ja nakon što korisnik potvrdi prijavu.
 
 ```jsx
- const navigate = useNavigate();
-
-  // ✅ Load saved user from localStorage when the component mounts
+  // LOadanje usera iz local storeagea
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("googleUser");
     return savedUser ? JSON.parse(savedUser) : null;
   });
 ```
-Na početku komponente koristi se React Router hook useNavigate() koji omogućuje preusmjeravanje korisnika između različitih ruta unutar aplikacije.
-Pomoću njega kasnije možemo jednostavno, klikom na naziv stranice (logotip), vratiti korisnika na početnu stranicu.
-
-```jsx
-const [user, setUser] = useState(() => {
-  const savedUser = localStorage.getItem("googleUser");
-  return savedUser ? JSON.parse(savedUser) : null;
-});
-```
-Zatim se koristi React hook useState() za stvaranje stanja user koje će čuvati informacije o trenutno prijavljenom korisniku.
+Zatim se koristi React hook `useState()` za stvaranje stanja user koje će čuvati informacije o trenutno prijavljenom korisniku.
 Kako bi se omogućilo da korisnik ostane prijavljen i nakon što osvježi stranicu, početna vrijednost user nije prazna, već se dohvaća iz localStorage-a odsnosno trajna pohrana u pregledniku.
 
-## Google prijava korisnika
+### Google prijava korisnika
 
-Za implementaciju prijave putem Google računa koristi se hook useGoogleLogin() iz biblioteke @react-oauth/google.
+Za implementaciju prijave putem Google računa koristi se hook `useGoogleLogin()` iz biblioteke `@react-oauth/google`.
 Ovaj hook vraća funkciju login, koja se poziva prilikom klika na gumb “Login with Google”.
 Kod izgleda ovako:
 ```jsx
@@ -445,20 +435,18 @@ const login = useGoogleLogin({
   onError: (error) => console.log("Login Failed:", error),
 });
 ```
-Funkcija useGoogleLogin() otvara Googleov prozor za autentifikaciju.
+Funkcija `useGoogleLogin()` otvara Googleov prozor za autentifikaciju.
 Nakon što se korisnik uspješno prijavi, Google vraća access_token jedinstveni token koji dokazuje da je korisnik autentificiran.
 
-Zatim se koristi Axios za slanje GET zahtjeva prema Google API-u na adresu
-```https://www.googleapis.com/oauth2/v3/userinfo.```
+Zatim se koristi Axios za slanje GET zahtjeva prema Google API-u na [adresu](https://www.googleapis.com/oauth2/v3/userinfo).
 Ova adresa vraća osnovne podatke o korisniku (ime, e-mail adresu, profilnu sliku,...), a token se šalje u zaglavlju zahtjeva (Authorization header) u formatu:
-```Authorization: Bearer <access_token>```
+`Authorization: Bearer <access_token>`
 Nakon što Google vrati odgovor res.data sadrži objekt s korisničkim podacima,
-pomoću setUser(res.data) ti se podaci spremaju u trenutno stanje komponente ,
-a pomoću localStorage.setItem("googleUser", JSON.stringify(res.data)) podaci se trajno pohranjuju u preglednik, čime se osigurava da korisnik ostane prijavljen i nakon ponovnog učitavanja stranice.
+pomoću `setUser(res.data)` ti se podaci spremaju u trenutno stanje komponente, a pomoću `localStorage.setItem("googleUser", JSON.stringify(res.data))` podaci se trajno pohranjuju u preglednik, čime se osigurava da korisnik ostane prijavljen i nakon ponovnog učitavanja stranice.
 
-Ako dođe do greške (npr. korisnik prekine prijavu ili token istekne), poruka o grešci ispisuje se u konzolu pomoću console.log("Login Failed:", error).
+Ako dođe do greške (npr. korisnik prekine prijavu ili token istekne), poruka o grešci ispisuje se u konzolu pomoću `console.log("Login Failed:", error)`.
 
-## Google odjava korisnika
+### Google odjava korisnika
 
 Za omogućavanje odjave korisnika koristi se funkcija logout, koja kombinira Google logout funkcionalnost, resetiranje lokalnog stanja i brisanje podataka iz preglednika:
 ```jsx
@@ -468,113 +456,59 @@ Za omogućavanje odjave korisnika koristi se funkcija logout, koja kombinira Goo
   localStorage.removeItem("googleUser");
 };
 ```
-googleLogout() poziva funkciju iz biblioteke @react-oauth/google, koja briše sesiju korisnika na strani Google-a i efektivno ga odjavljuje.
-setUser(null) resetira stanje user unutar React komponente, čime se u navigacijskoj traci ponovno prikazuje gumb Login with Google umjesto podataka o korisniku.
-localStorage.removeItem("googleUser") uklanja spremljene podatke iz localStorage-a, osiguravajući da se korisnički podaci ne zadrže prilikom navigacije između ruta ili osvježavanja stranice.
+`googleLogout()` poziva funkciju iz biblioteke `@react-oauth/google`, koja briše sesiju korisnika na strani Google-a i efektivno ga odjavljuje.
+`setUser(null)` resetira stanje user-a unutar React komponente, čime se u navigacijskoj traci ponovno prikazuje gumb Login with Google umjesto podataka o korisniku.
+`localStorage.removeItem("googleUser")` uklanja spremljene podatke iz localStorage-a, osiguravajući da se korisnički podaci ne zadrže prilikom navigacije između ruta ili osvježavanja stranice.
 
-Glavni kod kao i prije ostaje:
-```
-const Navbar = () => {
-  //...
+### Dinamički prikaz korisničkih elemenata u navigacijskoj traci
 
-const navigatelandingscreen = () => navigate("/");
-
-  return (
-    <div className="navbar">
-      <div className="navContainer">
-        <span className="logo" onClick={navigatelandingscreen}>
-          Room-Rently
-        </span>
-
-        <div className="navItems">
-          {!user ? (
-            <button className="navButton" onClick={() => login()}>
-              Login with Google
-            </button>
-          ) : (
-            <>
-              <img
-                src={user.picture}
-                alt="profile"
-                style={{
-                  width: "35px",
-                  height: "35px",
-                  borderRadius: "50%",
-                  marginRight: "10px",
-                }}
-              />
-              <span>{user.name}</span>
-              <button className="navButton" onClick={logout}>
-                Logout
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-```
-Preskocio sam djelove koje sam sad gore objasnio te sam ih izostavio iz koda kako bi objasnio ostatak nije objašnjen.
-const navigatelandingscreen = () => navigate("/");
-Funkcija navigatelandingscreen koristi React Router hook navigate() za preusmjeravanje korisnika na početnu stranicu (/) kada klikne na logotip.
-!!!KArlo ostatak je objasnjenn kod tebe i sad nisam siguran kako da to uklopimo pa mozda bolje da napises sta mislis za to mozda
-!!! bolje da ubacis tu ono odozgora ili ovaj Google login prebaci gore, nemogu ja pobrisat ovo tvoje pa radije ti preformatiraj !!!jer ces sigurno to bolje
-Dinamički prikaz korisničkih elemenata u navigacijskoj traci
-
-Ovaj blok koda koristi uvjetno renderiranje (!user ? ... : ...) kako bi se sadržaj navigacijske trake prilagodio statusu prijave korisnika:
+Ovaj blok koda koji je zamijenio statički div element klase navItems koristi uvjetno renderiranje `(!user ? ... : ...)` kako bi se sadržaj navigacijske trake prilagodio statusu prijave korisnika:
 ```jsx
-{!user ? (
-  <button className="navButton" onClick={() => login()}>
-    Login with Google
-  </button>
-) : (
-  <>
-    <img
-      src={user.picture}
-      alt="profile"
-      style={{
-        width: "35px",
-        height: "35px",
-        borderRadius: "50%",
-        marginRight: "10px",
-      }}
-    />
-    <span>{user.name}</span>
-    <button className="navButton" onClick={logout}>
-      Logout
+<div className="navItems">
+  {!user ? (
+    <button className="navButton" onClick={() => login()}>
+      Login with Google
     </button>
-  </>
-)}
-export default Navbar;
+  ) : (
+    <>
+      <img
+        src={user.picture}
+        alt="profile"
+        style={{
+          width: "35px",
+          height: "35px",
+          borderRadius: "50%",
+          marginRight: "10px",
+        }}
+      />
+      <span>{user.name}</span>
+      <button className="navButton" onClick={logout}>
+        Logout
+      </button>
+    </>
+  )}
+</div>
 ```
-Ako korisnik nije prijavljen (!user)
-Prikazuje se gumb „Login with Google“.
-Klikom na gumb poziva se funkcija login(), koja otvara Google prozor za autentifikaciju.
-Inače ako bude prijavljen
-Prikazuje se profilna slika korisnika i ova inline css svojstva:
-Veličina slike je 35x35 px
-Rubovi su zaobljeni ```(borderRadius: "50%")```
-Razmak između slike i imena korisnika ```(marginRight: "10px")```
-Ispisuje se ime korisnika ```(<span>{user.name}</span>)``` koji je dobiven gore iz dohvata sa Google API-ja.
-Prikazuje se gumb za odjavu (Logout), koji poziva funkciju logout() i briše korisničke podatke iz stanja i localStorage-a.
+Ako korisnik nije prijavljen (`!user`), prikazuje se gumb „Login with Google“.
+Klikom na gumb poziva se funkcija `login()`, koja otvara Google prozor za autentifikaciju.
+Inače, ako je prijavljen, prikazuje se profilna slika korisnika i ova inline css svojstva: veličina slike je 35x35 piksela, rubovi su zaobljeni `(borderRadius: "50%")`, razmak između slike i imena korisnika je `(marginRight: "10px")`, ispisuje se ime korisnika `(<span>{user.name}</span>)` koji je dobiven gore iz dohvata sa Google API-ja te se prikazuje gumb za odjavu (Logout), koji poziva funkciju `logout()` i briše korisničke podatke iz stanja i localStorage-a.
 
 # Izrada zaglavlja
 ## Dodavanje mapi te uvezivanje u Home.jsx
 
 Pod mapu components dodao sam mapu header s odgovarajućim .css i .jsx datotekama. Kao svaku komponentu dodao sam Header u Home.jsx pomoću import naredbe:
-```
+```jsx
 import Header from "../../components/header/Header";
 ```
-te u samu strukturu istim načinom kao i za navbar ```<Header></Header>``` ispod odgovarajuće implementacije navbar-a.
+te u samu strukturu istim načinom kao i za navbar `<Header></Header>` ispod odgovarajuće implementacije navbar-a.
 ## Kartice Apartments i Rooms
 Kako bi razlikovali apartmane i sobe, dodali smo kartice Apartments i Rooms. Klikom na Rooms, umjesto apartmana, na stranici će se prikazati sobe.
 Uveo sam CSS u Header.jsx kao i prije naredbom:
-```
+```jsx
 import "./header.css";
 ```
 te naslove Apartments i Rooms koji zasad nemaju ikone, ali se mogu dodati umjesto komentara "ikona" ako bude potrebno. Također, apartmane sam označio kao trenutno aktivne te sam im prema tome dodao CSS stil.
-```
+```jsx
 const Header= ()=>{
    return(
       <div className="header">
@@ -596,7 +530,7 @@ const Header= ()=>{
 export default Header
 ```
 Sada imamo problem da zaglavlje ne liči na ništa. Potrebno je pozabaviti se CSS-om.
-```
+```css
 .header {
   background: linear-gradient(135deg, #003580, #004a99);
   color: white;
@@ -609,7 +543,7 @@ Sada imamo problem da zaglavlje ne liči na ništa. Potrebno je pozabaviti se CS
 }
 ```
 Ovdje je implementirana pozadinska boja te boja teksta. Zatim raspored elemenata je linijski na centru linije. Također definiran je razmak od 40 pixela lijevo i desno od elementa, sjena te relativna pozicija.
-```
+```css
 .headerContainer {
   width: 100%;
   max-width: 1024px;
@@ -623,7 +557,7 @@ Ovdje je implementirana pozadinska boja te boja teksta. Zatim raspored elemenata
 }
 ```
 Širina je napravljena na isti način kao i kod navigacijske trake, a text je poravnat u sredinu te container ima doljnju marginu od 5 piksela.
-```
+```css
 .headerList {
   display: flex;
   justify-content: center;
@@ -632,7 +566,7 @@ Ovdje je implementirana pozadinska boja te boja teksta. Zatim raspored elemenata
 }
 ```
 Elementi apartmana i soba poravnati su u sredinu te su poredani slijedno po liniji s razmakom od 80 piksela.
-```
+```css
 .headerListItem {
   display: flex;
   flex-direction: column;
@@ -669,13 +603,13 @@ Zasada nepostojeća ikona udaljena je od odgovarajućih opisa (Apartments i Room
 
 ## Naslov, odlomak te gumb
 U Header.jsx nakon headerList-a dodan naslov i odlomak te gumb za prijavu ili registraciju:
-```
+```jsx
 <h1 className="headerTitle">Room-Rently  | Find Your Perfect Apartment or Holiday Stay</h1>
 <p className="headerDesc">Discover comfortable apartments and rooms for rent across stunning locations. Easy booking and the best prices, only with Room-Rently.</p>
 <button className="headerBTN">Sign in/Register</button>
 ```
 popraćen CSS-om:
-```
+```css
 .headerDesc {
     margin: 20px 0;
     font-size: 1.2rem;          /* Slightly bigger for readability */
@@ -712,7 +646,7 @@ Odlomak ima svoje gornje i donje margine od 20 piksela te su definirana veličin
 ### Implementacija kostura te input elementa za odabir imena apartmana ili sobe
 Nakon što smo implementirali osnovne stavke, imamo problem implementacije tražilice. Dakle, nakon gumba imamo tražilicu:
 
-```
+```jsx
 <div className="headerSearch">
    <div className="headerSearchItem">
       {/* ikona*/}
@@ -733,7 +667,7 @@ Nakon što smo implementirali osnovne stavke, imamo problem implementacije traž
 </div>
 ```
 Ona trenutno ima fiksne tekstove no poslije ćemo to promijeniti. Sada je potrebno promijeniti izgled tražilici u CSS-u:
-```
+```css
 .headerSearch{
    height: 50px;
   background-color: white;
@@ -751,7 +685,7 @@ Ona trenutno ima fiksne tekstove no poslije ćemo to promijeniti. Sada je potreb
 }
 ```
 Elementi tražilice imaju razmak oko sebe. Tražilica ima žuti rub koji je mrvicu zakrivljen te je tražilica pomaknuta 30 piksela na dolje u odnosu na zaglavlje i ima širinu istu kao i zaglavlje.
-```
+```css
 .headerSearchInput{
     border: none;
     outline: none;
@@ -773,12 +707,12 @@ kako bih instalirao react-date-range paket koji sadrži kvalitetno sučelje za o
 će nam koristiti prilikom odabira termina u aplikaciji.
 23 minute 46 sekundi je vrijeme u videozapisu kada se objasni instalacija paketa.
 Instalacija paketa dobije se naredbom u terminalu :
-``` 
+```bash
 npm install react-date-range
 ```
 
 S ove [stranice](https://hypeserver.github.io/react-date-range/) iz odjeljka "DateRange" preuzeo sam kod koji se prikaže klikom na "VIEW CODE". Kod sam mrvicu promijenio tako što sam umjesto state hooka stavio date hook te sam uveo DateRange:
-```
+```jsx
 import { useState } from "react";
 import {DateRange} from 'react-date-range';
 const [date, setDate] = useState([
@@ -796,32 +730,32 @@ const [date, setDate] = useState([
    ranges={date}
 />
 ```
-Importovi su normalno gdje i svi importovi na vrhu datoteke, konstantu sam stavio u const Header prije returna, a ```<Daterange.../>``` nakon span elementa "date to date". Ovaj kod služi za kalendar u kojemu se može birati otkad do kad želimo rezervirati sobu.
+Importovi su normalno gdje i svi importovi na vrhu datoteke, konstantu sam stavio u const Header prije returna, a `<Daterange.../>` nakon span elementa "date to date". Ovaj kod služi za kalendar u kojemu se može birati otkad do kad želimo rezervirati sobu.
 Nakon toga da bi sve radilo, bilo je potrebno preko terminala instalirati biblioteku date-fns za formatiranje datuma pomoću naredbe:
-```
+```bash
    npm i date-fns
 ```
 No korištenjem naredbe naišao sam na 
 problem korištenja react-date-range packagea.
 Naime, verzija paketa nije bila kompatibilna te je 
 rješenje bilo unesti ove dvije naredbe koje su prepravile problem kompatibilnosti verzija
-```
+```bash
 npm uninstall date-fns
 npm install date-fns@^3.0.0
 ```
 
 Biblioteku sam uveo u kod pomoću importova:
-```
+```jsx
 import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
 import {format} from  'date-fns'; // string format
 ```
-Da bi to lijepo izgledao dodao sam klasu pod ```<DateRange.../>```:
-```
+Da bi to lijepo izgledao dodao sam klasu pod `<DateRange.../>`:
+```jsx
    className="date"
 ```
 i u CSS-u:
-```
+```css
 /* Date Picker - Desktop */
 .date {
   position: absolute;
@@ -834,17 +768,17 @@ i u CSS-u:
 ```
 Sada se biranje datuma nalazi ispod samog span elementa te ispred pozadine.
 
-Dolazimo do problema dinamičkog prikazivanja datuma. Umjesto ```endDate: null,``` treba nam pravi datum ```endDate: new Date(),```. Statički tekst "date to date" izbacujemo te formatiramo dinamički prikaz datuma:
-```
+Dolazimo do problema dinamičkog prikazivanja datuma. Umjesto `endDate: null,` treba nam pravi datum `endDate: new Date(),`. Statički tekst "date to date" izbacujemo te formatiramo dinamički prikaz datuma:
+```jsx
 {`${format(date[0].startDate,"dd/MM/yyyy")} to ${format(date[0].endDate,"dd/MM/yyyy")}`}
 ```
 koji su prije odabira jednaki. 
 Nedostaje nam skrivanje kalendara. Na početku kalendar treba biti sakriven što znači da moramo dodati hook u const Header:
-```
+```jsx
 const [opendate,setOpendate] = useState(false)
 ```
 Zatim je potrebna izmjena koda:
-```
+```jsx
 {opendate && <DateRange
    editableDateInputs={true}
    onChange={item => setDate([item.selection])}
@@ -855,14 +789,14 @@ Zatim je potrebna izmjena koda:
 ```
 Ovo znači da tek kada je opendate istinit, onda se otvara kalendar.
 Span elementu prikaza odabranih datuma dodan je event handler:
-```
+```jsx
 onClick={()=>setOpendate(!opendate)}
 ```
 Dakle, kada kliknemo na span element, ako je kalendar sakriven onda se prikaže i obrnuto.
 ### Broj osoba i soba
 #### Funkcionalnost dinamičkog odabira broja osoba i soba
 Sada treba i dinamički odabrati osobe te broj soba. Na početku, izbornik nije otvoren te se pretpostavlja da mora biti odabrana barem jedna odrasla osoba te jedna soba. 
-```
+```jsx
 const [openOptions, setopenOptions] = useState(false);
 const [options, setoptions] = useState({
    adult:1,
@@ -871,15 +805,15 @@ const [options, setoptions] = useState({
 })
 ```
 Umjesto fiksnog teksta, potrebno je formatirati dinamički:
-```
+```jsx
 {`${options.adult} adult - ${options.children} children - ${options.room} room`}
 ```
 te ćemo definirati isto ponašanje za prikazivanje i skrivanje izbornika klikom na span element kao i kod kalendara:
-```
+```jsx
 onClick={()=>setopenOptions(!openOptions)}
 ```
 Sada napokon moramo dodati izbornik za biranje broja osoba te soba nakon span elementa:
-```
+```jsx
 {openOptions&&<div className="options">
    <div className="optionitem">
       <span className="optiontext">Adult</span>
@@ -921,7 +855,7 @@ Sada napokon moramo dodati izbornik za biranje broja osoba te soba nakon span el
 ```
 Imamo gumbove koji imaju disabled ponašanje za postavljanje broja manjeg od nužnog(niti jedna odrasla osoba te niti jedna soba te negativan broj djece). Plus i minus gumb imat će definirano ponašanje pomoću funkcije handleoption koju još nismo napravili. 
 Logično sada implementiramo funkciju iznad returna od Header-a:
-```
+```jsx
    const handleoption =(name,operation)=>{
       setoptions(prev=>{
          return{
@@ -933,7 +867,7 @@ Logično sada implementiramo funkciju iznad returna od Header-a:
 Kao što smo i u prijašnjem kodu napisali, ta funkcija prima dva parametra, ime onoga što želimo mijenjati te operaciju. Ona zatim kopira prijašnje stanje te ako je operacija "i" odnosno inkrementiranje onda dodaje jedan, a inače oduzima jedan.
 #### Izgled izbornika za odabir broja osoba i soba
 Još nam preostaje implementirati izgled izbornika za biranje broja osoba te soba.
-```
+```css
 /* Options - Desktop */
 .options {
   z-index: 2;
@@ -974,10 +908,11 @@ Još nam preostaje implementirati izgled izbornika za biranje broja osoba te sob
    cursor: not-allowed;
 }
 ```
-Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar pomaknute prema dolje s sivim tekstom, bijelom pozadinom te žutim obrubom. Svaki item, odnosno npr. biranje broja odraslih osoba poredan je u jedan red širine 200 piksela s time da postoji razmak između spanova(npr. Adult) te gumbova i prikaza odgovarajućih brojeva koji su zajedno u jednom div elementu. Njihov jednostavan prikaz određen je ```.optioncounter{}``` CSS-om. Gumbovi imaju određenu visinu, širinu, obrub te pointer za prelazak s mišem. Ako su gumbi disabled onda će miš pokazivati precrtanu crvenu kružnicu kao znak zabrane. 
+Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar pomaknute prema dolje s sivim tekstom, bijelom pozadinom te žutim obrubom. Svaki item, odnosno npr. biranje broja odraslih osoba poredan je u jedan red širine 200 piksela s time da postoji razmak između spanova(npr. Adult) te gumbova i prikaza odgovarajućih brojeva koji su zajedno u jednom div elementu. Njihov jednostavan prikaz određen je `.optioncounter{}` CSS-om. Gumbovi imaju određenu visinu, širinu, obrub te pointer za prelazak s mišem. Ako su gumbi disabled onda će miš pokazivati precrtanu crvenu kružnicu kao znak zabrane. 
 
-Komponenta je u potpunosti responzivna i optimizirana za tablete(max-width: 768px), mobitele(max-width: 480px) te vrlo male ekrane(max-width: 360px). Glavne prilagodbe su redukcija fontova i margina.```headerSearch``` prelazi u vertikalni layout, date i options elementi pozicioniraju se kao donji “sheet” na ekranu, a gumb i tekst postaju manji te razmaci proporcionalno kraći.
-```/* Responsive Design - Tablet */
+Komponenta je u potpunosti responzivna i optimizirana za tablete(max-width: 768px), mobitele(max-width: 480px) te vrlo male ekrane(max-width: 360px). Glavne prilagodbe su redukcija fontova i margina.`headerSearch` prelazi u vertikalni layout, date i options elementi pozicioniraju se kao donji “sheet” na ekranu, a gumb i tekst postaju manji te razmaci proporcionalno kraći.
+```css
+/* Responsive Design - Tablet */
 @media screen and (max-width: 768px) {
   
   .headerList {
@@ -1202,7 +1137,7 @@ Promjene u responzivnosti služe za pozicioniranje elemenata poput kalendara i o
 Cilj im je simulirati izgled tzv. “bottom sheet” panela, kakvi se često koriste u mobilnim aplikacijama npr. Booking, Google Maps,itd.
 
 Dodajmo sada navbar i header na stranicu /hotels pomoću List.jsx-a:
-```
+```jsx
 import React from "react";
 import "./list.css";
 import Navbar from "../../components/navbar/navbar";
@@ -1217,37 +1152,37 @@ const List= ()=>{
 export default List
 ```
 Ovdje smo također dodali prop type ="list" kako bi na ruti /hotels mogli vidjeti samo dio headera. Sada je u Header.jsx potrebno implementirati taj prop. 
-```
+```jsx
 const Header= ({type})=>{
    /* isti kod kao i prije*/
 }
 ```
-Dakle, prenesli smo taj prop te je od h1 tag-a pa do zadnjeg itema potrebno zatvoriti strukturu s {} zagradama te unutar zagrada ```<></>``` prije toga treba napisati da ako tip nije "list" onda će biti vidljiv ostatak headera, a inače su vidljivi samo spanovi Apartments i Rooms zaokruženi s svojim div elementima. Sada kod izgleda ovako:
-```
+Dakle, prenesli smo taj prop te je od h1 tag-a pa do zadnjeg itema potrebno zatvoriti strukturu s {} zagradama te unutar zagrada `<></>` prije toga treba napisati da ako tip nije "list" onda će biti vidljiv ostatak headera, a inače su vidljivi samo spanovi Apartments i Rooms zaokruženi s svojim div elementima. Sada kod izgleda ovako:
+```jsx
 {type !== "list" &&<>
-   /*od h1 pa sve do zadnjeg itema*/
+  {/*od h1 pa sve do zadnjeg itema*/}
 </>}
 ```
 Potrebno je još promijeniti da ako je tip "list" onda imamo dvije klase, a inače samo jednu zbog css-a:
-```
+```jsx
 <div className={type==="list"? "headerContainer listmode":"headerContainer"}>
 ```
 U CSS-u nadodamo kod za gornju marginu, kako bi se Apartments i Rooms prikazivali više dolje u usporedbi sa main stranicom:
-```
+```css
 .headerContainer.listmode{
      margin: 20px 0px 0px 0px;
 }
 ```
 Na poslijetku, potrebno je za search dodati onclick event handler koji će prebaciti stranicu na adresu /hotels.
-```
+```jsx
 <button className="headerBTN" onClick={handleSearch}>Search</button>
 ```
 Sada nam još ostaje napraviti funkciju handleSearch pomoću hooka useNavigate uvezivanjem:
-```
+```jsx
 import { useNavigate } from "react-router-dom";
 ```
 te dodatkom sljedećeg koda:
-```
+```jsx
 const [destination,setdestination] = useState("")
 const navigate = useNavigate()
 const handleSearch=()=>{
@@ -1255,7 +1190,7 @@ const handleSearch=()=>{
 }
 ```
 na zakomentiranome mjestu(pri vrhu prije returna):
-```
+```jsx
 const Header= ({type})=>{
    /* ovdje dodati*/
    return()
@@ -1263,7 +1198,7 @@ const Header= ({type})=>{
 ```
 Klikom na gumb "Search" mijenja se adresa na /hotels te se šalje odabrano stanje.
 Ime apartmana ili sobe se mijenja pomoću promjene u kodu za input:
-```
+```jsx
 <input type="text" placeholder="Search by apartment name" className="headerSearchInput" onChange={e=>setdestination(e.target.value)}></input>
 ```
 Nakon svake promjene input-a, destination(ime apartmana/sobe) se postavlja na upisanu vrijednost.
@@ -1271,11 +1206,11 @@ Nakon svake promjene input-a, destination(ime apartmana/sobe) se postavlja na up
 # Izrada featured komponente
 
 Do sada smo napravili samo navigacijsku traku te zaglavlje. Potrebno je napraviti još mnogo komponenti koje će popuniti ostatak glavne stranice. Featured komponenta služi nam za kategoriziranje smještaja. U Home.jsx dodat ćemo nakon headera jedan div container:
-```
+```jsx
 <div className="homecontainer"></div>
 ```
-te je u mapu components potrebno dodati novu komponentu(mapu) featured s odgovarajućim .css i .jsx datotekama. U homecontainer možemo dodati komponentu featured ```<Featured></Featured>``` te uvesti komponentu u Home.jsx naredbom ```import Featured from "../../components/featured/featured";``` i containeru dati CSS stil:
-```
+te je u mapu components potrebno dodati novu komponentu(mapu) featured s odgovarajućim .css i .jsx datotekama. U homecontainer možemo dodati komponentu featured `<Featured></Featured>` te uvesti komponentu u Home.jsx naredbom `import Featured from "../../components/featured/featured";` i containeru dati CSS stil:
+```css
 .homecontainer{
     margin-top: 50px;
     display: flex;
@@ -1288,7 +1223,7 @@ te je u mapu components potrebno dodati novu komponentu(mapu) featured s odgovar
 Sada se homecontainer nalazi 50 piksela ispod headera. Svaki njegov element je centriran, u svome redu s razmakom između svakog reda(elementa containera) od 30 piksela i padding-om s lijeve i desne strane od 10 piksela.
 
 Preostaje nam izraditi komponentu Featured:
-```
+```jsx
 import "./featured.css";
 const Featured= ()=>{
     return(
@@ -1322,7 +1257,7 @@ const Featured= ()=>{
 export default Featured
 ```
 Radi jednostavnosti, za sada ćemo dodati 3 statična elementa sa svojim slikama te naslovima. One će označavati kategorije(npr. pogled na more) za lakše filtriranje soba i apartmana. Ovi elementi trenutno ne pašu na stranici pa je bilo potrebno pozabaviti se s CSS-om:
-```
+```css
 .featured {
   width: 100%;
   max-width: 1024px;
@@ -1337,7 +1272,7 @@ Radi jednostavnosti, za sada ćemo dodati 3 statična elementa sa svojim slikama
 }
 ```
 Širina je ista kao i kod ostatka komponenti. Ako smo na manjim ekranima, elementi će se prebaciti u novi red po potrebi. Oni imaju razmak između od 24 piksela, padding sa svih strana od 20 piksela, automatske margine s lijeve i desne strane te su u potpunosti zajedno s granicama unutar featured div-a te ispred ostalih komponenti stranice koji imaju z-index manji od 1 odnosno iza kalendara i izbornika za biranje broja osoba i broja soba.
-```
+```css
 .featureditem {
   position: relative;
   flex: 1 1 calc(33.333% - 24px);
@@ -1356,7 +1291,7 @@ Radi jednostavnosti, za sada ćemo dodati 3 statična elementa sa svojim slikama
 }
 ```
 Svaki element ima relativnu poziciju, visinu od 260 piksela te mu je omogućeno povećanje ako ima mjesta, smanjenje ako nema mjesta te mu je početna širina tećina div-a featured umanjena za 24 piksela zbog razmaka od 24 piksela između elemenata. Tekst je bijele boje te svaki element ima zaobljene rubove i ako su elementi preveliki onda se taj overflow sakrije. Kursor je pokazivač što implicira da se elementi mogu kliknuti. Promjene pozicije i sjene traju 0.3 sekunde, a početna sjena je pomaknuta 4 piksela ispod elementa s zamućenjem radijusa 12 piksela te navedenom bojom sjene. Prelaskom preko elementa mišem, element se pomakne prema gore za 6 piksela te postaje veća i tamnija.
-```
+```css
 .featuredimg {
   width: 100%;
   height: 100%;
@@ -1379,7 +1314,7 @@ Svaki element ima relativnu poziciju, visinu od 260 piksela te mu je omogućeno 
 }
 ```
 Slike su širine i visine 100% featureditem containera te prekrivaju cijeli okvir s time da je višak odrezan. Prikazane su sa 70% svjetline te su tranzicije glatke u trajanju od 0.5 sekundi. Kada se prelazi mišem preko featureditema, onda se slika unutar njega poveća za 5% te se svjetlina smanji na 60%. Da bi tekst na slici bio čitljiviji, dodan je prazan element preko cijelog featureditem-a koji počinje od dna s 60% neprozirnom crnom te na pola featureditem-a postaje potpuno nevidlj.
-```
+```css
 .featuredtitles {
   position: absolute;
   bottom: 20px;
@@ -1424,11 +1359,11 @@ Naslovi se nalaze 20 piksela iznad dna featureditem-a te 20 piksela desno od lij
 # Komponenta propertylist
 
 Da bi korisnik lakše filtrirao svoje preference, dodali smo komponentu propertylist koja omogućuje korisniku da odabere tip apartmana ili sobe(npr. dvokrevetna). Na glavnu stranicu(u Home.jsx), nakon featured komponente, dadao sam naslov za propertylist:
-```
+```jsx
 <h1 className="hometitle">Browse apartments by capacity</h1>
 ```
 te u CSS stil:
-```
+```css
 .hometitle{
     width: 100%;
     max-width: 1024px;
@@ -1445,7 +1380,7 @@ te u CSS stil:
 ```
 kako bi širina odgovarala širini ostalih komponenti te da bi se naslov prikazao na sredini zaslona. Za manje ekrane, smanjena je i veličina fonta.
 Sada dodajmo mapu za komponentu propertylist te odgovarajuće .css i .jsx datoteke. Napravimo HTML stukturu istu kao i za featured komponentu:
-```
+```jsx
 import "./propertylist.css";
 
 const Propertylist= ()=>{
@@ -1495,8 +1430,8 @@ const Propertylist= ()=>{
 }
 export default Propertylist
 ```
-te dodajmo naš propertylist na glavnu stranicu nakon njegovog naslova naredbom ```<Propertylist></Propertylist>```. Sada je potrebno komponenti dati svoj stil:
-```
+te dodajmo naš propertylist na glavnu stranicu nakon njegovog naslova naredbom `<Propertylist></Propertylist>`. Sada je potrebno komponenti dati svoj stil:
+```css
 .pList {
   width: 100%;
   max-width: 1024px;
@@ -1536,7 +1471,7 @@ te dodajmo naš propertylist na glavnu stranicu nakon njegovog naslova naredbom 
 }
 ```
 Glavni container kao i njegovi elementi(itemi) i slike imaju standardni stil koji smo koristili i kod featured komponente gdje je isti i objašnjen. Razlike u odnosu na njega su to da ovdje nemamo definiranu visinu itema, z-index containera i izmjenu svjetline slika, a imamo definiranu visinu slika od 180 piksela. Ostatak CSS stila:
-```
+```css
 .plisttitle {
   padding: 14px 16px;
   text-align: left;
@@ -1578,7 +1513,7 @@ Budući da je visina fiksna, ovdje naslovi neće biti preko nego ispod slike. Na
 # Komponenta featuredproperties
 
 Još nam za lakši odabir nedostaje komponenta za najpopularnije apartmane, odnosno sobe. Na glavnu stranicu(u Home.jsx) potrebno je dodati naslov za featuredproperties te komponentu featuredproperties koju još nismo napravili:
-```
+```jsx
 import Featuredproperties from "../../components/featuredproperties/featuredproperties";
 
 /* Nakon propetylist-a */
@@ -1586,7 +1521,7 @@ import Featuredproperties from "../../components/featuredproperties/featuredprop
 <Featuredproperties></Featuredproperties>
 ```
 U mapu komponents, potrebno je dodati featuredproperties mapu te odgovarajuće .css i .jsx datoteke. Sada je potrebno napisati strukturu featuredproperties-a te ćemo za sad napraviti navigaciju za prvi element koja će klikom na njega voditi na stranicu /hotels/1 na početak stranice:
-```
+```jsx
 import "./featuredproperties.css";
 import { useNavigate } from "react-router-dom";
 const Featuredproperties= ()=>{
@@ -1648,7 +1583,7 @@ const Featuredproperties= ()=>{
 export default Featuredproperties
 ```
 Svaki element(popularni apartman/soba) imati će svoju sliku, ime, lokaciju(broj paviljona i sl.), cijenu te ocjenu korisnika s gumbom i opisom ocjene. Sada je potrebno ovoj komponenti dodati CSS stil:
-```
+```css
 .fp {
   width: 100%;
   max-width: 1024px;
@@ -1685,7 +1620,7 @@ Svaki element(popularni apartman/soba) imati će svoju sliku, ime, lokaciju(broj
 }
 ```
 Isto kao i za propertylist, no sada ćemo umjesto 3 elementa po redu imati dva te će visina slike biti 20 piksela veća.
-```
+```css
 .fpname {
   padding: 10px;
   font-weight: 700;
@@ -1715,7 +1650,7 @@ Isto kao i za propertylist, no sada ćemo umjesto 3 elementa po redu imati dva t
 }
 ```
 Za ime apartmana/sobe, lokaciju te cijenu definirani su padding, veličina fonta te debljina i boja. Za ocjenu definiran je padding i gornja margina te su gumbu i spanu centrirane visine. 
-```
+```css
 .fprating > button {
   background-color: #001f54;
   color: white;

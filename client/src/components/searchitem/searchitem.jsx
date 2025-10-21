@@ -1,5 +1,26 @@
 import "./searchitem.css";
+
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+const api="http://localhost:8080/api"
+
 const Searchitem=  ()=>{
+
+    const [todos, setTodos] = useState([]);
+
+     useEffect(() => {
+        fetchTodos();
+    }, []);
+
+    const fetchTodos = async () => {
+        try {
+            const response = await axios.get('${api}/todos');
+            setTodos(response.data);
+        } catch (error) {
+            console.error('Error fetching todos:', error);
+        }
+    };
+
     return(
         <div className="searchitem">
             <img src="20210710_084619.jpg" alt="" className="siimg" />

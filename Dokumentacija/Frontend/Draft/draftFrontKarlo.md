@@ -1619,7 +1619,7 @@ Svaki element(popularni apartman/soba) imati će svoju sliku, ime, lokaciju(broj
   object-fit: cover;
 }
 ```
-Isto kao i za propertylist, no sada ćemo umjesto 3 elementa po redu imati dva te će visina slike biti 20 piksela veća.
+Isto kao i za propertylist, no sada ćemo umjesto tri elementa po redu imati četiri te će visina slike biti 20 piksela veća.
 ```css
 .fpname {
   padding: 10px;
@@ -1685,4 +1685,219 @@ Za ime apartmana/sobe, lokaciju te cijenu definirani su padding, veličina fonta
   }
 }
 ```
-Gumbovima je definirana pozadinska boja, boja teksta, zakrivljena nevidljiva granica, padding sa svih strana te desna margina. Tekst je podebljan te se pokazivačem miša implicira da se gumb može stisnuti. Kada stavimo miš na gumb, boja gumba također lagano prelazi u svjetliju plavu boju. Također, definirani su veličina fonta te boja za span element. Za manje ekrane, prikazuje se dva odnosno jedan element u svakome redu.
+Gumbovima je definirana pozadinska boja, boja teksta, zakrivljena nevidljiva granica, padding sa svih strana te desna margina. Tekst je podebljan te se pokazivačem miša implicira da se gumb može stisnuti. Kada stavimo miš na gumb, boja gumba također lagano prelazi u svjetliju plavu boju. Također, definirani su veličina fonta te boja za span element(ocjenu). Za manje ekrane, prikazuje se dva odnosno jedan element u svakome redu.
+
+# Komponenta maillist
+Za one koji se žele pretplatiti kako bi dobivali obavijesti o najboljim ponudama dodati ćemo komponentu maillist gdje se može upisati korisnikov e-mail te se pretplatiti klikom na gumb subscribe. Potrebno je na glavnu stranicu u datoteku Home.jsx nakon featuredproperties komponente dodati komponentu maillist:
+```jsx
+import Maillist from "../../components/maillist/maillist";
+
+/* Nakon <Featuredproperties></Featuredproperties>*/
+<Maillist></Maillist>
+```
+Sada je potrebno u mapu components dodati mapu maillist s odgovarajućim .css i .jsx datotekama. Struktura komponente izgleda vrlo jednostavno:
+```jsx
+import "./maillist.css";
+const Maillist=()=>{
+    return(
+        <div className="mail">
+            <h1 className="mailtitle">Save time,save money!</h1>
+            <span className="maildesc">Sign up and we'll send the best deals to you</span>
+            <div className="mailinputcontainer">
+                <input type="text" placeholder="Your email"/>
+                <button>Subscribe</button>
+            </div>
+        </div>
+    )
+}
+export default Maillist
+```
+Komponenta ima svoj container, naslov, opis(span element) te container gdje je moguće upisati e-mail pomoću input elementa i gumb za pretplatu. Dodajmo maillist komponenti CSS stil:
+```css
+.mail {
+  width: 100%;
+  margin-top: 60px;
+  background: linear-gradient(135deg, #001a66, #0033cc);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 60px 20px;
+  text-align: center;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 50, 0.3);
+}
+
+.mail h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.mail span {
+  font-size: 16px;
+  font-weight: 300;
+  max-width: 500px;
+  color: #e0e0e0;
+}
+```
+Container će biti širine cijele stranice, malo odmaknut od featuredproperties te će mu pozadina biti prijelaz iz tamne plave u svijetlu plavu dijagonalno od gornjeg lijevog prema donjem desnom kutu. Boja teksta je bijela, elementi su poravnati u sredinu po visini zaslona te je svaki element u svojem redu s razmakom od 24 piksela između njih. Dodatno, sadržaj containera ima svoj padding u odnosu na granicu containera te je tekst centriran. Rubovi containera su zaobljeni, a tamno plava sjena sa 30% neprozirnosti mu je 6 piksela ispod te joj je radijus zamućenosti 20 piksela. Naslovu su određeni veličina fonta i njegova debljina te su mu margine 0 piksela. Span element ima definiranu veličinu, debljinu te boju teksta, kao i maksimalnu širinu elementa od 500 piksela.
+```css
+.mailinputcontainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.mailinputcontainer > input {
+  flex: 1;
+  min-width: 220px;
+  height: 48px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  font-size: 16px;
+  color: #333;
+  transition: box-shadow 0.2s ease;
+}
+
+.mailinputcontainer > input:focus {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);
+}
+```
+Elementi containera za pretplatu su centrirani u jednome redu te je razmak između njih 12 piksela. Container je širok kao i cijela stranica s ograničenjem za ekrane veće od 500 piksela na statičku širinu od 500 piksela. Input element pokriva koliko može mjesta(najmanje 220 piksela širina) te mu je visina 48 piksela. Placeholder tekst mu je sive boje veličine 16 piksela te ima lijevi i desni padding od 16 piksela. Obruba nema te su kutevi zakrivljeni. Na fokus(klik miša) input element dobije bijelu sjenu neprozirnosti 40% s radijusom širenja izvan ruba elementa od 3 piksela.
+```css
+.mailinputcontainer > button {
+  height: 48px;
+  padding: 0 24px;
+  background-color: #0052ff;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.mailinputcontainer > button:hover {
+  background-color: #003fcc;
+  transform: translateY(-2px);
+}
+
+.mailinputcontainer > button:active {
+  transform: scale(0.98);
+}
+```
+Gumb je iste visine kao i input element te mu je sadržaj pomaknut od granica elementa s lijeve i desne strane za 24 piksela. Boja pozadine je plava, a boja teksta je bijela debljine 600. Obruba nema, a rubovi su zaobljeni. Pokazivač miša koji se pojavi prelaskom preko gumba implicira da se gumb može kliknuti. Također, kada stavimo pokazivač miša ispred gumba, gumb se pomakne prema gore za 2 piksela te mu boja postane tamnija nijansa plave. Prilikom klika na gumb, on se smanji na 98% svoje prvotne veličine.
+```css
+/* Responsive tweaks */
+@media (max-width: 480px) {
+  .mail {
+    padding: 40px 16px;
+  }
+
+  .mail h1 {
+    font-size: 22px;
+  }
+
+  .mail span {
+    font-size: 14px;
+  }
+
+  .mailinputcontainer > button {
+    width: 100%;
+  }
+}
+```
+Za manje ekrane(480 piksela i manje) umanjeni su padding elemenata glavnog containera te veličina fonta naslova i span elementa. Također, gumb je prebačen u novi red jer mu je širina ista širini ekrana, kako bi bilo više mjesta za unos korisnikovog e-maila.
+
+# Komponenta footer
+Na poslijetku, potrebno je dodati komponentu podnožja stranice. U Home.jsx(na glavnu stranicu) uvesti ćemo komponentu footer koju još nismo napravili:
+```jsx
+import Footer from "../../components/footer/footer";
+```
+te ćemo ju smjestiti ispod komponente maillist:
+```jsx
+/* <Maillist></Maillist>*/
+   <Footer></Footer>
+```
+Sada je potrebno napraviti komponentu podnožja kao zadnji element glavne stranice. U mapu components, potrebno je dodati novu mapu footer te u nju smjestiti footer.jsx i footer.css datoteke. Komponenta podnožja sastojati će se od neporedanih lista u svojem posebnom containeru te će se taj container i div element koji prikazuje copyright nalaziti u containeru podnožja:
+```jsx
+import "./footer.css";
+const Footer=()=>{
+    return(
+        <div className="footer">
+            
+            <div className="flists">
+                <ul className="flist">
+                    <li className="listitem">Countries</li>
+                    <li className="listitem">Regions</li>
+                    <li className="listitem">Cities</li>
+                    <li className="listitem">Districts</li>
+                    <li className="listitem">Hotels</li>
+                </ul>
+                <ul className="flist">
+                    <li className="listitem">Countries</li>
+                    <li className="listitem">Regions</li>
+                    <li className="listitem">Cities</li>
+                    <li className="listitem">Districts</li>
+                    <li className="listitem">Hotels</li>
+                </ul>
+                <ul className="flist">
+                    <li className="listitem">Countries</li>
+                    <li className="listitem">Regions</li>
+                    <li className="listitem">Cities</li>
+                    <li className="listitem">Districts</li>
+                    <li className="listitem">Hotels</li>
+                </ul>
+                <ul className="flist">
+                    <li className="listitem">Countries</li>
+                    <li className="listitem">Regions</li>
+                    <li className="listitem">Cities</li>
+                    <li className="listitem">Districts</li>
+                    <li className="listitem">Hotels</li>
+                </ul>
+                <ul className="flist">
+                    <li className="listitem">Countries</li>
+                    <li className="listitem">Regions</li>
+                    <li className="listitem">Cities</li>
+                    <li className="listitem">Districts</li>
+                    <li className="listitem">Hotels</li>
+                </ul>
+            </div>
+            <div className="ftext">Copyright © 2025 Room-Rently</div>
+        </div>
+    )
+}
+export default Footer
+```
+Podnožju je potrebno dodati CSS stil:
+```css
+.footer{
+    width: 100%;
+    max-width: 1024px;
+    font-size: 15px;
+}
+.flists{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 50px;
+}
+.flist{
+    list-style: none;
+    padding: 0;
+}
+.flistitem{
+    margin-bottom: 10px;
+    color: rgb(23, 23, 104);
+    cursor: pointer;
+}
+```
+Podnožje će biti širine cijelog zaslona s ograničenjem na 1024 piksela, što znači da će za ekrane veće od 1024 piksela, širina podnožja ostati(biti ograničena) na 1024 piksela. Veličina fonta postavljena je na 15 piksela. Container koji sadrži neporedane liste će zauzimati cijelu širinu containera podnožja te će neporedane liste unutar njega imati razmak među sobom. Za sadržaj toga containera, još je definirana i donja margina od 50 piksela. Neporedane liste nemaju nikakve bullete ispred teksta, kao ni padding između svakog elementa liste. Svaki element neporedanih lista ima postavljenu donju marginu od 10 piksela te je boja teksta plava i kursor miša postaje pointer kada ga držimo ispred elementa liste.

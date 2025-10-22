@@ -24,6 +24,9 @@ const Navbar = () => {
         setUser(res.data);
         localStorage.setItem("googleUser", JSON.stringify(res.data)); //spremanje podataka u localstorage
         console.log("User info:", res.data);
+
+        await axios.post("http://localhost:8080/user", res.data); //slanje podataka prema backendu
+
       } catch (err) {
         console.error("Error fetching user info:", err);
       }

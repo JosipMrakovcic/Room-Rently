@@ -51,7 +51,7 @@ Kroz projekt smo naučili timski rad u okruženju s realnim zahtjevima i moderni
 
 ---
 
-## 🚀 Tehnologije
+##  Tehnologije
 
 * **Frontend:** React.js
 * **Backend:** Spring
@@ -61,13 +61,13 @@ Kroz projekt smo naučili timski rad u okruženju s realnim zahtjevima i moderni
 
 ---
 
-## 🧩 Instalacija
+## Instalacija
 
 
 
 ---
 
-## 👥 Članovi tima — OpenReservations
+##  Članovi tima — OpenReservations
 
 | Ime i prezime   | Uloga / Doprinos                  |
 | --------------- | --------------------------------- |
@@ -80,18 +80,18 @@ Kroz projekt smo naučili timski rad u okruženju s realnim zahtjevima i moderni
 
 ---
 
-## 🤝 Kontribucije
+##  Kontribucije
 
 
 ---
 
-## 🧭 Kodeks ponašanja
+##  Kodeks ponašanja
 
 Svi članovi tima dužni su poštovati **Kodeks ponašanja studenata FER-a** te pravila profesionalne zajednice programskih inženjera.
 
 ---
 
-## ⚠️ Prijava problema
+## Prijava problema
 
 U slučaju nesuglasica ili problema:
 
@@ -99,7 +99,7 @@ U slučaju nesuglasica ili problema:
 
 ---
 
-## 🪪 Licenca
+##  Licenca
 
 **MIT License**
 

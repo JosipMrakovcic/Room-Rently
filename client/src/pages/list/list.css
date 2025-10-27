@@ -21,8 +21,6 @@
   background: linear-gradient(135deg, #f3c247, #f9d76a);
   padding: 20px;
   border-radius: 16px;
-  position: sticky;
-  top: 100px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   color: #333;
   max-width: 100%;

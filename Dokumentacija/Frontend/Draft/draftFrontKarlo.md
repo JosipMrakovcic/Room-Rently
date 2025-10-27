@@ -1880,39 +1880,39 @@ const Footer=()=>{
             
             <div className="flists">
                 <ul className="flist">
-                    <li className="listitem">Countries</li>
-                    <li className="listitem">Regions</li>
-                    <li className="listitem">Cities</li>
-                    <li className="listitem">Districts</li>
-                    <li className="listitem">Hotels</li>
+                    <li className="flistitem">Countries</li>
+                    <li className="flistitem">Regions</li>
+                    <li className="flistitem">Cities</li>
+                    <li className="flistitem">Districts</li>
+                    <li className="flistitem">Hotels</li>
                 </ul>
                 <ul className="flist">
-                    <li className="listitem">Countries</li>
-                    <li className="listitem">Regions</li>
-                    <li className="listitem">Cities</li>
-                    <li className="listitem">Districts</li>
-                    <li className="listitem">Hotels</li>
+                    <li className="flistitem">Countries</li>
+                    <li className="flistitem">Regions</li>
+                    <li className="flistitem">Cities</li>
+                    <li className="flistitem">Districts</li>
+                    <li className="flistitem">Hotels</li>
                 </ul>
                 <ul className="flist">
-                    <li className="listitem">Countries</li>
-                    <li className="listitem">Regions</li>
-                    <li className="listitem">Cities</li>
-                    <li className="listitem">Districts</li>
-                    <li className="listitem">Hotels</li>
+                    <li className="flistitem">Countries</li>
+                    <li className="flistitem">Regions</li>
+                    <li className="flistitem">Cities</li>
+                    <li className="flistitem">Districts</li>
+                    <li className="flistitem">Hotels</li>
                 </ul>
                 <ul className="flist">
-                    <li className="listitem">Countries</li>
-                    <li className="listitem">Regions</li>
-                    <li className="listitem">Cities</li>
-                    <li className="listitem">Districts</li>
-                    <li className="listitem">Hotels</li>
+                    <li className="flistitem">Countries</li>
+                    <li className="flistitem">Regions</li>
+                    <li className="flistitem">Cities</li>
+                    <li className="flistitem">Districts</li>
+                    <li className="flistitem">Hotels</li>
                 </ul>
                 <ul className="flist">
-                    <li className="listitem">Countries</li>
-                    <li className="listitem">Regions</li>
-                    <li className="listitem">Cities</li>
-                    <li className="listitem">Districts</li>
-                    <li className="listitem">Hotels</li>
+                    <li className="flistitem">Countries</li>
+                    <li className="flistitem">Regions</li>
+                    <li className="flistitem">Cities</li>
+                    <li className="flistitem">Districts</li>
+                    <li className="flistitem">Hotels</li>
                 </ul>
             </div>
             <div className="ftext">Copyright © 2025 Room-Rently</div>
@@ -1951,3 +1951,361 @@ Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je po
 **Alat:** ChatGPT (OpenAI)  
 **Datum pristupa:** 2025-10-13   
 **Svrha:** Unapređenje CSS-a refaktor.
+
+# Stranica list
+Potrebno je napraviti search izbornik na stranici list gdje će se prenositi informacije s glavne stranice, ali će biti moguće i mijenjati prenesene podatke. Do sada smo stavili samo navigacijsku traku te zaglavlje. Sada moramo na isti način kao i u headeru prikazati sve podatke te omogućiti njihovu promjenu. List.jsx će sada izgledati ovako:
+```jsx
+import React from "react";
+import "./list.css";
+import Navbar from "../../components/navbar/navbar";
+import Header from "../../components/header/Header";
+import { useLocation } from "react-router-dom";
+import { useState } from "react";
+import { format } from "date-fns";
+import { DateRange } from "react-date-range";
+import Searchitem from "../../components/searchitem/searchitem";
+const List=  ()=>{
+    const location = useLocation()
+    const [destination,setdestination] = useState(location.state.destination)
+    const [date,setdate] = useState(location.state.date)
+    const [opendate,setopendate] = useState(false)
+    const [options,setoptions] = useState(location.state.options)
+    return(
+        <div><Navbar></Navbar><Header type ="list"></Header>
+        <div className="listcontainer">
+            <div className="listwrapper">
+                <div className="listsearch">
+                    <h1 className="lstitle">Search</h1>
+                    <div className="lsitem">
+                        <label >Apartment name</label>
+                        <input placeholder={destination} type="text" />
+                    </div>
+                    <div className="lsitem">
+                        <label >Check-in date</label>
+                        <span onClick={()=>setopendate(!opendate)}>{`${format(date[0].startDate,"dd/MM/yyyy")} to ${format(date[0].endDate,"dd/MM/yyyy")}`}</span>
+                       {opendate && <DateRange onChange={item=>setdate([item.selection])} minDate={new Date()} ranges={date} />}
+                    </div>
+                    <div className="lsitem">
+                        <label >Options</label>
+                        <div className="lsoptions">
+                        <div className="lsoptionitem"> 
+                            <span className="lsoptiontext">Min price <small>per night</small></span>
+                            <input type="number" min={0}className="lsoptioninput" />
+                        </div>
+                        <div className="lsoptionitem"> 
+                            <span className="lsoptiontext">Max price <small>per night</small></span>
+                            <input type="number" min={0} className="lsoptioninput" />
+                        </div>
+                        <div className="lsoptionitem"> 
+                            <span className="lsoptiontext" >Adult </span>
+                            <input type="number" min={1} className="lsoptioninput" placeholder={options.adult} />
+                        </div>
+                        <div className="lsoptionitem"> 
+                            <span className="lsoptiontext">Children </span>
+                            <input type="number" className="lsoptioninput"  min={0}  placeholder={options.children}/>
+                        </div>
+                        <div className="lsoptionitem"> 
+                            <span className="lsoptiontext">Room </span>
+                            <input type="number" className="lsoptioninput"  min={1} placeholder={options.room}/>
+                        </div>
+                        </div>
+                    </div>
+                    <button>Search</button>
+                </div>
+                <div className="listresult">
+                    <Searchitem/>
+                    <Searchitem/>
+                    <Searchitem/>
+                    <Searchitem/>
+                    <Searchitem/>
+                    <Searchitem/>
+                    <Searchitem/>
+                    <Searchitem/>
+                </div>
+            </div>
+        </div>
+        
+        
+        </div>
+    )
+}
+export default List
+```
+Dakle, nakon headera dodali smo container i wrapper te sam listsearch. Naslov je normalno search te imamo lsitem-e koji će prikazivati naziv sobe/apartmana, datum i odabrane opcije. Da bismo dobili podatke s glavne stranice, koristimo `useLocation()` hook koji u sebi ima state koji smo poslali s glavne stranice. Naziv sobe odnosno apartmana ima placeholder destination koji dobiva s glavne stranice pomoću `location.state.destination` te nam je također potreban import `useState()` hooka. Datum dobivamo na isti način te ga dinamički prikazujemo isto kao i u headeru. Naravno, klikom na input, pojavi se kalendar gdje se može promijeniti datum kao i kod headera te se ponovnim klikom zatvori. Opcijama ćemo dodati odabir minimalne i maksimalne cijene po noćenju te cijene neće moći ići ispod nule. Broj odraslih, djece i soba dobivamo s glavne stranice, a za promjenu imamo iste ograde kao i na glavnoj stranici. Dakle, barem jedna odrasla osoba, jedna soba te broj djece nesmije biti manji od nule. Na dnu imati ćemo gumb search za pretraživanje. Osim toga, na stranici je potrebno prikazati i rezultate pretraživanja pa ćemo za sada staviti 8 searchitem komponenta. Searchitem komponenta još nije napravljena, no prvo se trebamo pozabaviti CSS-om pa ju možemo trenutno zakomentirati:
+```css
+.listcontainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.listwrapper {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+```
+Containeru će sadržaj biti flex te centriran s gornjom marginom od 30 piksela odnosno bit će pomaknut od headera. Padding sadržaja od granica će biti 20 piksela od lijeve i desne strane te će container biti iste širine kao i stranica. Također, wrapper će uzimati cijelu širinu containera s ograničenjem od 1100 piksela te će razmak elemenata wrappera iznositi 24 piksela. Elementi će započinjati na vrhu wrappera te će zauzimati samo onoliko visine koliko im je potrebno.
+```css
+/* ===== Search Sidebar ===== */
+.listsearch {
+  flex: 1;
+  background: linear-gradient(135deg, #f3c247, #f9d76a);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  color: #333;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.lstitle {
+  font-size: clamp(18px, 2vw, 20px);
+  font-weight: 700;
+  color: #444;
+  margin-bottom: 16px;
+  word-wrap: break-word;
+}
+```
+Search će imati žutu pozadinu s dijagonalnim prijelazom iz tamnije u svjetliju od gornjeg desnog kuta. Sadržaj će biti pomaknut za 20 piksela u odnosu na granice te će kutevi biti zakrivljeni. Ima crnu sjenu i crnu boju teksta sivo-crnu te maksimalnu širinu od 100% containera. Naslov će imati minimalnu veličinu od 18 piksela i maksimalnu od 20 piksela s idealnom veličinom od 2% širine stranice. Za njega su također definirani debljina fonta, boja, gornja margina te ponašanje prelamanja naslova kada nema mjesta na stranici.
+```css
+.lsitem {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.lsitem > label {
+  font-size: clamp(13px, 1.5vw, 14px);
+  font-weight: 500;
+  color: #222;
+}
+
+.lsitem > input,
+.lsitem > span {
+  height: 38px;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: clamp(13px, 1.5vw, 14px);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+}
+
+.lsitem > input {
+  background-color: #fff;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.lsitem > input:focus {
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+.lsitem > span {
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #555;
+  transition: background-color 0.2s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lsitem > span:hover {
+  background-color: #f0f0f0;
+}
+```
+Elementi liste biti će svaki u svome redu s razmakom od 6 piksela te donjom marginom od 16 piksela i zauzimati će 100% širine containera. Za labelu, definirana je responzivnost veličine fonta, debljina fonta te boja. Za input i span elemente imena sobe i datuma, definirana je visina, zakrivljeni rubovi, padding sa svih strana, responzivnost veličine fonta te širina u odnosu na container. Za input je dodatno definirana boja teksta te obrub i sjena kada kliknemo na input. Osim toga, span elementu dodana je boja pozadine te je visina teksta centrirana. Kursor je pointer dok ga držimo iznad span-a te je boja teksta siva. Ako je element prevelik, onda se višak sakrije te će višak teksta biti prikazan s tri točke, a sav tekst će biti prikazan u istome redu.
+```css
+.lsoptions {
+  padding: 10px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+  width: 100%;
+}
+
+.lsoptionitem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: clamp(13px, 1.5vw, 14px);
+  color: #444;
+  width: 100%;
+  gap: 10px;
+}
+```
+
+```css
+.lsoptioninput {
+  width: 60px;
+  min-width: 50px;
+  padding: 5px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.2s ease;
+  font-size: clamp(13px, 1.5vw, 14px);
+  box-sizing: border-box;
+}
+
+.lsoptioninput:focus {
+  border-color: #0099cc;
+}
+```
+
+```css
+.listsearch > button {
+  padding: 12px;
+  background-color: #008b8b;
+  color: white;
+  font-weight: 600;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+  margin-top: 10px;
+  font-size: clamp(14px, 1.8vw, 16px);
+  box-sizing: border-box;
+}
+
+.listsearch > button:hover {
+  background-color: #007575;
+  transform: translateY(-2px);
+}
+```
+
+
+```css
+/* ===== Results Section ===== */
+.listresult {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0; /* Prevents flex item overflow */
+}
+```
+
+```css
+/* ===== Responsive Design ===== */
+@media (max-width: 900px) {
+  .listwrapper {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .listsearch {
+    position: static;
+    width: 100%;
+    max-width: none;
+  }
+
+  .listresult {
+    width: 100%;
+  }
+}
+```
+
+```css
+@media (max-width: 768px) {
+  .listcontainer {
+    padding: 0 15px;
+    margin-top: 20px;
+  }
+  
+  .listwrapper {
+    gap: 16px;
+  }
+  
+  .listsearch {
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .lsoptionitem {
+    flex-wrap: wrap;
+  }
+  
+  .lsoptioninput {
+    width: 100%;
+    max-width: 80px;
+  }
+}
+```
+
+```css
+@media (max-width: 480px) {
+  .listcontainer {
+    padding: 0 10px;
+    margin-top: 15px;
+  }
+  
+  .listsearch {
+    padding: 12px;
+    border-radius: 10px;
+  }
+  
+  .lsitem {
+    margin-bottom: 12px;
+  }
+  
+  .lsitem > input,
+  .lsitem > span {
+    height: 36px;
+    padding: 6px 8px;
+  }
+  
+  .listsearch > button {
+    padding: 10px;
+  }
+  
+  .lsoptions {
+    padding: 8px 0;
+  }
+}
+```
+
+```css
+/* Prevent horizontal scrolling on very small screens */
+@media (max-width: 360px) {
+  .listcontainer {
+    padding: 0 8px;
+  }
+  
+  .listsearch {
+    padding: 10px;
+  }
+  
+  .lsoptionitem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .lsoptioninput {
+    max-width: 100%;
+  }
+}
+
+/* Ensure no content overflows on any screen size */
+* {
+  max-width: 100%;
+}
+
+html, body {
+  overflow-x: hidden;
+}
+```

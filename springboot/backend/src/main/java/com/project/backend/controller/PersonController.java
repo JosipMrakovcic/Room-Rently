@@ -3,6 +3,7 @@ package com.project.backend.controller;
 
 import com.project.backend.model.Person;
 import com.project.backend.repository.PersonRepo;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +12,10 @@ import java.util.Optional;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 public class PersonController {
+
+    public Person newPerson;
 
     @Autowired
     PersonRepo repo;
@@ -22,8 +26,12 @@ public class PersonController {
     }
 
     @PostMapping("/addPerson")
-    public void addPerson(@RequestBody Person person){
-        repo.save(person);
+    public void addPerson(@RequestBody String infoUser){
+        JSONObject obj = new JSONObject(infoUser);
+        String name = obj.getString("name");
+        String email = obj.getString("email");
+        newPerson = new Person(email, true, false, false, name);
+        repo.save(newPerson);
     }
 
     @GetMapping("/{id}")

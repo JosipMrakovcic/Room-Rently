@@ -45,4 +45,12 @@ public class Person {
 
     @Column(nullable = false)
     private String name;
+
+    public Person(String email, boolean isAdmin, boolean isUser, boolean isOwner, String name) {
+        this.email = email;
+        this.isAdmin = isAdmin;
+        this.isUser = isUser;
+        this.isOwner = isOwner;
+        this.name = name;
+    }
 }

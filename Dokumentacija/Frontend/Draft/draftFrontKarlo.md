@@ -2661,3 +2661,39 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
   }
 }
 ```
+
+# Google maps
+
+Inspiracija izrade i integracije Google maps servisa napravljena je korištenjem [Tutorial videozapisa](https://youtu.be/oP-0wi0CRzc?si=EEQ6gW1SnbTN21bL) 
+Za samu izradu elementa koristila se webstranica [Generator maps html koda](https://www.maps.ie/create-google-map) koja nam unosom potrebnih parametara za našu stranicu
+stvori div/IFrame komponentu koja se onda ubaci u naš Hotel.jsx kod. Parametri koje sam unjio u stranicu pod Enter your settings su ->
+Title : Apartman Ani ,  Address: Odranska Ulica 8, Coordinates -> program automatski popunio, Height: 600 , Width: 100%, te ostali parametri poput views,Zoom su se automatski default vrijednosti na Map, 400 m (district), Auto-fit Width je uključen te on omogućuje da se expanda na veličinu Containera.
+Nakon unosa željenih parametara možemo s desne strane prekopirati iFrame kod koji koristimo na Hotel.jsx fileu.
+Nije bilo potrebno instalirati vanjske pakete niti povezivati se s Gooogle maps Api-em što omogućuje lakše integriranje u stranicu.
+```jsx
+
+<div className="gmap-frame">
+<iframe width="100%" height="600" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=Odranska%20Ulica%208+(Apartman%20Ani)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe>
+</div>
+
+```
+
+### Inline css objašnjenja:
+
+width="100%" - Širina <iframe> elementa - 100% znači da će iframe zauzeti cijelu širinu roditeljskog elementa.
+height="600" - Visina iframea u pikselima. U ovom slučaju 600px.
+frameborder="0" - Stari HTML atribut koji uklanja okvir (border) oko iframea. Vrijednost 0 znači nema okvira.
+scrolling="no" - Kontrolira da li iframe prikazuje scroll barove. no znači da scroll bar neće biti prikazan, čak ako sadržaj iframea prelazi veličinu.
+marginheight="0" i marginwidth="0" - Definiraju vanjske margine (padding) unutar iframea. Vrijednost 0 znači da nema margina.
+
+### Objašnjenje parametara u URL-u:
+
+width=100%25 - širina mape (100%, %25 je URL encoding za %)
+height=600 - visina mape (600px)
+hl=hr - jezik sučelja mape (hr - hrvatski)
+q=Odranska Ulica 8 (Apartman Ani) - lokacija koju mapa prikazuje
+t= - tip mape (m = standard, k = satelit, h = teren itd.); ovdje prazan = standard
+z=14 - zoom razina (1 = cijeli svijet, 20 = ulica)
+ie=UTF8 - encoding za URL, UTF-8
+iwloc=B - inicijalna pozicija info window-a (oznaka B na mapi)
+output=embed - vraća mapu u embed formatu za iframe

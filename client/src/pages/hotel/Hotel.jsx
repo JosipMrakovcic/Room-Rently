@@ -103,8 +103,12 @@ const Hotel=  ()=>{
                                 <button>Reserve or Book Now !</button>
                                 </div>
                         </div>
+                        
+                        
                     </div>
-
+                    <div className="gmap-frame">
+                    <iframe width="100%" height="600" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=hr&amp;q=Odranska%20Ulica%208+(Apartman%20Ani)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"></iframe>
+                        </div>
                     </div>
                     <Maillist/>
                     <Footer></Footer>

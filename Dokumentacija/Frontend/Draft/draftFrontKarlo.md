@@ -2643,6 +2643,9 @@ Za ekrane širine manje ili jednake 480 piksela, razmak među elementima contain
 ```
 Za ekrane širine manje ili jednake 360 piksela, containeru je smanjen padding te zakrivljenost rubova. Slici je smanjena visina, a glavnom naslovu te cijeni veličina fonta.
 
+# Stranica hotel
+Potrebno je napraviti stanicu koja će se prikazivati kada kliknemo na neki hotel.
+
 # Google maps
 
 Inspiracija izrade i integracije Google maps servisa napravljena je korištenjem [Tutorial videozapisa](https://youtu.be/oP-0wi0CRzc?si=EEQ6gW1SnbTN21bL) 

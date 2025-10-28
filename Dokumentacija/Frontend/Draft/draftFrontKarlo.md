@@ -1314,7 +1314,7 @@ Radi jednostavnosti, za sada ćemo dodati 3 statična elementa sa svojim slikama
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
 ```
-Svaki element ima relativnu poziciju, visinu od 260 piksela te mu je omogućeno povećanje ako ima mjesta, smanjenje ako nema mjesta te mu je početna širina tećina div-a featured umanjena za 24 piksela zbog razmaka od 24 piksela između elemenata. Tekst je bijele boje te svaki element ima zaobljene rubove i ako su elementi preveliki onda se taj overflow sakrije. Kursor je pokazivač što implicira da se elementi mogu kliknuti. Promjene pozicije i sjene traju 0.3 sekunde, a početna sjena je pomaknuta 4 piksela ispod elementa s zamućenjem radijusa 12 piksela te navedenom bojom sjene. Prelaskom preko elementa mišem, element se pomakne prema gore za 6 piksela te postaje veća i tamnija.
+Svaki element ima relativnu poziciju, visinu od 260 piksela te mu je omogućeno povećanje ako ima mjesta, smanjenje ako nema mjesta te mu je početna širina tećina div-a featured umanjena za 24 piksela zbog razmaka od 24 piksela između elemenata. Tekst je bijele boje te svaki element ima zaobljene rubove i ako su elementi preveliki onda se taj overflow sakrije. Kursor je pokazivač što implicira da se elementi mogu kliknuti. Promjene pozicije i sjene traju 0.3 sekunde, a početna sjena je pomaknuta 4 piksela ispod elementa s zamućenjem radijusa 12 piksela te navedenom bojom sjene. Prelaskom preko elementa mišem, element se pomakne prema gore za 6 piksela te sjena postaje veća i neprozirnija.
 ```css
 .featuredimg {
   width: 100%;
@@ -2368,7 +2368,7 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 ```
-
+Elementi containera(slika, opis i detalji) imaju razmak među sobom od 24 piksela. Granica containera je sive boje s zakrivljenim rubovima. Sadržaj containera pomaknut je od granica za 16 piksela te container ima donju marginu od 24 piksela i bijelu pozadinsku boju. Osim toga, definirana je crna sjena ispod containera s neprozirnosti 5% koja hoverom postaje manje neprozirna te je veća i više ispod elementa. Kada hoveramo container, također, on se pomakne za 4 piksela prema gore.
 ```css
 .siimg {
   width: 200px;
@@ -2395,7 +2395,7 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
   text-align: right;
 }
 ```
-
+Slika zauzima 200 piksela širine i visine te je višak odrezan. Rubovi slike su zakrivljeni te nije dopušteno smanjenje slike. Opis zauzima duplo više mjesta od detalja te je svaki njegov element u svome redu s razmakom od 8 piksela. Elementi detalja su također svaki u svome redu s razmakom između njih te se oni nalaze na desnoj strani containera kao i njihov tekst koji je poravnat udesno.
 ```css
 .siTitle {
   font-size: 20px;
@@ -2412,9 +2412,7 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
   font-size: 14px;
   color: #555;
 }
-```
 
-```css
 .siTaxiOp {
   background-color: #00b341;
   color: #fff;
@@ -2424,7 +2422,9 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
   font-weight: 500;
   width: fit-content;
 }
-
+```
+Naslovu opisa definirane su veličina, debljina te boja fonta kao i donja margina. Ostalim elementima opisa, zajedno su definirani veličina te boja fonta. Opciji koja prikazuje informacije o tome je li taxi s aerodroma besplatan određeni su pozadinska te boja teksta, padding sa svih strana, zaobljeni rubovi, veličina i debljina fonta te će širina elementa odgovarati njenome sadržaju.
+```css
 .siSubtitle {
   font-weight: 600;
   color: #333;
@@ -2445,7 +2445,7 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
   font-size: 13px;
 }
 ```
-
+Podnaslovu su definirane debljina i boja fonta, a značajkama samo boja. Opcijama otkazivanja definirane su veličina, debljina te boja fonta, dok njenome podnaslovu nije definirana debljina fonta.
 ```css
 .sirating {
   display: flex;
@@ -2475,7 +2475,7 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
   background-color: #001a80;
 }
 ```
-
+Elementi ocjene(opis i gumb), nalaze se na desnoj strani njihovog containera, centrirane visine te s razmakom među njima od 8 piksela. Opisu su definirane debljina, veličina i boja teksta, dok gumbu nije definirana veličina fonta. Gumb osim toga ima tamno plavu pozadinu bez granice te padding sa svih strana. Kutevi su mu zaobljeni, a hoverom kursor postaje pointer te pozadinska boja svjetlija.
 ```css
 .sidetailtexts {
   display: flex;
@@ -2491,12 +2491,12 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
   color: #111;
 }
 
-.sitax {
+.sitaxop {
   font-size: 13px;
   color: #888;
 }
 ```
-
+Span elementi cijene i poreza te gumb su svaki u svome redu s razmakom od 6 piksela te su poravnati udesno kao i njihov tekst. Cijeni su definirani veličina, debljina te boja fonta, dok porezu nije definirana debljina.
 ```css
 .sicheckbutton {
   background-color: #00a2ff;
@@ -2514,7 +2514,7 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
   transform: translateY(-2px);
 }
 ```
-
+Gumb ima definirane standardne stvari kao što su pozadinska te boja fonta, debljina fonta, padding sa svih strana, zakrivljeni rubovi te nevidljiva granica. Na hover, kursor postaje pointer, pozadinska boja tamnija te se gumb pomakne za 2 piksela prema gore.
 ```css
 /* Enhanced Responsive Design */
 @media (max-width: 1024px) {
@@ -2537,7 +2537,7 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
   }
 }
 ```
-
+Za ekrane širine manje ili jednake 1024 piksela, elementi containera imaju manji razmak među sobom te padding. Slika je također manja, kao i veličina fonta glavnog naslova te cijene.
 ```css
 @media (max-width: 768px) {
   .searchitem {
@@ -2571,7 +2571,6 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
 
   .sirating {
     justify-content: space-between;
-    order: -1;
     margin-bottom: 8px;
   }
 
@@ -2580,7 +2579,7 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
   }
 }
 ```
-
+Za ekrane širine manje ili jednake 768 piksela, svaki element containera je u svome redu, tekst je poravnat ulijevo, razmak između elemenata je 16 piksela te razmak sadržaja containera od njegovih granica sa svih strana iznosi 16 piksela. Slika zauzima cijelu širinu containera te je visoka 220 piksela i ima donju marginu od 8 piksela. Elementi opisa imaju razmak među sobom od 12 piksela što je više nego prije, budući da sada svaki zauzima cijeli red. Detaljima je tekst poravnat ulijevo te imaju razmak među sobom od 16 piksela. Cijena, porez te gumb su također poravnati ulijevo kao i opcije za taxi. Span i gumb ocjene imaju razmak među sobom(nalaze se na krajnje lijevoj odnosno desnoj poziciji) te donju marginu od 8 piksela.
 ```css
 @media (max-width: 480px) {
   .searchitem {
@@ -2615,17 +2614,13 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
     width: 100%;
   }
 
-  .sirating {
-    flex-wrap: wrap;
-  }
-
   .sirating > button {
     padding: 8px 12px;
     font-size: 14px;
   }
 }
 ```
-
+Za ekrane širine manje ili jednake 480 piksela, razmak među elementima containera je manji kao i padding te donja margina containera. Također, manja je visina slike te font naslova. Ostalim elementima opisa smanjena je veličina fonta, kao i cijeni. Gumbu za raspoloživost, definirana je veličina fonta, povećan je gornji i donji padding, a smanjen lijevi i desni te sada gumb zauzima cijelu širinu containera. Gumbu ocjene povećan je padding te je definirana veličina fonta. 
 ```css
 @media (max-width: 360px) {
   .searchitem {
@@ -2646,21 +2641,7 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
   }
 }
 ```
-
-```css
-/* Print styles */
-@media print {
-  .searchitem {
-    border: 1px solid #000;
-    box-shadow: none;
-    break-inside: avoid;
-  }
-  
-  .sicheckbutton {
-    display: none;
-  }
-}
-```
+Za ekrane širine manje ili jednake 360 piksela, containeru je smanjen padding te zakrivljenost rubova. Slici je smanjena visina, a glavnom naslovu te cijeni veličina fonta.
 
 # Google maps
 

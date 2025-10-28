@@ -129,7 +129,7 @@
   color: #111;
 }
 
-.sitax {
+.sitaxop {
   font-size: 13px;
   color: #888;
 }
@@ -203,7 +203,6 @@
 
   .sirating {
     justify-content: space-between;
-    order: -1;
     margin-bottom: 8px;
   }
 
@@ -245,10 +244,6 @@
     width: 100%;
   }
 
-  .sirating {
-    flex-wrap: wrap;
-  }
-
   .sirating > button {
     padding: 8px 12px;
     font-size: 14px;
@@ -271,18 +266,5 @@
 
   .siprice {
     font-size: 18px;
-  }
-}
-
-/* Print styles */
-@media print {
-  .searchitem {
-    border: 1px solid #000;
-    box-shadow: none;
-    break-inside: avoid;
-  }
-  
-  .sicheckbutton {
-    display: none;
   }
 }

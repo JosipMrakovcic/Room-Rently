@@ -232,7 +232,7 @@ Koristi gradijentnu pozadinu u žuto-narančastim tonovima te ima zaobljene rubo
 ```
 Automatski prilagođava veličine fontova i padding gumba za manje ekrane.
 Dio CSS koda u ovom repozitoriju je unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda cssa tako da ima plavo obojanu animaciju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu primjerice ".landing" ,radi redundancije ne navodim. Ai mi je poboljsao moj css te nadogradio tako da vizualno ljepse izgleda.
+Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda cssa tako da ima plavo obojanu animaciju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu primjerice ".landing", radi redundancije ne navodim. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda.
 **Alat:** ChatGPT (OpenAI)  
 **Datum pristupa:** 2025-10-11   
 **Svrha:** Unapređenje CSS-a refaktor, optimizacija selektora, poboljšanje responsivnosti.
@@ -418,7 +418,7 @@ Zatim se koristi React hook `useState()` za stvaranje stanja user koje će čuva
 Kako bi se omogućilo da korisnik ostane prijavljen i nakon što osvježi stranicu, početna vrijednost user nije prazna, već se dohvaća iz localStorage-a odsnosno trajna pohrana u pregledniku.
 
 Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda cssa tako da ima plavu boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu primjerice "navButton", ostatak je gore u kodu radi redundancije ne navodim, kao i na prethodnom primjeru. Ai mi je poboljsao moj css te nadogradio tako da vizualno ljepse izgleda naspram mog pocetnog koda.
+Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda cssa tako da ima plavu boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu primjerice "navButton", ostatak je gore u kodu radi redundancije ne navodim, kao i na prethodnom primjeru. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
 **Alat:** ChatGPT (OpenAI)  
 **Datum pristupa:** 2025-10-12   
 **Svrha:** Unapređenje CSS-a refaktor, poboljšanje responsivnosti.
@@ -613,7 +613,7 @@ Elementi apartmana i soba poravnati su u sredinu te su poredani slijedno po lini
 Zasada nepostojeća ikona udaljena je od odgovarajućih opisa (Apartments i Rooms) 12 pixela, elementi su poravnati u sredinu te se prelaskom mišem prikazuje pointer. Napravljen je i CSS za ikone kojih trenutno nema te veličina slova i debljina za span elemente Apartments i Rooms. Prelaskom preko njih, boja teksta se mijenja u plavu te se elementi povećavaju 1.1 puta. Apartments koji je active ima svoj padding sa svih strana. Granica mu je kružnog oblika sivo-bijele boje te ima sjenu i zamućena je.
 
 Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima svijetlo plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru. Ai mi je poboljsao moj css te nadogradio tako da vizualno ljepse izgleda naspram mog pocetnog koda.
+Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima svijetlo plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
 **Alat:** ChatGPT (OpenAI)  
 **Datum pristupa:** 2025-10-12   
 **Svrha:** Unapređenje CSS-a refaktor.
@@ -1222,7 +1222,7 @@ Ime apartmana ili sobe se mijenja pomoću promjene u kodu za input:
 Nakon svake promjene input-a, destination(ime apartmana/sobe) se postavlja na upisanu vrijednost.
 
 Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima svijetlo plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"headerBTN" ali zbog redundancije necu navoditi sve klase. Ai mi je poboljsao moj css te nadogradio tako da vizualno ljepse izgleda naspram mog pocetnog koda.
+Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima svijetlo plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"headerBTN" ali zbog redundancije necu navoditi sve klase. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
 **Alat:** ChatGPT (OpenAI)  
 **Datum pristupa:** 2025-10-12   
 **Svrha:** Unapređenje CSS-a refaktor.
@@ -1535,7 +1535,7 @@ Glavni container kao i njegovi elementi(itemi) i slike imaju standardni stil koj
 Budući da je visina fiksna, ovdje naslovi neće biti preko nego ispod slike. Naslovi imaju padding sa svih strana, poravnat tekst u lijevo te bijelu pozadinu. Veći naslov ima određen veći i deblji font tamnije boje te je donjom marginom odvojen od manjeg naslova. Za manje ekrane određena su dva elementa liste u svakome redu, a za najmanje ekrane imamo samo jedan element u redu te je visina slike umanjena za 20 piksela.
 
 Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima bolji izgled, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"plistItem" ali zbog redundancije necu navoditi sve klase. Ai mi je poboljsao moj css te nadogradio tako da vizualno ljepse izgleda naspram mog pocetnog koda.
+Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima bolji izgled, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"plistItem" ali zbog redundancije necu navoditi sve klase. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
 **Alat:** ChatGPT (OpenAI)  
 **Datum pristupa:** 2025-10-12   
 **Svrha:** Unapređenje CSS-a refaktor,poboljšanje responzivnosti.
@@ -1718,7 +1718,7 @@ Za ime apartmana/sobe, lokaciju te cijenu definirani su padding, veličina fonta
 Gumbovima je definirana pozadinska boja, boja teksta, zakrivljena nevidljiva granica, padding sa svih strana te desna margina. Tekst je podebljan te se pokazivačem miša implicira da se gumb može stisnuti. Kada stavimo miš na gumb, boja gumba također lagano prelazi u svjetliju plavu boju. Također, definirani su veličina fonta te boja za span element(ocjenu). Za manje ekrane, prikazuje se dva odnosno jedan element u svakome redu.
 
 Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima tamnije plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"fpitem" ali zbog redundancije necu navoditi sve klase. Ai mi je poboljsao moj css te nadogradio tako da vizualno ljepse izgleda naspram mog pocetnog koda.
+Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima tamnije plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"fpitem" ali zbog redundancije necu navoditi sve klase. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
 **Alat:** ChatGPT (OpenAI)  
 **Datum pristupa:** 2025-10-12   
 **Svrha:** Unapređenje CSS-a refaktor, poboljsanje u responzivnosti.
@@ -1855,7 +1855,7 @@ Gumb je iste visine kao i input element te mu je sadržaj pomaknut od granica el
 Za manje ekrane(480 piksela i manje) umanjeni su padding elemenata glavnog containera te veličina fonta naslova i span elementa. Također, gumb je prebačen u novi red jer mu je širina ista širini ekrana, kako bi bilo više mjesta za unos korisnikovog e-maila.
 
 Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima plavu boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"mailinputcontainer" ali zbog redundancije necu navoditi sve klase. Ai mi je poboljsao moj css te nadogradio tako da vizualno ljepse izgleda naspram mog pocetnog koda.
+Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima plavu boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"mailinputcontainer" ali zbog redundancije necu navoditi sve klase. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
 **Alat:** ChatGPT (OpenAI)  
 **Datum pristupa:** 2025-10-13   
 **Svrha:** Unapređenje CSS-a refaktor, poboljsanje u responzivnosti.
@@ -1947,7 +1947,7 @@ Podnožju je potrebno dodati CSS stil:
 Podnožje će biti širine cijelog zaslona s ograničenjem na 1024 piksela, što znači da će za ekrane veće od 1024 piksela, širina podnožja ostati(biti ograničena) na 1024 piksela. Veličina fonta postavljena je na 15 piksela. Container koji sadrži neporedane liste će zauzimati cijelu širinu containera podnožja te će neporedane liste unutar njega imati razmak među sobom. Za sadržaj toga containera, još je definirana i donja margina od 50 piksela. Neporedane liste nemaju nikakve bullete ispred teksta, kao ni padding između svakog elementa liste. Svaki element neporedanih lista ima postavljenu donju marginu od 10 piksela te je boja teksta plava i kursor miša postaje pointer kada ga držimo ispred elementa liste.
 
 Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"flistitem" ali zbog redundancije necu navoditi sve klase. Ai mi je poboljsao moj css te nadogradio tako da vizualno ljepse izgleda naspram mog pocetnog koda.
+Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"flistitem" ali zbog redundancije necu navoditi sve klase. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
 **Alat:** ChatGPT (OpenAI)  
 **Datum pristupa:** 2025-10-13   
 **Svrha:** Unapređenje CSS-a refaktor.
@@ -2666,8 +2666,8 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
 
 Inspiracija izrade i integracije Google maps servisa napravljena je korištenjem [Tutorial videozapisa](https://youtu.be/oP-0wi0CRzc?si=EEQ6gW1SnbTN21bL) 
 Za samu izradu elementa koristila se webstranica [Generator maps html koda](https://www.maps.ie/create-google-map) koja nam unosom potrebnih parametara za našu stranicu
-stvori div/IFrame komponentu koja se onda ubaci u naš Hotel.jsx kod. Parametri koje sam unjio u stranicu pod Enter your settings su ->
-Title : Apartman Ani ,  Address: Odranska Ulica 8, Coordinates -> program automatski popunio, Height: 600 , Width: 100%, te ostali parametri poput views,Zoom su se automatski default vrijednosti na Map, 400 m (district), Auto-fit Width je uključen te on omogućuje da se expanda na veličinu Containera.
+stvori div/IFrame komponentu koja se onda ubaci u naš Hotel.jsx kod. Parametri koje sam unio u stranicu pod Enter your settings su ->
+Title : Apartman Ani ,  Address: Odranska Ulica 8, Coordinates -> program automatski popunio, Height: 600 , Width: 100%, te ostali parametri poput views, Zoom su se automatski default vrijednosti na Map, 400 m (district), Auto-fit Width je uključen te on omogućuje da se expanda na veličinu Containera.
 Nakon unosa željenih parametara možemo s desne strane prekopirati iFrame kod koji koristimo na Hotel.jsx fileu.
 Nije bilo potrebno instalirati vanjske pakete niti povezivati se s Gooogle maps Api-em što omogućuje lakše integriranje u stranicu.
 ```jsx

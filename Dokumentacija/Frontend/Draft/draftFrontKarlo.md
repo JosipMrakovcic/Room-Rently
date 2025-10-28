@@ -2310,7 +2310,7 @@ html, body {
 Za ekrane širine manje ili jednake 360 piksela smanjen je padding containera i searcha. Elementi lsoptionitem-a poravnati su u lijevo, a input elementi sada zauzimaju 100% širine containera(nalaze se u svojem redu). Širina sadržaja stranice ne smije biti veća od 100%, a eventualni višak će biti sakriven.
 
 # Komponenta searchitem
-Sada kada smo završili s izradom stranice list, potrebno je napraviti komponentu searchitem koja će se koristiti na stranici list, a trenutno je zakomentirana. Napravimo mapu seachitem u mapi components s odgovarajućim .jsx i .css datotekama. Struktura komponente izgledati će ovako:
+Sada kada smo završili s izradom stranice list, potrebno je napraviti komponentu searchitem koja će se koristiti na stranici list, a trenutno je zakomentirana. Napravimo mapu seachitem u mapi components s odgovarajućim .jsx i .css datotekama. Sada možemo otkomentirati komponentu na stranici list. Struktura komponente izgledati će ovako:
 ```jsx
 import "./searchitem.css";
 const Searchitem=  ()=>{

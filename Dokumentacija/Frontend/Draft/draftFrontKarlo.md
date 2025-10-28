@@ -2680,20 +2680,20 @@ Nije bilo potrebno instalirati vanjske pakete niti povezivati se s Gooogle maps 
 
 ### Inline css objašnjenja:
 
-width="100%" - Širina <iframe> elementa - 100% znači da će iframe zauzeti cijelu širinu roditeljskog elementa.
-height="600" - Visina iframea u pikselima. U ovom slučaju 600px.
-frameborder="0" - Stari HTML atribut koji uklanja okvir (border) oko iframea. Vrijednost 0 znači nema okvira.
-scrolling="no" - Kontrolira da li iframe prikazuje scroll barove. no znači da scroll bar neće biti prikazan, čak ako sadržaj iframea prelazi veličinu.
-marginheight="0" i marginwidth="0" - Definiraju vanjske margine (padding) unutar iframea. Vrijednost 0 znači da nema margina.
+* width="100%" - Širina <iframe> elementa - 100% znači da će iframe zauzeti cijelu širinu roditeljskog elementa.
+* height="600" - Visina iframea u pikselima. U ovom slučaju 600px.
+* frameborder="0" - Stari HTML atribut koji uklanja okvir (border) oko iframea. Vrijednost 0 znači nema okvira.
+* scrolling="no" - Kontrolira da li iframe prikazuje scroll barove. no znači da scroll bar neće biti prikazan, čak ako sadržaj iframea prelazi veličinu.
+* marginheight="0" i marginwidth="0" - Definiraju vanjske margine (padding) unutar iframea. Vrijednost 0 znači da nema margina.
 
 ### Objašnjenje parametara u URL-u:
 
-width=100%25 - širina mape (100%, %25 je URL encoding za %)
-height=600 - visina mape (600px)
-hl=hr - jezik sučelja mape (hr - hrvatski)
-q=Odranska Ulica 8 (Apartman Ani) - lokacija koju mapa prikazuje
-t= - tip mape (m = standard, k = satelit, h = teren itd.); ovdje prazan = standard
-z=14 - zoom razina (1 = cijeli svijet, 20 = ulica)
-ie=UTF8 - encoding za URL, UTF-8
-iwloc=B - inicijalna pozicija info window-a (oznaka B na mapi)
-output=embed - vraća mapu u embed formatu za iframe
+* width=100%25 - širina mape (100%, %25 je URL encoding za %)
+* height=600 - visina mape (600px)
+* hl=hr - jezik sučelja mape (hr - hrvatski)
+* q=Odranska Ulica 8 (Apartman Ani) - lokacija koju mapa prikazuje
+* t= - tip mape (m = standard, k = satelit, h = teren itd.); ovdje prazan = standard
+* z=14 - zoom razina (1 = cijeli svijet, 20 = ulica)
+* ie=UTF8 - encoding za URL, UTF-8
+* iwloc=B - inicijalna pozicija info window-a (oznaka B na mapi)
+* output=embed - vraća mapu u embed formatu za iframe

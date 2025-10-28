@@ -2126,7 +2126,7 @@ Search će imati žutu pozadinu s dijagonalnim prijelazom iz tamnije u svjetliju
   background-color: #f0f0f0;
 }
 ```
-Elementi liste biti će svaki u svome redu s razmakom od 6 piksela te donjom marginom od 16 piksela i zauzimati će 100% širine containera. Za labelu, definirana je responzivnost veličine fonta, debljina fonta te boja. Za input i span elemente imena sobe i datuma, definirana je visina, zakrivljeni rubovi, padding sa svih strana, responzivnost veličine fonta te širina u odnosu na container. Za input je dodatno definirana boja teksta te obrub i sjena kada kliknemo na input. Osim toga, span elementu dodana je boja pozadine te je visina teksta centrirana. Kursor je pointer dok ga držimo iznad span-a te je boja teksta siva. Ako je element prevelik, onda se višak sakrije te će višak teksta biti prikazan s tri točke, a sav tekst će biti prikazan u istome redu.
+Elementi liste biti će svaki u svome redu s razmakom od 6 piksela te donjom marginom od 16 piksela i zauzimati će 100% širine containera. Za labelu, definirana je responzivnost veličine fonta, debljina fonta te boja. Za input i span elemente imena sobe i datuma, definirana je visina, zakrivljeni rubovi, padding sa svih strana, responzivnost veličine fonta te širina u odnosu na container. Za input je dodatno definirana boja teksta te obrub i sjena kada kliknemo na input. Osim toga, span elementu dodana je boja pozadine te je visina teksta centrirana. Kursor je pointer dok ga držimo iznad span-a te je boja teksta siva. Ako je element prevelik, onda se višak sakrije te će višak teksta biti prikazan s tri točke, a sav tekst će biti prikazan u istome redu. Na hover, boja span elementa postaje malo tamnija.
 ```css
 .lsoptions {
   padding: 10px 0;
@@ -2146,7 +2146,7 @@ Elementi liste biti će svaki u svome redu s razmakom od 6 piksela te donjom mar
   gap: 10px;
 }
 ```
-
+Opcije imaju definirani gornji i donji padding od 10 piksela te gornji obrub crne boje s neprozirnosti 10%. Također imaju gornju marginu te zauzimaju cijelu širinu containera. Elementi lsoptionitema imaju razmak među sobom te su centrirani u odnosu na visinu. Osim toga imaju donju marginu, responzivnu veličinu fonta, boju teksta te zauzimaju cijelu širinu containera i razmaknuti su od drugih itema za 10 piksela.
 ```css
 .lsoptioninput {
   width: 60px;
@@ -2165,7 +2165,7 @@ Elementi liste biti će svaki u svome redu s razmakom od 6 piksela te donjom mar
   border-color: #0099cc;
 }
 ```
-
+Input elementi koji služe za promjenu brojeva u opcijama imaju definiranu širinu, padding, zakrivljene rubove te bijelu granicu. Nemaju obrub te im je tekst centriran. Veličina fonta je responzivna, a klikom na input element, granica dobiva plavu boju.
 ```css
 .listsearch > button {
   padding: 12px;
@@ -2187,8 +2187,7 @@ Elementi liste biti će svaki u svome redu s razmakom od 6 piksela te donjom mar
   transform: translateY(-2px);
 }
 ```
-
-
+Gumb ima svoj padding, boju pozadine i teksta, debljinu fonta te zauzima cijelu širinu containera. Rubovi gumba su zakrivljeni, a kursor kada ga držimo ispred gumba postaje pointer. Osim toga, definirani su gornja margina te responzivna veličina fonta. U veličinu elementa uračunata je i granica, a kada hoveramo gumb mišem, boja pozadine se promijeni u tamniju te se gumb pomakne za 2 piksela prema gore. 
 ```css
 /* ===== Results Section ===== */
 .listresult {
@@ -2199,7 +2198,7 @@ Elementi liste biti će svaki u svome redu s razmakom od 6 piksela te donjom mar
   min-width: 0; /* Prevents flex item overflow */
 }
 ```
-
+Rezultati pretraživanja zauzimaju 3/4 širine containera, dok listsearch zauzima ostatak. Elementi su mu poredani u istome stupcu, svaki u svojem redu s razmakom od 20 piksela te mogućnosti smanjenja širine.
 ```css
 /* ===== Responsive Design ===== */
 @media (max-width: 900px) {
@@ -2209,7 +2208,6 @@ Elementi liste biti će svaki u svome redu s razmakom od 6 piksela te donjom mar
   }
 
   .listsearch {
-    position: static;
     width: 100%;
     max-width: none;
   }
@@ -2219,7 +2217,7 @@ Elementi liste biti će svaki u svome redu s razmakom od 6 piksela te donjom mar
   }
 }
 ```
-
+Za ekrane širine manje ili jednake 900 piksela, search će zauzimati 100% širine ekrana kao i rezultati te će se rezultati nalaziti ispod njega razmaknuti za 20 piksela.
 ```css
 @media (max-width: 768px) {
   .listcontainer {
@@ -2246,7 +2244,7 @@ Elementi liste biti će svaki u svome redu s razmakom od 6 piksela te donjom mar
   }
 }
 ```
-
+Za ekrane širine manje ili jednake 768 piksela, container će imati manji lijevi i desni padding te gornju marginu. Također, razmak između searcha i rezultata će biti manji, kao i padding i zakrivljenje rubova kod searcha. Input element će sada zauzimati širine koliko može, s maksimalnom širinom od 80 piksela.
 ```css
 @media (max-width: 480px) {
   .listcontainer {
@@ -2278,7 +2276,7 @@ Elementi liste biti će svaki u svome redu s razmakom od 6 piksela te donjom mar
   }
 }
 ```
-
+Kao i kod ekrana širine manje ili jednake 768 piksela, kod ekranja širine manje ili jednake 480 piksela smanjiti će se još više iste stvari kod listcontainera te listsearcha. Smanjiti će se donja margina lsitema te visina input i span elementa unutar njih. Padding će se također smanjiti za njih kao i za gumb te opcije.
 ```css
 /* Prevent horizontal scrolling on very small screens */
 @media (max-width: 360px) {
@@ -2307,5 +2305,359 @@ Elementi liste biti će svaki u svome redu s razmakom od 6 piksela te donjom mar
 
 html, body {
   overflow-x: hidden;
+}
+```
+Za ekrane širine manje ili jednake 360 piksela smanjen je padding containera i searcha. Elementi lsoptionitem-a poravnati su u lijevo, a input elementi sada zauzimaju 100% širine containera(nalaze se u svojem redu). Širina sadržaja stranice ne smije biti veća od 100%, a eventualni višak će biti sakriven.
+
+# Komponenta searchitem
+Sada kada smo završili s izradom stranice list, potrebno je napraviti komponentu searchitem koja će se koristiti na stranici list, a trenutno je zakomentirana. Napravimo mapu seachitem u mapi components s odgovarajućim .jsx i .css datotekama. Struktura komponente izgledati će ovako:
+```jsx
+import "./searchitem.css";
+const Searchitem=  ()=>{
+    return(
+        <div className="searchitem">
+            <img src="20210710_084619.jpg" alt="" className="siimg" />
+            <div className="sidesc">
+                <h1 className="siTitle">Tower Street Apartments</h1>
+                <span className="siDistance">500m from center</span>
+                <span className="siTaxiOp">Free airport taxi</span>
+                <span className="siSubtitle">
+                    Studio Apartment with Air conditioning
+                </span>
+                <span className="siFeatures">
+                Entire studio . 1 bathroom . 21m2 1 full bed
+                </span>
+                <span className="siCancelOp">Free cancellation </span>
+                <span className="siCancelOpSubtitle">
+                You can cancel later, so lock in this great price today!
+                </span>
+            </div>
+            <div className="sidetails">
+                <div className="sirating">
+                    <span>Excellent</span>
+                    <button>8.9</button>
+                </div>
+                <div className="sidetailtexts">
+                    <span className="siprice">67$</span>
+                    <span className="sitaxop">Includes taxes and fees</span>
+                    <button className="sicheckbutton">See avalability</button>
+                </div>
+            </div>
+        </div>
+    )
+}
+export default Searchitem
+```
+Dakle, div container imati će sliku apartmana te sve potrebne informacije vezane za apartman i gumb koji će prikazati raspoloživost. Sada je potrebno komponenti dodati izgled pomoću CSS stila:
+```css
+.searchitem {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.searchitem:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+```
+
+```css
+.siimg {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.sidesc {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.sidetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  text-align: right;
+}
+```
+
+```css
+.siTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0d2ca8;
+  margin-bottom: 4px;
+}
+
+.siDistance,
+.siTaxiOp,
+.siSubtitle,
+.siFeatures,
+.siCancelOpSubtitle {
+  font-size: 14px;
+  color: #555;
+}
+```
+
+```css
+.siTaxiOp {
+  background-color: #00b341;
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.siSubtitle {
+  font-weight: 600;
+  color: #333;
+}
+
+.siFeatures {
+  color: #666;
+}
+
+.siCancelOp {
+  font-size: 13px;
+  color: #00b341;
+  font-weight: 700;
+}
+
+.siCancelOpSubtitle {
+  color: #00b341;
+  font-size: 13px;
+}
+```
+
+```css
+.sirating {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+.sirating > span {
+  font-weight: 500;
+  font-size: 15px;
+  color: #333;
+}
+
+.sirating > button {
+  background-color: #000040;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.sirating > button:hover {
+  background-color: #001a80;
+}
+```
+
+```css
+.sidetailtexts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.siprice {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111;
+}
+
+.sitax {
+  font-size: 13px;
+  color: #888;
+}
+```
+
+```css
+.sicheckbutton {
+  background-color: #00a2ff;
+  color: white;
+  font-weight: 600;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.sicheckbutton:hover {
+  background-color: #0088dd;
+  transform: translateY(-2px);
+}
+```
+
+```css
+/* Enhanced Responsive Design */
+@media (max-width: 1024px) {
+  .searchitem {
+    gap: 20px;
+    padding: 14px;
+  }
+  
+  .siimg {
+    width: 180px;
+    height: 180px;
+  }
+  
+  .siTitle {
+    font-size: 18px;
+  }
+  
+  .siprice {
+    font-size: 20px;
+  }
+}
+```
+
+```css
+@media (max-width: 768px) {
+  .searchitem {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .siimg {
+    width: 100%;
+    height: 220px;
+    margin-bottom: 8px;
+  }
+
+  .sidesc {
+    gap: 12px;
+  }
+
+  .sidetails {
+    align-items: stretch;
+    text-align: left;
+    gap: 16px;
+  }
+
+  .sidetailtexts {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .sirating {
+    justify-content: space-between;
+    order: -1;
+    margin-bottom: 8px;
+  }
+
+  .siTaxiOp {
+    align-self: flex-start;
+  }
+}
+```
+
+```css
+@media (max-width: 480px) {
+  .searchitem {
+    padding: 12px;
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+
+  .siimg {
+    height: 180px;
+  }
+
+  .siTitle {
+    font-size: 18px;
+  }
+
+  .siDistance,
+  .siTaxiOp,
+  .siSubtitle,
+  .siFeatures,
+  .siCancelOpSubtitle {
+    font-size: 13px;
+  }
+
+  .siprice {
+    font-size: 20px;
+  }
+
+  .sicheckbutton {
+    padding: 12px 16px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .sirating {
+    flex-wrap: wrap;
+  }
+
+  .sirating > button {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+}
+```
+
+```css
+@media (max-width: 360px) {
+  .searchitem {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .siimg {
+    height: 160px;
+  }
+
+  .siTitle {
+    font-size: 16px;
+  }
+
+  .siprice {
+    font-size: 18px;
+  }
+}
+```
+
+```css
+/* Print styles */
+@media print {
+  .searchitem {
+    border: 1px solid #000;
+    box-shadow: none;
+    break-inside: avoid;
+  }
+  
+  .sicheckbutton {
+    display: none;
+  }
 }
 ```

@@ -2,7 +2,7 @@
   width: 100%;
   max-width: 1024px;
   display: flex;
-  flex-wrap: wrap; /* allows wrapping on smaller screens */
+  flex-wrap: wrap; 
   justify-content: space-between;
   gap: 24px;
   margin: 0 auto;
@@ -11,7 +11,7 @@
 }
 
 .plistItem {
-  flex: 1 1 calc(33.333% - 24px); /* 3 items per row */
+  flex: 1 1 calc(33.333% - 24px); 
   border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
@@ -55,16 +55,15 @@
   color: #666;
 }
 
-/* Add some responsive behavior */
 @media (max-width: 768px) {
   .plistItem {
-    flex: 1 1 calc(50% - 24px); /* 2 items per row on tablet */
+    flex: 1 1 calc(50% - 24px); 
   }
 }
 
 @media (max-width: 480px) {
   .plistItem {
-    flex: 1 1 100%; /* full width on small screens */
+    flex: 1 1 100%; 
   }
 
   .plistimg {

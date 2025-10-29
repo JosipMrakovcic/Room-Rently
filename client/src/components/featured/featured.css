@@ -41,7 +41,6 @@
   filter: brightness(60%);
 }
 
-/* Add a subtle overlay gradient for readability */
 .featureditem::after {
   content: "";
   position: absolute;
@@ -69,7 +68,6 @@
   color: #f1f1f1;
 }
 
-/* Responsive behavior */
 @media (max-width: 768px) {
   .featureditem {
     flex: 1 1 calc(50% - 24px);

@@ -14,7 +14,7 @@
   max-width: 1024px;
   text-align: center;
   margin: 0px 0px 5px 0px;
-  padding: 0 20px; /* Dodan padding za mobilne uređaje */
+  padding: 0 20px; 
   box-sizing: border-box;
 }
 
@@ -69,7 +69,7 @@
   font-weight: 500;
   color: #ffffff;
   line-height: 1.5;
-  padding: 0 20px; /* Dodan padding za mobilne uređaje */
+  padding: 0 20px; 
 }
 
 .headerBTN {
@@ -83,7 +83,7 @@
   box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
   margin: 30px;
-  max-width: 90%; /* Osigurava da button ne prelazi širinu ekrana */
+  max-width: 90%; 
   box-sizing: border-box;
 }
 
@@ -93,7 +93,6 @@
   box-shadow: 0px 6px 10px rgba(0,0,0,0.15);
 }
 
-/* Header Search - Desktop */
 .headerSearch {
   height: 50px;
   background-color: white;
@@ -125,32 +124,30 @@
   white-space: nowrap;
 }
 
-/* Date Picker - Desktop */
 .date {
   position: absolute;
   top: 50px;
   left: 210px;
   z-index: 2;
-  transform: scale(0.9); /* Smanjen date picker */
+  transform: scale(0.9); 
   transform-origin: top left;
 }
 
-/* Options - Desktop */
 .options {
   z-index: 2;
-  padding: 8px; /* Smanjen padding */
+  padding: 8px; 
   position: absolute;
   top: 50px;
   background-color: white;
   color: gray;
-  border: 2px solid rgb(255, 174, 0); /* Smanjen border */
+  border: 2px solid rgb(255, 174, 0); 
   border-radius: 5px;
-  transform: scale(0.9); /* Smanjene opcije */
+  transform: scale(0.9); 
   transform-origin: top left;
 }
 
 .optionitem {
-  width: 180px; /* Smanjena širina */
+  width: 180px; 
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
@@ -159,26 +156,25 @@
 .optioncounter {
   display: flex;
   align-items: center;
-  gap: 8px; /* Smanjen gap */
-  font-size: 11px; /* Smanjen font */
+  gap: 8px; 
+  font-size: 11px; 
   color: black;
 }
 
 .optioncounterbutton {
-  width: 25px; /* Smanjeni buttoni */
+  width: 25px; 
   height: 25px;
   border: 1px solid lightskyblue;
   color: #00c6ff;
   cursor: pointer;
   background-color: white;
-  font-size: 0.8rem; /* Smanjen font u buttonima */
+  font-size: 0.8rem; 
 }
 
 .optioncounterbutton:disabled {
   cursor: not-allowed;
 }
 
-/* Responsive Design - Tablet */
 @media screen and (max-width: 768px) {
   
   .headerList {
@@ -251,22 +247,21 @@
     height: 22px;
   }
   .headerContainer h1 {
-    font-size: 1.8rem; /* smaller title */
+    font-size: 1.8rem; 
     margin-bottom: 10px;
   }
 
   .headerDesc {
-    font-size: 1rem; /* smaller text */
+    font-size: 1rem; 
     padding: 0 15px;
     margin: 15px 0;
   }
 
   .header {
-    padding: 30px 0; /* reduced vertical padding */
+    padding: 30px 0; 
   }
 }
 
-/* Responsive Design - Mobile */
 @media screen and (max-width: 480px) {
   .header {
     padding: 20px 0;
@@ -355,7 +350,7 @@
     font-size: 0.7rem;
   }
    .headerContainer h1 {
-    font-size: 1.4rem; /* much smaller title */
+    font-size: 1.4rem; 
     margin-bottom: 8px;
   }
 
@@ -367,7 +362,6 @@
   }
 }
 
-/* Extra Small Devices */
 @media screen and (max-width: 360px) {
   .headerList {
     gap: 10px;

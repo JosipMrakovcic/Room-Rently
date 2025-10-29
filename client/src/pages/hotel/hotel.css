@@ -1,4 +1,3 @@
-/* ===== Container and Wrapper ===== */
 .hotelcontainer {
   display: flex;
   align-items: center;
@@ -21,7 +20,6 @@
   position: relative;
 }
 
-/* ===== Header and Basic Info ===== */
 .hoteltitle {
   font-size: 28px;
   font-weight: 700;
@@ -48,7 +46,6 @@
   font-size: 14px;
 }
 
-/* ===== Book Now Button (top-right) ===== */
 .booknow {
   position: absolute;
   top: 10px;
@@ -68,7 +65,6 @@
   transform: translateY(-2px);
 }
 
-/* ===== Image Gallery ===== */
 .hotelimages {
   display: flex;
   flex-wrap: wrap;
@@ -96,7 +92,6 @@
   display: block;
 }
 
-/* ===== Details Section ===== */
 .hoteldetails {
   display: flex;
   justify-content: space-between;
@@ -105,7 +100,6 @@
   margin-top: 30px;
 }
 
-/* ===== Left Column (Description) ===== */
 .hoteldetailstexts {
   flex: 3;
   background-color: #ffffff;
@@ -128,7 +122,6 @@
   text-align: justify;
 }
 
-/* ===== Right Column (Price Box) ===== */
 .hoteldetailsprice {
   flex: 1.3;
   display: flex;
@@ -182,7 +175,6 @@
   transform: translateY(-2px);
 }
 
-/* ===== Responsive Design ===== */
 @media (max-width: 900px) {
   .hoteldetails {
     flex-direction: column;

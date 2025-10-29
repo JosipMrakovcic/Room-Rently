@@ -114,7 +114,7 @@ Sve animacije i izgled definirani su u Landingscreen.css-u.
 
 ```css
 .landing {
-  height: 100vh; /* Puni ekran po visini */
+  height: 100vh; 
   width: 100%;
   display: flex;
   justify-content: center;
@@ -493,7 +493,7 @@ const login = useGoogleLogin({
       );
 
       setUser(res.data);
-      localStorage.setItem("googleUser", JSON.stringify(res.data)); // persist
+      localStorage.setItem("googleUser", JSON.stringify(res.data)); 
       console.log("User info:", res.data);
     } catch (err) {
       console.error("Error fetching user info:", err);
@@ -551,6 +551,7 @@ Ovaj blok koda koji je zamijenio statički div element klase navItems koristi uv
           borderRadius: "50%",
           marginRight: "10px",
         }}
+        referrerPolicy="no-referrer"
       />
       <span>{user.name}</span>
       <button className="navButton" onClick={logout}>
@@ -633,7 +634,7 @@ Ovdje je implementirana pozadinska boja te boja teksta. Zatim raspored elemenata
   max-width: 1024px;
   text-align: center;
   margin: 0px 0px 5px 0px;
-  padding: 0 20px; /*Dodan padding za mobilne uređaje */
+  padding: 0 20px; 
   box-sizing: border-box;
 }
 .headerContainer.listmode {
@@ -648,7 +649,7 @@ Ovdje je implementirana pozadinska boja te boja teksta. Zatim raspored elemenata
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 80px; /* Bigger spacing since only two items */
+  gap: 80px; 
 }
 ```
 
@@ -664,7 +665,7 @@ Elementi apartmana i soba poravnati su u sredinu te su poredani slijedno po lini
   transition: transform 0.3s ease, color 0.3s ease;
 }
 .headerListItem i {
-  font-size: 2.5rem; /* Bigger icon size */
+  font-size: 2.5rem; 
   margin-bottom: 50px;
 }
 
@@ -711,35 +712,36 @@ popraćen CSS-om:
 ```css
 .headerDesc {
   margin: 20px 0;
-  font-size: 1.2rem; /* Slightly bigger for readability */
+  font-size: 1.2rem; 
   font-weight: 500;
-  color: #ffffff; /* Softer color than black */
+  color: #ffffff; 
   line-height: 1.5;
+  padding: 0 20px; 
 }
 
 .headerBTN {
   background-color: rgb(14, 95, 245);
   color: white;
-  font-weight: 600; /* Slightly bolder */
+  font-weight: 600; 
   border: none;
-  padding: 12px 25px; /* More spacious padding */
-  border-radius: 8px; /* Rounded corners for a modern look */
+  padding: 12px 25px;
+  border-radius: 8px; 
   cursor: pointer;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-  transition: all 0.3s ease; /* Smooth transition on hover */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
+  transition: all 0.3s ease; 
   margin: 30px;
-  max-width: 90%; /* Osigurava da button ne prelazi širinu ekrana */
+  max-width: 90%; 
   box-sizing: border-box;
 }
 
 .headerBTN:hover {
-  background-color: rgb(10, 70, 200); /* Darker shade on hover */
-  transform: translateY(-2px); /* Slight lift effect */
-  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15); /* Slightly bigger shadow */
+  background-color: rgb(10, 70, 200); 
+  transform: translateY(-2px); 
+  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15); 
 }
 ```
 
-Odlomak ima svoje gornje i donje margine od 20 piksela te su definirana veličina, debljina i boja fonta kao i visina retka. Gumb je malo svjetlije boje od ostatka zaglavlja te su definirana obilježja fonta. Maknut je obrub, dodan razmak sa svih strana te zakrivljeni oblik granica. Također, implementirane su margine, pokazivač miša te sjena i promjena u malo tamniju boju te pomak prema gore prilikom hover-a.
+Odlomak ima svoje gornje i donje margine od 20 piksela te su definirana veličina, debljina i boja fonta kao i visina retka te lijevi i desni padding. Gumb je malo svjetlije boje od ostatka zaglavlja te su definirana obilježja fonta. Maknut je obrub, dodan razmak sa svih strana te zakrivljeni oblik granica. Također, implementirane su margine, pokazivač miša te sjena i promjena u malo tamniju boju te pomak prema gore prilikom hover-a.
 
 ### Tražilica
 
@@ -879,13 +881,12 @@ className = "date";
 i u CSS-u:
 
 ```css
-/* Date Picker - Desktop */
 .date {
   position: absolute;
   top: 50px;
   left: 210px;
   z-index: 2;
-  transform: scale(0.9); /* Smanjen date picker */
+  transform: scale(0.9); 
   transform-origin: top left;
 }
 ```
@@ -1065,21 +1066,20 @@ Kao što smo i u prijašnjem kodu napisali, ta funkcija prima dva parametra, ime
 Još nam preostaje implementirati izgled izbornika za biranje broja osoba te soba.
 
 ```css
-/* Options - Desktop */
 .options {
   z-index: 2;
-  padding: 8px; /* Smanjen padding */
+  padding: 8px; 
   position: absolute;
   top: 50px;
   background-color: white;
   color: gray;
-  border: 2px solid rgb(255, 174, 0); /* Smanjen border */
+  border: 2px solid rgb(255, 174, 0); 
   border-radius: 5px;
-  transform: scale(0.9); /* Smanjene opcije */
+  transform: scale(0.9);
   transform-origin: top left;
 }
 .optionitem {
-  width: 180px; /* Smanjena širina */
+  width: 180px;
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
@@ -1087,18 +1087,18 @@ Još nam preostaje implementirati izgled izbornika za biranje broja osoba te sob
 .optioncounter {
   display: flex;
   align-items: center;
-  gap: 8px; /* Smanjen gap */
-  font-size: 11px; /* Smanjen font */
+  gap: 8px; 
+  font-size: 11px; 
   color: black;
 }
 .optioncounterbutton {
-  width: 25px; /* Smanjeni buttoni */
+  width: 25px; 
   height: 25px;
   border: 1px solid lightskyblue;
   color: #00c6ff;
   cursor: pointer;
   background-color: white;
-  font-size: 0.8rem; /* Smanjen font u buttonima */
+  font-size: 0.8rem;
 }
 .optioncounterbutton:disabled {
   cursor: not-allowed;
@@ -1110,7 +1110,6 @@ Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar p
 Komponenta je u potpunosti responzivna i optimizirana za tablete(max-width: 768px), mobitele(max-width: 480px) te vrlo male ekrane(max-width: 360px). Glavne prilagodbe su redukcija fontova i margina.`headerSearch` prelazi u vertikalni layout, date i options elementi pozicioniraju se kao donji “sheet” na ekranu, a gumb i tekst postaju manji te razmaci proporcionalno kraći.
 
 ```css
-/* Responsive Design - Tablet */
 @media screen and (max-width: 768px) {
   .headerList {
     gap: 40px;
@@ -1182,22 +1181,21 @@ Komponenta je u potpunosti responzivna i optimizirana za tablete(max-width: 768p
     height: 22px;
   }
   .headerContainer h1 {
-    font-size: 1.8rem; /* smaller title */
+    font-size: 1.8rem; 
     margin-bottom: 10px;
   }
 
   .headerDesc {
-    font-size: 1rem; /* smaller text */
+    font-size: 1rem; 
     padding: 0 15px;
     margin: 15px 0;
   }
 
   .header {
-    padding: 30px 0; /* reduced vertical padding */
+    padding: 30px 0;
   }
 }
 
-/* Responsive Design - Mobile */
 @media screen and (max-width: 480px) {
   .header {
     padding: 20px 0;
@@ -1286,7 +1284,7 @@ Komponenta je u potpunosti responzivna i optimizirana za tablete(max-width: 768p
     font-size: 0.7rem;
   }
   .headerContainer h1 {
-    font-size: 1.4rem; /* much smaller title */
+    font-size: 1.4rem;
     margin-bottom: 8px;
   }
 
@@ -1298,7 +1296,6 @@ Komponenta je u potpunosti responzivna i optimizirana za tablete(max-width: 768p
   }
 }
 
-/* Extra Small Devices */
 @media screen and (max-width: 360px) {
   .headerList {
     gap: 10px;
@@ -1550,7 +1547,6 @@ Svaki element ima relativnu poziciju, visinu od 260 piksela te mu je omogućeno 
   filter: brightness(60%);
 }
 
-/* Add a subtle overlay gradient for readability */
 .featureditem::after {
   content: "";
   position: absolute;
@@ -1582,7 +1578,6 @@ Slike su širine i visine 100% featureditem containera te prekrivaju cijeli okvi
   color: #f1f1f1;
 }
 
-/* Responsive behavior */
 @media (max-width: 768px) {
   .featureditem {
     flex: 1 1 calc(50% - 24px);
@@ -1691,7 +1686,7 @@ te dodajmo naš propertylist na glavnu stranicu nakon njegovog naslova naredbom 
   width: 100%;
   max-width: 1024px;
   display: flex;
-  flex-wrap: wrap; /* allows wrapping on smaller screens */
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 24px;
   margin: 0 auto;
@@ -1700,7 +1695,7 @@ te dodajmo naš propertylist na glavnu stranicu nakon njegovog naslova naredbom 
 }
 
 .plistItem {
-  flex: 1 1 calc(33.333% - 24px); /* 3 items per row */
+  flex: 1 1 calc(33.333% - 24px);
   border-radius: 14px;
   overflow: hidden;
   cursor: pointer;
@@ -1748,16 +1743,15 @@ Glavni container kao i njegovi elementi(itemi) i slike imaju standardni stil koj
   color: #666;
 }
 
-/* Add some responsive behavior */
 @media (max-width: 768px) {
   .plistItem {
-    flex: 1 1 calc(50% - 24px); /* 2 items per row on tablet */
+    flex: 1 1 calc(50% - 24px);
   }
 }
 
 @media (max-width: 480px) {
   .plistItem {
-    flex: 1 1 100%; /* full width on small screens */
+    flex: 1 1 100%; 
   }
 
   .plistimg {
@@ -1855,16 +1849,16 @@ Svaki element(popularni apartman/soba) imati će svoju sliku, ime, lokaciju(broj
   width: 100%;
   max-width: 1024px;
   display: flex;
-  flex-wrap: wrap; /* Makes it responsive */
+  flex-wrap: wrap; 
   justify-content: space-between;
   gap: 24px;
-  margin: 0 auto; /* Center on the page */
+  margin: 0 auto;
   padding: 20px;
   box-sizing: border-box;
 }
 
 .fpitem {
-  flex: 1 1 calc(25% - 24px); /* Four items per row */
+  flex: 1 1 calc(25% - 24px); 
   display: flex;
   flex-direction: column;
   background-color: #fff;
@@ -1943,7 +1937,6 @@ Za ime apartmana/sobe, lokaciju te cijenu definirani su padding, veličina fonta
   color: #333;
 }
 
-/* Responsive tweaks */
 @media (max-width: 768px) {
   .fpitem {
     flex: 1 1 calc(50% - 24px);
@@ -2089,7 +2082,6 @@ Elementi containera za pretplatu su centrirani u jednome redu te je razmak izme�
 Gumb je iste visine kao i input element te mu je sadržaj pomaknut od granica elementa s lijeve i desne strane za 24 piksela. Boja pozadine je plava, a boja teksta je bijela debljine 600. Obruba nema, a rubovi su zaobljeni. Pokazivač miša koji se pojavi prelaskom preko gumba implicira da se gumb može kliknuti. Također, kada stavimo pokazivač miša ispred gumba, gumb se pomakne prema gore za 2 piksela te mu boja postane tamnija nijansa plave. Prilikom klika na gumb, on se smanji na 98% svoje prvotne veličine.
 
 ```css
-/* Responsive tweaks */
 @media (max-width: 480px) {
   .mail {
     padding: 40px 16px;
@@ -2350,7 +2342,6 @@ Dakle, nakon headera dodali smo container i wrapper te sam listsearch. Naslov je
 Containeru će sadržaj biti flex te centriran s gornjom marginom od 30 piksela odnosno bit će pomaknut od headera. Padding sadržaja od granica će biti 20 piksela od lijeve i desne strane te će container biti iste širine kao i stranica. Također, wrapper će uzimati cijelu širinu containera s ograničenjem od 1100 piksela te će razmak elemenata wrappera iznositi 24 piksela. Elementi će započinjati na vrhu wrappera te će zauzimati samo onoliko visine koliko im je potrebno.
 
 ```css
-/* ===== Search Sidebar ===== */
 .listsearch {
   flex: 1;
   background: linear-gradient(135deg, #f3c247, #f9d76a);
@@ -2497,20 +2488,18 @@ Input elementi koji služe za promjenu brojeva u opcijama imaju definiranu širi
 Gumb ima svoj padding, boju pozadine i teksta, debljinu fonta te zauzima cijelu širinu containera. Rubovi gumba su zakrivljeni, a kursor kada ga držimo ispred gumba postaje pointer. Osim toga, definirani su gornja margina te responzivna veličina fonta. U veličinu elementa uračunata je i granica, a kada hoveramo gumb mišem, boja pozadine se promijeni u tamniju te se gumb pomakne za 2 piksela prema gore.
 
 ```css
-/* ===== Results Section ===== */
 .listresult {
   flex: 3;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  min-width: 0; /* Prevents flex item overflow */
+  min-width: 0; 
 }
 ```
 
 Rezultati pretraživanja zauzimaju 3/4 širine containera, dok listsearch zauzima ostatak. Elementi su mu poredani u istome stupcu, svaki u svojem redu s razmakom od 20 piksela te mogućnosti smanjenja širine.
 
 ```css
-/* ===== Responsive Design ===== */
 @media (max-width: 900px) {
   .listwrapper {
     flex-direction: column;
@@ -2594,7 +2583,6 @@ Za ekrane širine manje ili jednake 768 piksela, container će imati manji lijev
 Kao i kod ekrana širine manje ili jednake 768 piksela, kod ekranja širine manje ili jednake 480 piksela smanjiti će se još više iste stvari kod listcontainera te listsearcha. Smanjiti će se donja margina lsitema te visina input i span elementa unutar njih. Padding će se također smanjiti za njih kao i za gumb te opcije.
 
 ```css
-/* Prevent horizontal scrolling on very small screens */
 @media (max-width: 360px) {
   .listcontainer {
     padding: 0 8px;
@@ -2614,7 +2602,6 @@ Kao i kod ekrana širine manje ili jednake 768 piksela, kod ekranja širine manj
   }
 }
 
-/* Ensure no content overflows on any screen size */
 * {
   max-width: 100%;
 }
@@ -2852,7 +2839,6 @@ Span elementi cijene i poreza te gumb su svaki u svome redu s razmakom od 6 piks
 Gumb ima definirane standardne stvari kao što su pozadinska te boja fonta, debljina fonta, padding sa svih strana, zakrivljeni rubovi te nevidljiva granica. Na hover, kursor postaje pointer, pozadinska boja tamnija te se gumb pomakne za 2 piksela prema gore.
 
 ```css
-/* Enhanced Responsive Design */
 @media (max-width: 1024px) {
   .searchitem {
     gap: 20px;
@@ -3175,7 +3161,6 @@ Nije bilo potrebno instalirati vanjske pakete niti povezivati se s Gooogle maps 
 Naposljetku, potrebno je našim elementima dodati CSS stil kako bi stranica izgledala lijepo i interaktivno:
 
 ```css
-/* ===== Container and Wrapper ===== */
 .hotelcontainer {
   display: flex;
   align-items: center;
@@ -3202,7 +3187,6 @@ Naposljetku, potrebno je našim elementima dodati CSS stil kako bi stranica izgl
 Elementi containera, nalaze se svaki u svome redu, poravnati u sredinu po širini. Container ima gornju marginu od 20 piksela kako bi bio odmaknut od zaglavlja te lijevi i desni padding od 20 piksela. Span elementima slidera(strelicama i križiću), definirane su lijeva i desna margina, veličina fonta te prilikom hovera preko njih, kursor postaje pointer. Wrapper hotela, koji u biti sadrži sve osim komponenti i slidera, zauzima 100% širine hotel containera s maksimalnom širinom od 1024 piksela. Njegovi elementi smješteni su svaki u svome redu s razmakom među njima od 20 piksela. Pozicija mu je relativna kako bi booknow gumb mogli pozicionirati apsolutno u odnosu na njega.
 
 ```css
-/* ===== Header and Basic Info ===== */
 .hoteltitle {
   font-size: 28px;
   font-weight: 700;
@@ -3233,7 +3217,6 @@ Elementi containera, nalaze se svaki u svome redu, poravnati u sredinu po širin
 Glavnom naslovu definirani su veličina, debljina i boja fonta te donja margina kako bi bio razmaknut od adrese. Adresa ima veličinu fonta od 14 piksela sive boje te joj je visina centrirana. Također, udaljenost i istaknute informacije u vezi cijene imaju određenu boju, debljinu te veličinu fonta.
 
 ```css
-/* ===== Book Now Button (top-right) ===== */
 .booknow {
   position: absolute;
   top: 10px;
@@ -3257,7 +3240,6 @@ Glavnom naslovu definirani su veličina, debljina i boja fonta te donja margina 
 Gumb booknow postavljen je na krajnje desnom mjestu hotelwrappera udaljen 10 piksela od njegova vrha. Granica mu je skrivena te mu je definiran padding sa svih strana. Pozadinska boja započinje s svjetlo plavom iz gornjeg lijevog kuta te prelazi dijagonalno u tamno plavu. Rubovi su mu zaobljeni te mu je tekst bijel i podebljan. Prilikom hoveranja, kursor postaje pointer te gumb postaje tamniji i pomakne se za 2 piksela prema gore.
 
 ```css
-/* ===== Image Gallery ===== */
 .hotelimages {
   display: flex;
   flex-wrap: wrap;
@@ -3289,7 +3271,6 @@ Gumb booknow postavljen je na krajnje desnom mjestu hotelwrappera udaljen 10 pik
 Slike su po 3 u svakome redu s razmakom između njih te razmakom između redova od 10 piksela. Rubovi slika su zaobljeni te je višak sakriven. Također je definirana sjena koja se povećava na hover kao i sama slika. Slike su širine 100% wrappera, visine 200 piksela, prikazane su kao block element te zauzimaju cijeli wrapper.
 
 ```css
-/* ===== Details Section ===== */
 .hoteldetails {
   display: flex;
   justify-content: space-between;
@@ -3298,7 +3279,6 @@ Slike su po 3 u svakome redu s razmakom između njih te razmakom između redova 
   margin-top: 30px;
 }
 
-/* ===== Left Column (Description) ===== */
 .hoteldetailstexts {
   flex: 3;
   background-color: #ffffff;
@@ -3321,7 +3301,6 @@ Slike su po 3 u svakome redu s razmakom između njih te razmakom između redova 
   text-align: justify;
 }
 
-/* ===== Right Column (Price Box) ===== */
 .hoteldetailsprice {
   flex: 1.3;
   display: flex;
@@ -3387,7 +3366,6 @@ Detalji cijene koji se nalaze u containeru sličnog naziva, imaju definiranu boj
 Gumb unutar detalja cijene ima gotovo isti stil s razlikom u veličini paddinga i dodatkom veličine fonta te je maknuto apsolutno pozicioniranje jer se ovaj gumb nalazi na dnu detalja cijene slijedno u svome redu ispod cijene.
 
 ```css
-/* ===== Responsive Design ===== */
 @media (max-width: 900px) {
   .hoteldetails {
     flex-direction: column;

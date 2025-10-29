@@ -74,7 +74,6 @@
   transform: scale(0.98);
 }
 
-/* Responsive tweaks */
 @media (max-width: 480px) {
   .mail {
     padding: 40px 16px;

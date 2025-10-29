@@ -1,20 +1,20 @@
-.footer{
-    width: 100%;
-    max-width: 1024px;
-    font-size: 15px;
+.footer {
+  width: 100%;
+  max-width: 1024px;
+  font-size: 15px;
 }
-.flists{
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 50px;
+.flists {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 50px;
 }
-.flist{
-    list-style: none;
-    padding: 0;
+.flist {
+  list-style: none;
+  padding: 0;
 }
-.flistitem{
-    margin-bottom: 10px;
-    color: rgb(23, 23, 104);
-    cursor: pointer;
+.flistitem {
+  margin-bottom: 10px;
+  color: rgb(23, 23, 104);
+  cursor: pointer;
 }

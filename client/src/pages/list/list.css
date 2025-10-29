@@ -21,8 +21,6 @@
   background: linear-gradient(135deg, #f3c247, #f9d76a);
   padding: 20px;
   border-radius: 16px;
-  position: sticky;
-  top: 100px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   color: #333;
   max-width: 100%;
@@ -161,7 +159,6 @@
   }
 
   .listsearch {
-    position: static;
     width: 100%;
     max-width: none;
   }
@@ -176,20 +173,20 @@
     padding: 0 15px;
     margin-top: 20px;
   }
-  
+
   .listwrapper {
     gap: 16px;
   }
-  
+
   .listsearch {
     padding: 16px;
     border-radius: 12px;
   }
-  
+
   .lsoptionitem {
     flex-wrap: wrap;
   }
-  
+
   .lsoptioninput {
     width: 100%;
     max-width: 80px;
@@ -201,26 +198,26 @@
     padding: 0 10px;
     margin-top: 15px;
   }
-  
+
   .listsearch {
     padding: 12px;
     border-radius: 10px;
   }
-  
+
   .lsitem {
     margin-bottom: 12px;
   }
-  
+
   .lsitem > input,
   .lsitem > span {
     height: 36px;
     padding: 6px 8px;
   }
-  
+
   .listsearch > button {
     padding: 10px;
   }
-  
+
   .lsoptions {
     padding: 8px 0;
   }
@@ -231,16 +228,16 @@
   .listcontainer {
     padding: 0 8px;
   }
-  
+
   .listsearch {
     padding: 10px;
   }
-  
+
   .lsoptionitem {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .lsoptioninput {
     max-width: 100%;
   }
@@ -251,6 +248,7 @@
   max-width: 100%;
 }
 
-html, body {
+html,
+body {
   overflow-x: hidden;
 }

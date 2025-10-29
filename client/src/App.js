@@ -11,12 +11,6 @@ import { useEffect } from 'react';
 
 function App() {
 
-  useEffect(()=>{
-    fetch('http://localhost:8080/')
-    .then(response=>response.text())
-    .then(result=>console.log(result));
-  },[]);
-
   return (
     <GoogleOAuthProvider clientId="163730135993-4a4kfcsq2qvjgqrn5iiosgj3r5ovh25r.apps.googleusercontent.com">
       <BrowserRouter>

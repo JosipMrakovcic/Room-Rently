@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 // generira automatski gettere i settere za sva polja
 // generira toString(), equals(), hashCode() metode
@@ -45,4 +47,20 @@ public class Person {
 
     @Column(nullable = false)
     private String name;
+
+    public Person(String email, boolean isAdmin, boolean isUser, boolean isOwner, String name) {
+        this.email = email;
+        this.isAdmin = isAdmin;
+        this.isUser = isUser;
+        this.isOwner = isOwner;
+        this.name = name;
+    }
+
+
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ApartmentReservation> apartmentReservations;
+
+    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoomReservation> roomReservations;
+
 }

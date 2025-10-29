@@ -14,15 +14,19 @@
   max-width: 1024px;
   text-align: center;
   margin: 0px 0px 5px 0px;
+  padding: 0 20px; /* Dodan padding za mobilne uređaje */
+  box-sizing: border-box;
 }
-.headerContainer.listmode{
-     margin: 20px 0px 0px 0px;
+
+.headerContainer.listmode {
+  margin: 20px 0px 0px 0px;
 }
+
 .headerList {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 80px; /* Bigger spacing since only two items */
+  gap: 80px;
 }
 
 .headerListItem {
@@ -35,7 +39,7 @@
 }
 
 .headerListItem i {
-  font-size: 2.5rem; /* Bigger icon size */
+  font-size: 2.5rem;
   margin-bottom: 50px;
 }
 
@@ -48,6 +52,7 @@
   transform: scale(1.1);
   color: #00c6ff;
 }
+
 .headerListItem.active {
   padding: 12px 24px;
   border-radius: 12px;
@@ -59,92 +64,337 @@
 }
 
 .headerDesc {
-    margin: 20px 0;
-    font-size: 1.2rem;          /* Slightly bigger for readability */
-    font-weight: 500;
-    color: #ffffff;                /* Softer color than black */
-    line-height: 1.5;
+  margin: 20px 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.5;
+  padding: 0 20px; /* Dodan padding za mobilne uređaje */
 }
 
 .headerBTN {
-    background-color: rgb(14, 95, 245);
-    color: white;
-    font-weight: 600;           /* Slightly bolder */
-    border: none;
-    padding: 12px 25px;         /* More spacious padding */
-    border-radius: 8px;         /* Rounded corners for a modern look */
-    cursor: pointer;
-    box-shadow: 0px 4px 6px rgba(0,0,0,0.1); /* Soft shadow for depth */
-    transition: all 0.3s ease;  /* Smooth transition on hover */
-    margin: 30px;
+  background-color: rgb(14, 95, 245);
+  color: white;
+  font-weight: 600;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  margin: 30px;
+  max-width: 90%; /* Osigurava da button ne prelazi širinu ekrana */
+  box-sizing: border-box;
 }
 
 .headerBTN:hover {
-    background-color: rgb(10, 70, 200); /* Darker shade on hover */
-    transform: translateY(-2px);        /* Slight lift effect */
-    box-shadow: 0px 6px 10px rgba(0,0,0,0.15); /* Slightly bigger shadow */
+  background-color: rgb(10, 70, 200);
+  transform: translateY(-2px);
+  box-shadow: 0px 6px 10px rgba(0,0,0,0.15);
 }
 
-.headerSearch{
-height: 30px;
-background-color: white;
-border: 3px solid #febb02;
-display: flex;
-align-items: center;
-justify-content:space-around;
-padding: 10px 0px;
-border-radius: 5px ;
-position: absolute;
-bottom: -30px; 
-width: 100%;
-max-width: 1024px;
-}
-.headerSearchInput{
-    border: none;
-    outline: none;
-}
-.headerSearchText{
-    color: darkslategrey;
-    cursor: pointer;
+/* Header Search - Desktop */
+.headerSearch {
+  height: 50px;
+  background-color: white;
+  border: 3px solid #febb02;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 10px 0px;
+  border-radius: 5px;
+  position: absolute;
+  bottom: -30px;
+  width: 100%;
+  max-width: 1024px;
+  box-sizing: border-box;
 }
 
-.date{
-    position: absolute;
-    top :50px;
-    left: 210px; 
-    z-index: 2;
+.headerSearchInput {
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 0 10px;
+  box-sizing: border-box;
 }
-.options{
+
+.headerSearchText {
+  color: darkslategrey;
+  cursor: pointer;
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
+/* Date Picker - Desktop */
+.date {
+  position: absolute;
+  top: 50px;
+  left: 210px;
   z-index: 2;
-    padding: 10px;
-position: absolute;
-top: 50px;
-background-color:white;
-color:gray;
-border: 3px solid rgb(255, 174, 0);
-border-radius: 5px;
+  transform: scale(0.9); /* Smanjen date picker */
+  transform-origin: top left;
 }
-.optionitem{
-    width: 200px;
+
+/* Options - Desktop */
+.options {
+  z-index: 2;
+  padding: 8px; /* Smanjen padding */
+  position: absolute;
+  top: 50px;
+  background-color: white;
+  color: gray;
+  border: 2px solid rgb(255, 174, 0); /* Smanjen border */
+  border-radius: 5px;
+  transform: scale(0.9); /* Smanjene opcije */
+  transform-origin: top left;
+}
+
+.optionitem {
+  width: 180px; /* Smanjena širina */
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.optioncounter {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Smanjen gap */
+  font-size: 11px; /* Smanjen font */
+  color: black;
+}
+
+.optioncounterbutton {
+  width: 25px; /* Smanjeni buttoni */
+  height: 25px;
+  border: 1px solid lightskyblue;
+  color: #00c6ff;
+  cursor: pointer;
+  background-color: white;
+  font-size: 0.8rem; /* Smanjen font u buttonima */
+}
+
+.optioncounterbutton:disabled {
+  cursor: not-allowed;
+}
+
+/* Responsive Design - Tablet */
+@media screen and (max-width: 768px) {
+  
+  .headerList {
+    gap: 40px;
+  }
+  
+  .headerListItem i {
+    font-size: 2rem;
+    margin-bottom: 30px;
+  }
+  
+  .headerListItem span {
+    font-size: 1.1rem;
+  }
+  
+  .headerBTN {
+    padding: 10px 8px;
+    margin: 0px;
+    font-size: 0.9rem;
+    max-width: 85%;
+  }
+  
+  .headerSearch {
+    height: auto;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    bottom: -40px;
+    position: relative;
+     margin: 0 20px 30px 20px;
+    width: calc(100% - 40px);
+  }
+  
+  .headerSearchItem {
+    width: 100%;
+    padding: 8px;
     display: flex;
     justify-content: space-between;
-}
-.optioncounter{
-    display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 12px;
-    color: black;
+  }
+  
+  .date {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 50%;
+    transform: scale(0.6) translateX(-50%);
+    transform-origin: bottom center;
+  }
+  
+  .options {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 50%;
+    transform: scale(1.1) translateX(-50%);
+    transform-origin: bottom center;
+    max-height: 50vh;
+    overflow-y: auto;
+    padding: 10px;
+  }
+  
+  .optionitem {
+    width: 160px;
+    font-size: 0.9rem;
+  }
+  
+  .optioncounterbutton {
+    width: 22px;
+    height: 22px;
+  }
+  .headerContainer h1 {
+    font-size: 1.8rem; /* smaller title */
+    margin-bottom: 10px;
+  }
 
+  .headerDesc {
+    font-size: 1rem; /* smaller text */
+    padding: 0 15px;
+    margin: 15px 0;
+  }
+
+  .header {
+    padding: 30px 0; /* reduced vertical padding */
+  }
 }
-.optioncounterbutton{
-    width: 30px;
-    height: 30px;
-    border: 1px solid lightskyblue;
-    color: #00c6ff;
-    cursor: pointer;
-    background-color: white;
+
+/* Responsive Design - Mobile */
+@media screen and (max-width: 480px) {
+  .header {
+    padding: 20px 0;
+  }
+  
+  .headerContainer {
+    padding: 0 15px;
+  }
+  
+  .headerList {
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
+  
+  .headerListItem {
+    min-width: 100px;
+  }
+  
+  .headerListItem i {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+  
+  .headerListItem span {
+    font-size: 0.8rem;
+    text-align: center;
+  }
+  
+  .headerBTN {
+    padding: 8px 16px;
+    margin: 0px;
+    font-size: 0.8rem;
+    max-width: 80%;
+  }
+  
+  .headerSearch {
+    margin: 0 20px 30px 20px;
+    width: calc(100% - 30px);
+    gap: 10px;
+    padding: 10px;
+  }
+  
+  .headerSearchItem {
+    padding: 6px;
+    font-size: 0.9rem;
+  }
+  
+  .headerSearchInput {
+    font-size: 0.9rem;
+    padding: 0 8px;
+  }
+  
+  .headerSearchText {
+    font-size: 0.9rem;
+    padding: 0 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .date {
+    transform: scale(0.7) translateX(-50%);
+  }
+  
+  .options {
+    transform: scale(1.1) translateX(-50%);
+    padding: 8px;
+    max-height: 60vh;
+  }
+  
+  .optionitem {
+    width: 140px;
+    font-size: 0.8rem;
+    margin-bottom: 6px;
+  }
+  
+  .optioncounter {
+    gap: 6px;
+    font-size: 0.7rem;
+  }
+  
+  .optioncounterbutton {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+  }
+   .headerContainer h1 {
+    font-size: 1.4rem; /* much smaller title */
+    margin-bottom: 8px;
+  }
+
+  .headerDesc {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    padding: 0 10px;
+    margin: 10px 0;
+  }
 }
-.optioncounterbutton:disabled{
-    cursor: not-allowed;
+
+/* Extra Small Devices */
+@media screen and (max-width: 360px) {
+  .headerList {
+    gap: 10px;
+  }
+  
+  .headerListItem {
+    min-width: 80px;
+  }
+  
+  .headerListItem i {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+  }
+  
+  .headerListItem span {
+    font-size: 0.7rem;
+  }
+  
+  .headerBTN {
+    padding: 6px 12px;
+    margin: 10px;
+    font-size: 0.75rem;
+    max-width: 75%;
+  }
+  
+  .headerSearch {
+    margin: 15px 10px 0 10px;
+    width: calc(100% - 20px);
+  }
 }

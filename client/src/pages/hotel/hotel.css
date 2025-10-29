@@ -1,7 +1,7 @@
 /* ===== Container and Wrapper ===== */
 .hotelcontainer {
   display: flex;
- align-items: center;
+  align-items: center;
   flex-direction: column;
   margin-top: 20px;
   padding: 0 20px;
@@ -33,7 +33,6 @@
   font-size: 14px;
   display: flex;
   align-items: center;
-  gap: 10px;
   color: #555;
 }
 
@@ -215,41 +214,34 @@
     flex-basis: 100%;
   }
 }
-.slider{
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.367);
-    z-index: 999;
-    display: flex;
-    align-items: center;
-}
-.sliderwrapper{
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 
+.slider {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.367);
+  z-index: 999;
+  display: flex;
+  align-items: center;
 }
-.close{
-    position:absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 30px;
-    color: lightcyan;
 
+.sliderwrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.sliderimg{
-    width: 80%;
-    height: 80vh;
 
-} 
-.arrow{
-    margin: 30px;
-    font-size: 300;
-    font-weight: 900;
-    cursor: pointer;
+.close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.sliderimg {
+  width: 80%;
+  height: 80vh;
 }

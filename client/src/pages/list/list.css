@@ -4,6 +4,7 @@
   margin-top: 30px;
   padding: 0 20px;
   box-sizing: border-box;
+  width: 100%;
 }
 
 .listwrapper {
@@ -20,17 +21,18 @@
   background: linear-gradient(135deg, #f3c247, #f9d76a);
   padding: 20px;
   border-radius: 16px;
-  position: sticky;
-  top: 100px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   color: #333;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .lstitle {
-  font-size: 20px;
+  font-size: clamp(18px, 2vw, 20px);
   font-weight: 700;
   color: #444;
   margin-bottom: 16px;
+  word-wrap: break-word;
 }
 
 .lsitem {
@@ -38,10 +40,11 @@
   flex-direction: column;
   gap: 6px;
   margin-bottom: 16px;
+  width: 100%;
 }
 
 .lsitem > label {
-  font-size: 14px;
+  font-size: clamp(13px, 1.5vw, 14px);
   font-weight: 500;
   color: #222;
 }
@@ -52,8 +55,10 @@
   border: none;
   border-radius: 6px;
   padding: 8px 10px;
-  font-size: 14px;
+  font-size: clamp(13px, 1.5vw, 14px);
   box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
 }
 
 .lsitem > input {
@@ -73,6 +78,9 @@
   cursor: pointer;
   color: #555;
   transition: background-color 0.2s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .lsitem > span:hover {
@@ -83,24 +91,31 @@
   padding: 10px 0;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   margin-top: 10px;
+  width: 100%;
 }
 
 .lsoptionitem {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 10px;
-  font-size: 14px;
+  font-size: clamp(13px, 1.5vw, 14px);
   color: #444;
+  width: 100%;
+  gap: 10px;
 }
 
 .lsoptioninput {
   width: 60px;
+  min-width: 50px;
   padding: 5px;
   border-radius: 6px;
   border: 1px solid #ccc;
   outline: none;
   text-align: center;
   transition: border-color 0.2s ease;
+  font-size: clamp(13px, 1.5vw, 14px);
+  box-sizing: border-box;
 }
 
 .lsoptioninput:focus {
@@ -118,6 +133,8 @@
   border-radius: 8px;
   transition: background-color 0.25s ease, transform 0.2s ease;
   margin-top: 10px;
+  font-size: clamp(14px, 1.8vw, 16px);
+  box-sizing: border-box;
 }
 
 .listsearch > button:hover {
@@ -131,20 +148,107 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-width: 0; /* Prevents flex item overflow */
 }
 
 /* ===== Responsive Design ===== */
 @media (max-width: 900px) {
   .listwrapper {
     flex-direction: column;
+    gap: 20px;
   }
 
   .listsearch {
-    position: static;
     width: 100%;
+    max-width: none;
   }
 
   .listresult {
     width: 100%;
   }
+}
+
+@media (max-width: 768px) {
+  .listcontainer {
+    padding: 0 15px;
+    margin-top: 20px;
+  }
+
+  .listwrapper {
+    gap: 16px;
+  }
+
+  .listsearch {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .lsoptionitem {
+    flex-wrap: wrap;
+  }
+
+  .lsoptioninput {
+    width: 100%;
+    max-width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .listcontainer {
+    padding: 0 10px;
+    margin-top: 15px;
+  }
+
+  .listsearch {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .lsitem {
+    margin-bottom: 12px;
+  }
+
+  .lsitem > input,
+  .lsitem > span {
+    height: 36px;
+    padding: 6px 8px;
+  }
+
+  .listsearch > button {
+    padding: 10px;
+  }
+
+  .lsoptions {
+    padding: 8px 0;
+  }
+}
+
+/* Prevent horizontal scrolling on very small screens */
+@media (max-width: 360px) {
+  .listcontainer {
+    padding: 0 8px;
+  }
+
+  .listsearch {
+    padding: 10px;
+  }
+
+  .lsoptionitem {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .lsoptioninput {
+    max-width: 100%;
+  }
+}
+
+/* Ensure no content overflows on any screen size */
+* {
+  max-width: 100%;
+}
+
+html,
+body {
+  overflow-x: hidden;
 }

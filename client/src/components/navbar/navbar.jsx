@@ -69,6 +69,7 @@ const Navbar = () => {
                   borderRadius: "50%",
                   marginRight: "10px",
                 }}
+                referrerPolicy="no-referrer"
               />
               <span>{user.name}</span>
               <button className="navButton" onClick={logout}>

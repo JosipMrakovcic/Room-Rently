@@ -74,7 +74,7 @@ Zatim sam u mapi src stvorio novu mapu screens u kojoj sam napravio datoteke Lan
 Ova komponenta predstavlja početni (landing) ekran aplikacije “Room-Rently”.
 Korisniku prikazuje naslov, podnaslov i gumb koji vodi na glavnu stranicu (/main).
 
-## React komponenta: LandingScreen.jsx
+### React komponenta: LandingScreen.jsx
 
 ```jsx
 import React from "react";
@@ -108,9 +108,9 @@ Dakle, `useNavigate()` je hook iz React Routera koji omogućava navigaciju izme�
 JSX struktura koristi Bootstrap klase (row, col-md-12) za osnovni layout, i custom klasu `landing` za stiliziranje pozadine. Klasa `row` označava red, a `col-md-12` znači da stupac zauzima cijelu širinu(12/12) na ekranima srednje veličine i većim ekranima.
 Sve animacije i izgled definirani su u Landingscreen.css-u.
 
-## CSS stilovi: Landingscreen.css
+### CSS stilovi: Landingscreen.css
 
-### Pozadina i osnovni layout
+#### Pozadina i osnovni layout
 
 ```css
 .landing {
@@ -131,7 +131,7 @@ Sve animacije i izgled definirani su u Landingscreen.css-u.
 Kreira fullscreen gradient pozadinu s plavo ljubičastim tonovima.
 Koristi se Flexbox za centriranje sadržaja po sredini ekrana te ulaznu animaciju odnosno fadeIn za efekt postepenog pojavljivanja.
 
-### Efekt lebdećeg svjetla u pozadini postignut CSS-om
+#### Efekt lebdećeg svjetla u pozadini postignut CSS-om
 
 ```css
 .landing::before {
@@ -164,7 +164,7 @@ Koristi se pseudo element `::before` da doda prozirni sloj svjetla te radial-gra
 }
 ```
 
-### Tekstualni elementi
+#### Tekstualni elementi
 
 ```css
 .landing h2 {
@@ -187,7 +187,7 @@ Koristi se pseudo element `::before` da doda prozirni sloj svjetla te radial-gra
 
 h1 ima animaciju fadeInUp, lagano izlazi odozdo te h2 ima animaciju slidedown spuštanja s vrha.
 
-### Animacije
+#### Animacije
 
 ```css
 @keyframes slideDown {
@@ -222,7 +222,7 @@ Objašnjenje animacija:
 `transform: translateY(0)` vraća se svoju početnu poziciju.
 Dakle, postepeno element ide prema dolje(ili gore u slučaju fadeInUp) i postaje vidljiv.
 
-### Gumb (“Find a Place to Stay”)
+#### Gumb (“Find a Place to Stay”)
 
 ```css
 .landing button {
@@ -248,7 +248,7 @@ Dakle, postepeno element ide prema dolje(ili gore u slučaju fadeInUp) i postaje
 Koristi gradijentnu pozadinu u žuto-narančastim tonovima te ima zaobljene rubove i sjenu za 3D efekt.
 `::hover` dodaje efekt izbočenja, a fadeIn animacija na gumb se pojavi postepeno s lakoćom(glatko) te ostane na mjestu nakon završetka animacije.
 
-### Responzivnost
+#### Responzivnost
 
 ```css
 @media (max-width: 768px) {
@@ -315,7 +315,8 @@ Pobrisao sam import React from 'react' iz svih datoteka jer nam to nije potrebno
 import "./home.css";
 ```
 
-# Dodavanje navigacijske trake
+# Glavna stranica
+## Dodavanje navigacijske trake
 
 U src mapu dodao sam mapu components te u njoj mapu navbar s odgovarajućim .jsx i .css datotekama te napravio isti template kao i za rute u mapi pages.
 U Home.jsx sam umjesto same riječi Home stavio `<Navbar></Navbar>` koja sad pokazuje komponentu navigacijse trake te je bilo potrebno prenijeti tu navigacijsku traku iz komponenti pomoću putanje naredbom:
@@ -429,7 +430,7 @@ Određena je veličina slova teksta imena stranice te kada pređemo mišem preko
 
 `.navItems{}` određuje kako će gumbovi biti raspoređeni u njihovom containeru, dakle vodoravno te na srednjoj visini. `.navButton{}` osmišljen je s istim već objašnjenim funkcionalnostima kao i gumb na početnoj stranici. Određene su boje, razmak, veličina fonta, pokazivač miša te margine i obrub. `:hover` definira da će prelaskom mišem gumb otići prema gore, a `:active` da će se malo smanjiti klikom na njega.
 
-## Dodavanje Google prijave u navigacijsku traku
+### Dodavanje Google prijave/odjave u navigacijsku traku
 
 Kako bismo omogućili autentifikaciju korisnika putem Google računa, u komponentu navigacijske trake Navbar.jsx dodan je kod koji koristi biblioteku `@react-oauth/google` za prijavu i odjavu, te bibliteku `axios` za dohvat podataka o korisniku.
 Na ovaj način korisnik se može prijaviti pomoću Google računa, a njegovo ime i profilna slika prikazuju se u navigacijskoj traci.
@@ -474,7 +475,7 @@ Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je po
 **Datum pristupa:** 2025-10-12  
 **Svrha:** Unapređenje CSS-a refaktor, poboljšanje responsivnosti.
 
-### Google prijava korisnika
+#### Google prijava korisnika
 
 Za implementaciju prijave putem Google računa koristi se hook `useGoogleLogin()` iz biblioteke `@react-oauth/google`.
 Ovaj hook vraća funkciju login, koja se poziva prilikom klika na gumb “Login with Google”.
@@ -513,7 +514,7 @@ pomoću `setUser(res.data)` ti se podaci spremaju u trenutno stanje komponente, 
 
 Ako dođe do greške (npr. korisnik prekine prijavu ili token istekne), poruka o grešci ispisuje se u konzolu pomoću `console.log("Login Failed:", error)`.
 
-### Google odjava korisnika
+#### Google odjava korisnika
 
 Za omogućavanje odjave korisnika koristi se funkcija logout, koja kombinira Google logout funkcionalnost, resetiranje lokalnog stanja i brisanje podataka iz preglednika:
 
@@ -529,7 +530,7 @@ const logout = () => {
 `setUser(null)` resetira stanje user-a unutar React komponente, čime se u navigacijskoj traci ponovno prikazuje gumb Login with Google umjesto podataka o korisniku.
 `localStorage.removeItem("googleUser")` uklanja spremljene podatke iz localStorage-a, osiguravajući da se korisnički podaci ne zadrže prilikom navigacije između ruta ili osvježavanja stranice.
 
-### Dinamički prikaz korisničkih elemenata u navigacijskoj traci
+#### Dinamički prikaz korisničkih elemenata u navigacijskoj traci
 
 Ovaj blok koda koji je zamijenio statički div element klase navItems koristi uvjetno renderiranje `(!user ? ... : ...)` kako bi se sadržaj navigacijske trake prilagodio statusu prijave korisnika:
 
@@ -564,9 +565,9 @@ Ako korisnik nije prijavljen (`!user`), prikazuje se gumb „Login with Google�
 Klikom na gumb poziva se funkcija `login()`, koja otvara Google prozor za autentifikaciju.
 Inače, ako je prijavljen, prikazuje se profilna slika korisnika i ova inline css svojstva: veličina slike je 35x35 piksela, rubovi su zaobljeni `(borderRadius: "50%")`, razmak između slike i imena korisnika je `(marginRight: "10px")`, ispisuje se ime korisnika `(<span>{user.name}</span>)` koji je dobiven gore iz dohvata sa Google API-ja te se prikazuje gumb za odjavu (Logout), koji poziva funkciju `logout()` i briše korisničke podatke iz stanja i localStorage-a.
 
-# Izrada zaglavlja
+## Izrada zaglavlja
 
-## Dodavanje mapi te uvezivanje u Home.jsx
+### Dodavanje mapi te uvezivanje u Home.jsx
 
 Pod mapu components dodao sam mapu header s odgovarajućim .css i .jsx datotekama. Kao svaku komponentu dodao sam Header u Home.jsx pomoću import naredbe:
 
@@ -576,7 +577,7 @@ import Header from "../../components/header/Header";
 
 te u samu strukturu istim načinom kao i za navbar `<Header></Header>` ispod odgovarajuće implementacije navbar-a.
 
-## Kartice Apartments i Rooms
+### Kartice Apartments i Rooms
 
 Kako bi razlikovali apartmane i sobe, dodali smo kartice Apartments i Rooms. Klikom na Rooms, umjesto apartmana, na stranici će se prikazati sobe.
 Uveo sam CSS u Header.jsx kao i prije naredbom:
@@ -695,7 +696,7 @@ Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je po
 **Datum pristupa:** 2025-10-12  
 **Svrha:** Unapređenje CSS-a refaktor.
 
-## Naslov, odlomak te gumb
+### Naslov, odlomak te gumb
 
 U Header.jsx nakon headerList-a dodan naslov i odlomak te gumb za prijavu ili registraciju:
 
@@ -740,9 +741,9 @@ popraćen CSS-om:
 
 Odlomak ima svoje gornje i donje margine od 20 piksela te su definirana veličina, debljina i boja fonta kao i visina retka. Gumb je malo svjetlije boje od ostatka zaglavlja te su definirana obilježja fonta. Maknut je obrub, dodan razmak sa svih strana te zakrivljeni oblik granica. Također, implementirane su margine, pokazivač miša te sjena i promjena u malo tamniju boju te pomak prema gore prilikom hover-a.
 
-## Tražilica
+### Tražilica
 
-### Implementacija kostura te input elementa za odabir imena apartmana ili sobe
+#### Implementacija kostura te input elementa za odabir imena apartmana ili sobe
 
 Nakon što smo implementirali osnovne stavke, imamo problem implementacije tražilice. Dakle, nakon gumba imamo tražilicu:
 
@@ -811,7 +812,7 @@ Elementi tražilice imaju razmak oko sebe. Tražilica ima žuti rub koji je mrvi
 
 Polje za unos željenog imena apartmana odnosno sobe više nema obrub te je definirana boja fiksnog teksta i dodan pokazivač pri prelasku mišem preko njih.
 
-### Prikaz datuma te kalendara
+#### Prikaz datuma te kalendara
 
 Pratio sam youtube [tutorial](https://youtu.be/RkWpJ4XUHuw?si=9tdgdqY7-Q9KxtDY)
 kako bih instalirao react-date-range paket koji sadrži kvalitetno sučelje za odabir raspona datuma koje
@@ -934,9 +935,9 @@ onClick={()=>setOpendate(!opendate)}
 
 Dakle, kada kliknemo na span element, ako je kalendar sakriven onda se prikaže i obrnuto.
 
-### Broj osoba i soba
+#### Broj osoba i soba
 
-#### Funkcionalnost dinamičkog odabira broja osoba i soba
+##### Funkcionalnost dinamičkog odabira broja osoba i soba
 
 Sada treba i dinamički odabrati osobe te broj soba. Na početku, izbornik nije otvoren te se pretpostavlja da mora biti odabrana barem jedna odrasla osoba te jedna soba.
 
@@ -1059,7 +1060,7 @@ const handleoption = (name, operation) => {
 
 Kao što smo i u prijašnjem kodu napisali, ta funkcija prima dva parametra, ime onoga što želimo mijenjati te operaciju. Ona zatim kopira prijašnje stanje te ako je operacija "i" odnosno inkrementiranje onda dodaje jedan, a inače oduzima jedan.
 
-#### Izgled izbornika za odabir broja osoba i soba
+##### Izgled izbornika za odabir broja osoba i soba
 
 Još nam preostaje implementirati izgled izbornika za biranje broja osoba te soba.
 
@@ -1435,8 +1436,8 @@ Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je po
 **Datum pristupa:** 2025-10-12  
 **Svrha:** Unapređenje CSS-a refaktor.
 
-# Komponente koje se nalaze na sredini glavne stranice
-## Izrada featured komponente
+## Komponente koje se nalaze na sredini glavne stranice
+### Izrada featured komponente
 
 Do sada smo napravili samo navigacijsku traku te zaglavlje. Potrebno je napraviti još mnogo komponenti koje će popuniti ostatak glavne stranice. Featured komponenta služi nam za kategoriziranje smještaja. U Home.jsx dodat ćemo nakon headera jedan div container:
 
@@ -1603,7 +1604,7 @@ Slike su širine i visine 100% featureditem containera te prekrivaju cijeli okvi
 
 Naslovi se nalaze 20 piksela iznad dna featureditem-a te 20 piksela desno od lijeve granice featureditem-a. Također, nalaze se ispred cijele featured komponente. Naslovi imaju određenu veličinu te debljinu i boju, a glavni naslov mjesta ima i donju marginu od 6 piksela. Na manjim ekranima, svaki featureditem će zauzimati pola odnosno cijelu širinu zaslona, pa će tako u istome redu biti dva odnosno jedan item. Osim toga, određena im je i visina te će na zaslonu širine manje od 480 piksela, glavni naslov koji označava kategoriju imati veličinu fonta 18 piksela.
 
-## Komponenta propertylist
+### Komponenta propertylist
 
 Da bi korisnik lakše filtrirao svoje preference, dodali smo komponentu propertylist koja omogućuje korisniku da odabere tip apartmana ili sobe(npr. dvokrevetna). Na glavnu stranicu(u Home.jsx), nakon featured komponente, dadao sam naslov za propertylist:
 
@@ -1773,7 +1774,7 @@ Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je po
 **Datum pristupa:** 2025-10-12  
 **Svrha:** Unapređenje CSS-a refaktor,poboljšanje responzivnosti.
 
-## Komponenta featuredproperties
+### Komponenta featuredproperties
 
 Još nam za lakši odabir nedostaje komponenta za najpopularnije apartmane, odnosno sobe. Na glavnu stranicu(u Home.jsx) potrebno je dodati naslov za featuredproperties te komponentu featuredproperties koju još nismo napravili:
 
@@ -1964,8 +1965,8 @@ Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je po
 **Datum pristupa:** 2025-10-12  
 **Svrha:** Unapređenje CSS-a refaktor, poboljsanje u responzivnosti.
 
-# Komponente podnožja stranice
-## Komponenta maillist
+## Komponente podnožja stranice
+### Komponenta maillist
 
 Za one koji se žele pretplatiti kako bi dobivali obavijesti o najboljim ponudama dodati ćemo komponentu maillist gdje se može upisati korisnikov e-mail te se pretplatiti klikom na gumb subscribe. Potrebno je na glavnu stranicu u datoteku Home.jsx nakon featuredproperties komponente dodati komponentu maillist:
 
@@ -2116,7 +2117,7 @@ Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je po
 **Datum pristupa:** 2025-10-13  
 **Svrha:** Unapređenje CSS-a refaktor, poboljsanje u responzivnosti.
 
-## Komponenta footer
+### Komponenta footer
 
 Na poslijetku, potrebno je dodati komponentu podnožja stranice. U Home.jsx(na glavnu stranicu) uvesti ćemo komponentu footer koju još nismo napravili:
 

@@ -35,7 +35,7 @@ Pobrisao sam default HTML-ove iz App.js te testirao tako da napravim par h1 tago
 <h1>Test</h1>
 ```
 
-# Početna stranica
+# Početna stranica(Landing Screen)
 
 Nakon instalacije svega potrebnoga za početak projekta, trebalo je napraviti početnu stranicu.
 
@@ -56,7 +56,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LandingScreen></LandingScreen>}></Route>
+        <Route path="/" element={<LandingScreen />} />
       </Routes>
     </BrowserRouter>
   );
@@ -69,9 +69,7 @@ koji omogućava da na ruti http://localhost:3000/ imamo početni zaslon(LandingS
 
 Zatim sam u mapi src stvorio novu mapu screens u kojoj sam napravio datoteke LandingScreen.jsx i LandingScreen.css koje će definirati izgled početne stranice.
 
-# Landing Screen — React + CSS Animacija
-
-## Cilj
+## React + CSS Animacija
 
 Ova komponenta predstavlja početni (landing) ekran aplikacije “Room-Rently”.
 Korisniku prikazuje naslov, podnaslov i gumb koji vodi na glavnu stranicu (/main).
@@ -304,7 +302,7 @@ import Hotel from "./pages/hotel/Hotel";
 te u samu funkciju:
 
 ```jsx
-   <Route path="/main" element={<Home></Home>}></Route>
+   <Route path="/main" element={<Home />}></Route>
    <Route path="/hotels" element={<List/>}></Route>
    <Route path="/hotels/:id" element={<Hotel/>}></Route>
 ```
@@ -343,8 +341,8 @@ const Navbar = () => {
           Room-Rently
         </span>
         <div className="navItems">
-          <button className="navButton">Register</button>
           <button className="navButton">Login</button>
+          <button className="navButton">Logout</button>
         </div>
       </div>
     </div>
@@ -353,7 +351,7 @@ const Navbar = () => {
 export default Navbar;
 ```
 
-Dakle dodan je blok element div za navigacijsku traku, container koji zaokružuje sve elemente navigacijske trake, liniski element span koji prikazuje ime stranice te div koji sadrži gumbe na registraciju i prijavu. Kao što je već prije objašnjeno, `useNavigate()` je hook iz React Routera te se pomoću njega, klikom na naslov stranice, zbog `onClick={navigatelandingscreen}` prebacujemo na početnu stranicu.
+Dakle dodan je blok element div za navigacijsku traku, container koji zaokružuje sve elemente navigacijske trake, liniski element span koji prikazuje ime stranice te div koji sadrži gumbe na prijavu i odjavu korisnika. Kao što je već prije objašnjeno, `useNavigate()` je hook iz React Routera te se pomoću njega, klikom na naslov stranice, zbog `onClick={navigatelandingscreen}` prebacujemo na početnu stranicu.
 
 Izgled navigacijske trake osmišljen je pomoću css-a:
 
@@ -457,7 +455,7 @@ import axios from "axios";
 
 `useState` i `useEffect` su React hookovi za upravljanje lokalnim stanjem i efektima unutar komponente.
 `useGoogleLogin` i `googleLogout` dolaze iz biblioteke `@react-oauth/google` i koriste se za upravljanje procesima prijave i odjave.
-`axios` je HTTP klijent koji se koristi za dohvat korisničkih podataka s Google-ovog API-ja nakon što korisnik potvrdi prijavu.
+`axios` je HTTP klijent koji se koristi za dohvat korisničkih podataka s Google-ovog API-ja nakon što korisnik potvrdi prijavu. Ispod `const navigate = useNavigate();` dodan je sljedeći kod:
 
 ```jsx
 // LOadanje usera iz local storeagea
@@ -467,7 +465,7 @@ const [user, setUser] = useState(() => {
 });
 ```
 
-Zatim se koristi React hook `useState()` za stvaranje stanja user koje će čuvati informacije o trenutno prijavljenom korisniku.
+Ovaj kod koristi React hook `useState()` za stvaranje stanja user koje će čuvati informacije o trenutno prijavljenom korisniku.
 Kako bi se omogućilo da korisnik ostane prijavljen i nakon što osvježi stranicu, početna vrijednost user nije prazna, već se dohvaća iz localStorage-a odsnosno trajna pohrana u pregledniku.
 
 Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
@@ -1437,7 +1435,8 @@ Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je po
 **Datum pristupa:** 2025-10-12  
 **Svrha:** Unapređenje CSS-a refaktor.
 
-# Izrada featured komponente
+# Komponente koje se nalaze na sredini glavne stranice
+## Izrada featured komponente
 
 Do sada smo napravili samo navigacijsku traku te zaglavlje. Potrebno je napraviti još mnogo komponenti koje će popuniti ostatak glavne stranice. Featured komponenta služi nam za kategoriziranje smještaja. U Home.jsx dodat ćemo nakon headera jedan div container:
 
@@ -1604,7 +1603,7 @@ Slike su širine i visine 100% featureditem containera te prekrivaju cijeli okvi
 
 Naslovi se nalaze 20 piksela iznad dna featureditem-a te 20 piksela desno od lijeve granice featureditem-a. Također, nalaze se ispred cijele featured komponente. Naslovi imaju određenu veličinu te debljinu i boju, a glavni naslov mjesta ima i donju marginu od 6 piksela. Na manjim ekranima, svaki featureditem će zauzimati pola odnosno cijelu širinu zaslona, pa će tako u istome redu biti dva odnosno jedan item. Osim toga, određena im je i visina te će na zaslonu širine manje od 480 piksela, glavni naslov koji označava kategoriju imati veličinu fonta 18 piksela.
 
-# Komponenta propertylist
+## Komponenta propertylist
 
 Da bi korisnik lakše filtrirao svoje preference, dodali smo komponentu propertylist koja omogućuje korisniku da odabere tip apartmana ili sobe(npr. dvokrevetna). Na glavnu stranicu(u Home.jsx), nakon featured komponente, dadao sam naslov za propertylist:
 
@@ -1774,7 +1773,7 @@ Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je po
 **Datum pristupa:** 2025-10-12  
 **Svrha:** Unapređenje CSS-a refaktor,poboljšanje responzivnosti.
 
-# Komponenta featuredproperties
+## Komponenta featuredproperties
 
 Još nam za lakši odabir nedostaje komponenta za najpopularnije apartmane, odnosno sobe. Na glavnu stranicu(u Home.jsx) potrebno je dodati naslov za featuredproperties te komponentu featuredproperties koju još nismo napravili:
 
@@ -1965,7 +1964,8 @@ Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je po
 **Datum pristupa:** 2025-10-12  
 **Svrha:** Unapređenje CSS-a refaktor, poboljsanje u responzivnosti.
 
-# Komponenta maillist
+# Komponente podnožja stranice
+## Komponenta maillist
 
 Za one koji se žele pretplatiti kako bi dobivali obavijesti o najboljim ponudama dodati ćemo komponentu maillist gdje se može upisati korisnikov e-mail te se pretplatiti klikom na gumb subscribe. Potrebno je na glavnu stranicu u datoteku Home.jsx nakon featuredproperties komponente dodati komponentu maillist:
 
@@ -2116,7 +2116,7 @@ Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je po
 **Datum pristupa:** 2025-10-13  
 **Svrha:** Unapređenje CSS-a refaktor, poboljsanje u responzivnosti.
 
-# Komponenta footer
+## Komponenta footer
 
 Na poslijetku, potrebno je dodati komponentu podnožja stranice. U Home.jsx(na glavnu stranicu) uvesti ćemo komponentu footer koju još nismo napravili:
 
@@ -2626,7 +2626,7 @@ body {
 
 Za ekrane širine manje ili jednake 360 piksela smanjen je padding containera i searcha. Elementi lsoptionitem-a poravnati su u lijevo, a input elementi sada zauzimaju 100% širine containera(nalaze se u svojem redu). Širina sadržaja stranice ne smije biti veća od 100%, a eventualni višak će biti sakriven.
 
-# Komponenta searchitem
+## Komponenta searchitem koja se koristi na stranici list
 
 Sada kada smo završili s izradom stranice list, potrebno je napraviti komponentu searchitem koja će se koristiti na stranici list, a trenutno je zakomentirana. Napravimo mapu seachitem u mapi components s odgovarajućim .jsx i .css datotekama. Sada možemo otkomentirati komponentu na stranici list. Struktura komponente izgledati će ovako:
 

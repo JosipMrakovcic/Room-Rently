@@ -20,16 +20,16 @@ te kako bi pokrenuli našu aplikaciju glavna naredba za to jest:
 npm start
 ```
 
-tu naredbu je potrebno učestalo koristiti tijekom debugganja kako bi vidjeli našu aplikaciju.
+tu naredbu je potrebno učestalo koristiti tijekom debugiranja kako bi vidjeli našu aplikaciju.
 Ako skidamo ovaj projekt, potrebno je prije naredbe `npm start` upisati naredbu:
 
 ```bash
 npm install
 ```
 
-Po defaultu naša aplikacija bi trebala biti vidljiva na adresi http://localhost:3000/ ali u terminalu će također biti ispisana adresa za korištenje. Nakon toga potrebno je unesti adresu u bilo koji lokalni browser primjerice Google Chrome.
+Po defaultu naša aplikacija bi trebala biti vidljiva na adresi http://localhost:3000/ ali u terminalu će također biti ispisana adresa za korištenje. Nakon toga potrebno je unijeti adresu u bilo koji lokalni browser primjerice Google Chrome.
 Po defaultu dobili smo automatsku instaliranu React frontend stranicu koja ima logo i opis, ali služi isključivo za primjer. Većinu toga je bilo potrebno pobrisati iz predefiniranih template datoteka kako bi mogli napredovati sa svojim idejama.
-Pobrisao sam default HTML-ove iz App.js te testirao tako da napravim par h1 tagova u HTML-u unutar App.js te saveo file nakon čega mi se pojavio h1 tag na Google Chrome-u na lokalnoj stranici.
+Pobrisao sam default HTML-ove iz App.js te testirao tako da napravim par h1 tagova u HTML-u unutar App.js te spremio file nakon čega mi se pojavio h1 tag na Google Chrome-u na lokalnoj stranici.
 
 ```jsx
 <h1>Test</h1>
@@ -39,7 +39,7 @@ Pobrisao sam default HTML-ove iz App.js te testirao tako da napravim par h1 tago
 
 Nakon instalacije svega potrebnoga za početak projekta, trebalo je napraviti početnu stranicu.
 
-Instalirao sam react-router-dom pomoću naredbe:
+Instalirao sam react-router-dom s pomoću naredbe:
 
 ```bash
    npm i react-router-dom
@@ -131,6 +131,12 @@ Sve animacije i izgled definirani su u Landingscreen.css-u.
 Kreira fullscreen gradient pozadinu s plavo ljubičastim tonovima.
 Koristi se Flexbox za centriranje sadržaja po sredini ekrana te ulaznu animaciju odnosno fadeIn za efekt postepenog pojavljivanja.
 
+`overflow: hidden;` sprečava da rotirajući pseudo-element (::before), koji je veći od samog prozora viri izvan prozora.
+Znači da se svi dijelovi pseudo-elementa koji izlaze iz granica .landing sekcije ne prikazuju.
+
+`animation: fadeIn 1.5s ease-in-out;` animacija primjenjuje efekt postepenog pojavljivanja cijelog zaslona odmah po učitavanju stranice.
+ease-in-out znači da animacija započinje i završava sporije, a brža je u sredini odnosno glatki prijelaz.
+
 #### Efekt lebdećeg svjetla u pozadini postignut CSS-om
 
 ```css
@@ -151,7 +157,7 @@ Koristi se Flexbox za centriranje sadržaja po sredini ekrana te ulaznu animacij
 }
 ```
 
-Koristi se pseudo element `::before` da doda prozirni sloj svjetla te radial-gradient stvara svjetlosni krug koji se polako rotira pomoću:
+Koristi se pseudo element `::before` da doda prozirni sloj svjetla te radial-gradient stvara svjetlosni krug koji se polako rotira s pomoću:
 
 ```css
 @keyframes rotateBackground {
@@ -187,6 +193,11 @@ Koristi se pseudo element `::before` da doda prozirni sloj svjetla te radial-gra
 
 h1 ima animaciju fadeInUp, lagano izlazi odozdo te h2 ima animaciju slidedown spuštanja s vrha.
 
+`animation: fadeInUp 1.5s ease forwards;`
+
+forwards znači da završno stanje animacije ostaje i nakon što se animacija završi.
+Bez toga bi se elementi vratili u početno stanje odnosno opet nestali nakon animacije.
+
 #### Animacije
 
 ```css
@@ -211,6 +222,17 @@ h1 ima animaciju fadeInUp, lagano izlazi odozdo te h2 ima animaciju slidedown sp
     transform: translateY(0);
   }
 }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 ```
 
 Objašnjenje animacija:
@@ -218,9 +240,12 @@ Objašnjenje animacija:
 `opacity: 0` znači da je element potpuno nevidljiv.
 `transform: translateY(-30px)` nam zatim govori da je pomaknut 30px prema gore izvan svoje normalne pozicije.
 `to` označava kraj animacije:
-`opacity: 1` odnosno element postaje potpuno vidljiv te se pomoću
+`opacity: 1` odnosno element postaje potpuno vidljiv te se s pomoću
 `transform: translateY(0)` vraća se svoju početnu poziciju.
 Dakle, postepeno element ide prema dolje(ili gore u slučaju fadeInUp) i postaje vidljiv.
+
+Kada se fadeIn animacija pokrene, element krene nevidljiv i malo spušten dolje.
+Tijekom trajanja animacije postepeno se pojavljuje (opacity od 0 do 1) te istovremeno klizi prema gore na svoje normalno mjesto (translateY(20px → 0)).
 
 #### Gumb (“Find a Place to Stay”)
 
@@ -248,6 +273,21 @@ Dakle, postepeno element ide prema dolje(ili gore u slučaju fadeInUp) i postaje
 Koristi gradijentnu pozadinu u žuto-narančastim tonovima te ima zaobljene rubove i sjenu za 3D efekt.
 `::hover` dodaje efekt izbočenja, a fadeIn animacija na gumb se pojavi postepeno s lakoćom(glatko) te ostane na mjestu nakon završetka animacije.
 
+`box-shadow: 0 5px 15px rgba(255, 204, 51, 0.3);` dodaje sjenu ispod gumba, što daje osjećaj dubine.
+Pri hover-u se sjena povećava, što dodatno pojačava dojam da gumb “iskače” prema korisniku.
+
+`transition: all 0.3s ease;` osigurava da promjene pri hover-u kao što su transform i box-shadow ne budu trenutačne, nego imaju efekt kroz vrijeme.
+Bez transition-a, efekt “iskakanja” bio bi nagao.
+
+```css
+.col-md-12 {
+  z-index: 1;
+}
+```
+
+Ovo osigurava da se glavni sadržaj tekst i gumb prikazuju iznad animirane pozadine jer pseudo-element ima z-index: 0.
+Nazvan je po boostrapu, ali nije korišten tako.
+
 #### Responzivnost
 
 ```css
@@ -269,18 +309,18 @@ Koristi gradijentnu pozadinu u žuto-narančastim tonovima te ima zaobljene rubo
 ```
 
 Automatski prilagođava veličine fontova i padding gumba za manje ekrane.
-Dio CSS koda u ovom repozitoriju je unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda cssa tako da ima plavo obojanu animaciju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu primjerice ".landing", radi redundancije ne navodim. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda.
+Dio CSS koda u ovom repozitoriju je unaprijeđen s pomoću ChatGPT (OpenAI).  
+Upit korišten za dobivanje komponenti CSS-a je dobiven upitom "Potrebno mi je poboljšanje i unaprjeđenje izgleda CSS-a tako da ima plavo obojenu animaciju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu primjerice ".landing", radi redundancije ne navodim. AI mi je poboljšao moj CSS te nadogradio tako da vizualno ljepše izgleda.
 **Alat:** ChatGPT (OpenAI)  
-**Datum pristupa:** 2025-10-11  
-**Svrha:** Unapređenje CSS-a refaktor, optimizacija selektora, poboljšanje responsivnosti.
+**Datum pristupa:** 2025-10-11 
+**Svrha:** Unapređenje CSS-a refraktor, optimizacija selektora, poboljšanje responzivnosti.
 
 # Dodavanje ostalih stranica te njihovih ruta
 
 Osim početne stranice potrebno je napraviti i druge stranice koje će nam biti potrebne u daljnjoj izradi projekta.
 U mapi src stvorio sam novu mapu pages te u njoj mape home, list i hotel.
 U njima sam napravio odgovarajuće .jsx i .css datoteke, pa sam tako za home napravio Home.jsx i home.css te isto i za druge mape.
-Pomoću ekstenzije "ES7+ React/Redux/React-Native snippets" za vscode, automatskom nadopunom koda, samim upisom "rafce" u Home.jsx dobio sam slijedeći predložak koda:
+S pomoću ekstenzije "ES7+ React/Redux/React-Native snippets" za VSCode, automatskom nadopunom koda, samim upisom "rafce" u Home.jsx dobio sam sljedeći predložak koda:
 
 ```jsx
 import React from "react";
@@ -319,7 +359,7 @@ import "./home.css";
 ## Dodavanje navigacijske trake
 
 U src mapu dodao sam mapu components te u njoj mapu navbar s odgovarajućim .jsx i .css datotekama te napravio isti template kao i za rute u mapi pages.
-U Home.jsx sam umjesto same riječi Home stavio `<Navbar></Navbar>` koja sad pokazuje komponentu navigacijse trake te je bilo potrebno prenijeti tu navigacijsku traku iz komponenti pomoću putanje naredbom:
+U Home.jsx sam umjesto same riječi Home stavio `<Navbar></Navbar>` koja sad pokazuje komponentu navigacijske trake te je bilo potrebno prenijeti tu navigacijsku traku iz komponenti s pomoću putanje naredbom:
 
 ```jsx
 import Navbar from "../../components/navbar/navbar";
@@ -352,9 +392,9 @@ const Navbar = () => {
 export default Navbar;
 ```
 
-Dakle dodan je blok element div za navigacijsku traku, container koji zaokružuje sve elemente navigacijske trake, liniski element span koji prikazuje ime stranice te div koji sadrži gumbe na prijavu i odjavu korisnika. Kao što je već prije objašnjeno, `useNavigate()` je hook iz React Routera te se pomoću njega, klikom na naslov stranice, zbog `onClick={navigatelandingscreen}` prebacujemo na početnu stranicu.
+Dakle dodan je blok element div za navigacijsku traku, container koji zaokružuje sve elemente navigacijske trake, linijski element span koji prikazuje ime stranice te div koji sadrži gumbe na prijavu i odjavu korisnika. Kao što je već prije objašnjeno, `useNavigate()` je hook iz React Routera te se s pomoću njega, klikom na naslov stranice, zbog `onClick={navigatelandingscreen}` prebacujemo na početnu stranicu.
 
-Izgled navigacijske trake osmišljen je pomoću css-a:
+Izgled navigacijske trake osmišljen je s pomoću CSS-a:
 
 ```css
 .navbar {
@@ -379,7 +419,7 @@ Izgled navigacijske trake osmišljen je pomoću css-a:
 }
 ```
 
-`.navbar{}` određuje gdje će se nalaziti navContainer te koliko će velik biti navbar, koje boje, na kojoj poziciji u odnosu na vrh stranice te pozicijom sticky ostavljamo navigacijsku traku uvijek na vrhu bez obzira pomičemo li se prema dnu stranice. Tu nam još pomaže z-index koji nam govori da navigacijska traka mora biti ispred drugih elemenata jer ima veći z-index. Veličina navContainera je 100% širine stranice, no ograničena je na maksimalnu širinu od 1100 piksela. Boja slova je bijela te su elementi containera pozicionirani tako da između imaju prazan prostor. Dakle naziv stranice je na krajnje lijevoj poziciji te su gumbi na krajnje desnoj poziciji s time da postoji i razmak lijevo i desno od 20 piksela od granica containera i njegovog sadržaja.
+`.navbar{}` određuje gdje će se nalaziti navContainer te koliko će velik biti navbar, koje boje, na kojoj poziciji u odnosu na vrh stranice te pozicijom sticky ostavljamo navigacijsku traku uvijek na vrhu bez obzira pomičemo li se prema dnu stranice. Tu nam još pomaže z-index koji nam govori da navigacijska traka mora biti ispred drugih elemenata jer ima veći z-index. Veličina navContainer-a je 100 % širine stranice, no ograničena je na maksimalnu širinu od 1100 piksela. Boja slova je bijela te su elementi containera pozicionirani tako da između imaju prazan prostor. Dakle naziv stranice je na krajnje lijevoj poziciji te su gumbi na krajnje desnoj poziciji s time da postoji i razmak lijevo i desno od 20 piksela od granica containera i njegovog sadržaja.
 
 ```css
 .logo {
@@ -432,9 +472,9 @@ Određena je veličina slova teksta imena stranice te kada pređemo mišem preko
 
 ### Dodavanje Google prijave/odjave u navigacijsku traku
 
-Kako bismo omogućili autentifikaciju korisnika putem Google računa, u komponentu navigacijske trake Navbar.jsx dodan je kod koji koristi biblioteku `@react-oauth/google` za prijavu i odjavu, te bibliteku `axios` za dohvat podataka o korisniku.
-Na ovaj način korisnik se može prijaviti pomoću Google računa, a njegovo ime i profilna slika prikazuju se u navigacijskoj traci.
-za instalirati navedene pakete potrebno je unesti ove dvije naredbe u radnom direktoriju:
+Kako bismo omogućili autentifikaciju korisnika putem Google računa, u komponentu navigacijske trake Navbar.jsx dodan je kod koji koristi biblioteku `@react-oauth/google` za prijavu i odjavu, te biblioteku `axios` za dohvat podataka o korisniku.
+Na ovaj način korisnik se može prijaviti s pomoću Google računa, a njegovo ime i profilna slika prikazuju se u navigacijskoj traci.
+za instalirati navedene pakete potrebno je unijeti ove dvije naredbe u radnom direktoriju:
 
 ```bash
 npm install @react-oauth/google@latest
@@ -454,9 +494,9 @@ import { useGoogleLogin, googleLogout } from "@react-oauth/google";
 import axios from "axios";
 ```
 
-`useState` i `useEffect` su React hookovi za upravljanje lokalnim stanjem i efektima unutar komponente.
+`useState` i `useEffect` su React hook-ovi za upravljanje lokalnim stanjem i efektima unutar komponente.
 `useGoogleLogin` i `googleLogout` dolaze iz biblioteke `@react-oauth/google` i koriste se za upravljanje procesima prijave i odjave.
-`axios` je HTTP klijent koji se koristi za dohvat korisničkih podataka s Google-ovog API-ja nakon što korisnik potvrdi prijavu. Ispod `const navigate = useNavigate();` dodan je sljedeći kod:
+`axios` je HTTP klijent koji se koristi za dohvat korisničkih podataka s Googleovog API-ja nakon što korisnik potvrdi prijavu. Ispod `const navigate = useNavigate();` dodan je sljedeći kod:
 
 ```jsx
 // LOadanje usera iz local storeagea
@@ -466,14 +506,14 @@ const [user, setUser] = useState(() => {
 });
 ```
 
-Ovaj kod koristi React hook `useState()` za stvaranje stanja user koje će čuvati informacije o trenutno prijavljenom korisniku.
-Kako bi se omogućilo da korisnik ostane prijavljen i nakon što osvježi stranicu, početna vrijednost user nije prazna, već se dohvaća iz localStorage-a odsnosno trajna pohrana u pregledniku.
+Ovaj kod koristi React hook `useState()` za stvaranje stanja user koje će čuvati informacije o trenutačno prijavljenom korisniku.
+Kako bi se omogućilo da korisnik ostane prijavljen i nakon što osvježi stranicu, početna vrijednost user nije prazna, već se dohvaća iz localStorage-a odnosno trajna pohrana u pregledniku.
 
-Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda cssa tako da ima plavu boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu primjerice "navButton", ostatak je gore u kodu radi redundancije ne navodim, kao i na prethodnom primjeru. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
+Dio CSS koda u ovom repozitoriju je također unaprijeđen s pomoću ChatGPT (OpenAI).
+Upit korišten za dobivanje komponenti CSS-a je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima plavu boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu primjerice "navButton", ostatak je gore u kodu radi redundancije ne navodim, kao i na prethodnom primjeru. AI mi je poboljšao moj CSS te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
 **Alat:** ChatGPT (OpenAI)  
 **Datum pristupa:** 2025-10-12  
-**Svrha:** Unapređenje CSS-a refaktor, poboljšanje responsivnosti.
+**Svrha:** Unapređenje CSS-a refraktor, poboljšanje responzivnosti.
 
 #### Google prijava korisnika
 
@@ -508,11 +548,11 @@ Nakon što se korisnik uspješno prijavi, Google vraća access_token jedinstveni
 
 Zatim se koristi Axios za slanje GET zahtjeva prema Google API-u na [adresu](https://www.googleapis.com/oauth2/v3/userinfo).
 Ova adresa vraća osnovne podatke o korisniku (ime, e-mail adresu, profilnu sliku,...), a token se šalje u zaglavlju zahtjeva (Authorization header) u formatu:
-`Authorization: Bearer <access_token>`
+`Authorization: Bearer `
 Nakon što Google vrati odgovor res.data sadrži objekt s korisničkim podacima,
-pomoću `setUser(res.data)` ti se podaci spremaju u trenutno stanje komponente, a pomoću `localStorage.setItem("googleUser", JSON.stringify(res.data))` podaci se trajno pohranjuju u preglednik, čime se osigurava da korisnik ostane prijavljen i nakon ponovnog učitavanja stranice.
+s pomoću `setUser(res.data)` ti se podaci spremaju u trenutačno stanje komponente, a s pomoću `localStorage.setItem("googleUser", JSON.stringify(res.data))` podaci se trajno pohranjuju u preglednik, čime se osigurava da korisnik ostane prijavljen i nakon ponovnog učitavanja stranice.
 
-Ako dođe do greške (npr. korisnik prekine prijavu ili token istekne), poruka o grešci ispisuje se u konzolu pomoću `console.log("Login Failed:", error)`.
+Ako dođe do greške (npr. korisnik prekine prijavu ili token istekne), poruka o grešci ispisuje se u konzolu s pomoću `console.log("Login Failed:", error)`.
 
 #### Google odjava korisnika
 
@@ -526,8 +566,8 @@ const logout = () => {
 };
 ```
 
-`googleLogout()` poziva funkciju iz biblioteke `@react-oauth/google`, koja briše sesiju korisnika na strani Google-a i efektivno ga odjavljuje.
-`setUser(null)` resetira stanje user-a unutar React komponente, čime se u navigacijskoj traci ponovno prikazuje gumb Login with Google umjesto podataka o korisniku.
+`googleLogout()` poziva funkciju iz biblioteke `@react-oauth/google`, koja briše sesiju korisnika na strani Googlea i efektivno ga odjavljuje.
+`setUser(null)` resetira stanje usera unutar React komponente, čime se u navigacijskoj traci ponovno prikazuje gumb Login with Google umjesto podataka o korisniku.
 `localStorage.removeItem("googleUser")` uklanja spremljene podatke iz localStorage-a, osiguravajući da se korisnički podaci ne zadrže prilikom navigacije između ruta ili osvježavanja stranice.
 
 #### Dinamički prikaz korisničkih elemenata u navigacijskoj traci
@@ -564,13 +604,13 @@ Ovaj blok koda koji je zamijenio statički div element klase navItems koristi uv
 
 Ako korisnik nije prijavljen (`!user`), prikazuje se gumb „Login with Google“.
 Klikom na gumb poziva se funkcija `login()`, koja otvara Google prozor za autentifikaciju.
-Inače, ako je prijavljen, prikazuje se profilna slika korisnika i ova inline css svojstva: veličina slike je 35x35 piksela, rubovi su zaobljeni `(borderRadius: "50%")`, razmak između slike i imena korisnika je `(marginRight: "10px")`, ispisuje se ime korisnika `(<span>{user.name}</span>)` koji je dobiven gore iz dohvata sa Google API-ja te se prikazuje gumb za odjavu (Logout), koji poziva funkciju `logout()` i briše korisničke podatke iz stanja i localStorage-a.
+Inače, ako je prijavljen, prikazuje se profilna slika korisnika i ova inline CSS svojstva: veličina slike je 35 × 35 piksela, rubovi su zaobljeni `(borderRadius: "50%")`, razmak između slike i imena korisnika je `(marginRight: "10px")`, ispisuje se ime korisnika `({user.name})` koji je dobiven gore iz dohvata sa Google API-ja te se prikazuje gumb za odjavu (Logout), koji poziva funkciju `logout()` i briše korisničke podatke iz stanja i localStorage-a.
 
 ## Izrada zaglavlja
 
 ### Dodavanje mapi te uvezivanje u Home.jsx
 
-Pod mapu components dodao sam mapu header s odgovarajućim .css i .jsx datotekama. Kao svaku komponentu dodao sam Header u Home.jsx pomoću import naredbe:
+Pod mapu components dodao sam mapu header s odgovarajućim .css i .jsx datotekama. Kao svaku komponentu dodao sam Header u Home.jsx s pomoću import naredbe:
 
 ```jsx
 import Header from "../../components/header/Header";
@@ -587,7 +627,7 @@ Uveo sam CSS u Header.jsx kao i prije naredbom:
 import "./header.css";
 ```
 
-te naslove Apartments i Rooms koji zasad nemaju ikone, ali se mogu dodati umjesto komentara "ikona" ako bude potrebno. Također, apartmane sam označio kao trenutno aktivne te sam im prema tome dodao CSS stil.
+te naslove Apartments i Rooms koji zasad nemaju ikone, ali se mogu dodati umjesto komentara "ikona" ako bude potrebno. Također, apartmane sam označio kao trenutačno aktivne te sam im prema tome dodao CSS stil.
 
 ```jsx
 const Header = () => {
@@ -642,7 +682,7 @@ Ovdje je implementirana pozadinska boja te boja teksta. Zatim raspored elemenata
 }
 ```
 
-Širina je napravljena na isti način kao i kod navigacijske trake, a text je poravnat u sredinu te container ima doljnju marginu od 5 piksela.
+Širina je napravljena na isti način kao i kod navigacijske trake, a text je poravnat u sredinu te container ima donju marginu od 5 piksela.
 
 ```css
 .headerList {
@@ -689,13 +729,13 @@ Elementi apartmana i soba poravnati su u sredinu te su poredani slijedno po lini
 }
 ```
 
-Zasada nepostojeća ikona udaljena je od odgovarajućih opisa (Apartments i Rooms) 12 pixela, elementi su poravnati u sredinu te se prelaskom mišem prikazuje pointer. Napravljen je i CSS za ikone kojih trenutno nema te veličina slova i debljina za span elemente Apartments i Rooms. Prelaskom preko njih, boja teksta se mijenja u plavu te se elementi povećavaju 1.1 puta. Apartments koji je active ima svoj padding sa svih strana. Granica mu je kružnog oblika sivo-bijele boje te ima sjenu i zamućena je.
+Zasad nepostojeća ikona udaljena je od odgovarajućih opisa (Apartments i Rooms) 12 pixela, elementi su poravnati u sredinu te se prelaskom mišem prikazuje pointer. Napravljen je i CSS za ikone kojih trenutačno nema te veličina slova i debljina za span elemente Apartments i Rooms. Prelaskom preko njih, boja teksta se mijenja u plavu te se elementi povećavaju 1.1 puta. Apartments koji je active ima svoj padding sa svih strana. Granica mu je kružnog oblika sivo-bijele boje te ima sjenu i zamućena je.
 
-Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima svijetlo plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
+Dio CSS koda u ovom repozitoriju je također unaprijeđen s pomoću ChatGPT (OpenAI).
+Upit korišten za dobivanje komponenti CSS-a je dobiven upitom "Potrebno mi je poboljšanje i unaprjeđenje izgleda CSS-a tako da ima svijetlo plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
 **Alat:** ChatGPT (OpenAI)  
-**Datum pristupa:** 2025-10-12  
-**Svrha:** Unapređenje CSS-a refaktor.
+**Datum pristupa:** 2025-10-12 
+**Svrha:** Unapređenje CSS-a refraktor.
 
 ### Naslov, odlomak te gumb
 
@@ -741,7 +781,7 @@ popraćen CSS-om:
 }
 ```
 
-Odlomak ima svoje gornje i donje margine od 20 piksela te su definirana veličina, debljina i boja fonta kao i visina retka te lijevi i desni padding. Gumb je malo svjetlije boje od ostatka zaglavlja te su definirana obilježja fonta. Maknut je obrub, dodan razmak sa svih strana te zakrivljeni oblik granica. Također, implementirane su margine, pokazivač miša te sjena i promjena u malo tamniju boju te pomak prema gore prilikom hover-a.
+Odlomak ima svoje gornje i donje margine od 20 piksela te su definirana veličina, debljina i boja fonta kao i visina retka te lijevi i desni padding. Gumb je malo svjetlije boje od ostatka zaglavlja te su definirana obilježja fonta. Maknut je obrub, dodan razmak sa svih strana te zakrivljeni oblik granica. Također, implementirane su margine, pokazivač miša te sjena i promjena u malo tamniju boju te pomak prema gore prilikom hovera.
 
 ### Tražilica
 
@@ -774,7 +814,7 @@ Nakon što smo implementirali osnovne stavke, imamo problem implementacije traž
 </div>
 ```
 
-Ona trenutno ima fiksne tekstove no poslije ćemo to promijeniti. Sada je potrebno promijeniti izgled tražilici u CSS-u:
+Ona trenutačno ima fiksne tekstove no poslije ćemo to promijeniti. Sada je potrebno promijeniti izgled tražilici u CSS-u:
 
 ```css
 .headerSearch {
@@ -816,17 +856,17 @@ Polje za unos željenog imena apartmana odnosno sobe više nema obrub te je defi
 
 #### Prikaz datuma te kalendara
 
-Pratio sam youtube [tutorial](https://youtu.be/RkWpJ4XUHuw?si=9tdgdqY7-Q9KxtDY)
+Pratio sam YouTube [tutorial](https://youtu.be/RkWpJ4XUHuw?si=9tdgdqY7-Q9KxtDY)
 kako bih instalirao react-date-range paket koji sadrži kvalitetno sučelje za odabir raspona datuma koje
 će nam koristiti prilikom odabira termina u aplikaciji.
 23 minute 46 sekundi je vrijeme u videozapisu kada se objasni instalacija paketa.
-Instalacija paketa dobije se naredbom u terminalu :
+Instalacija paketa dobije se naredbom u terminalu:
 
 ```bash
 npm install react-date-range
 ```
 
-S ove [stranice](https://hypeserver.github.io/react-date-range/) iz odjeljka "DateRange" preuzeo sam kod koji se prikaže klikom na "VIEW CODE". Kod sam mrvicu promijenio tako što sam umjesto state hooka stavio date hook te sam uveo DateRange:
+S ove [stranice](https://hypeserver.github.io/react-date-range/) iz odjeljka "DateRange" preuzeo sam kod koji se prikaže klikom na "VIEW CODE". Kod sam mrvicu promijenio tako što sam umjesto state hook-a stavio date hook te sam uveo DateRange:
 
 ```jsx
 import { useState } from "react";
@@ -847,8 +887,8 @@ const [date, setDate] = useState([
 />;
 ```
 
-Importovi su normalno gdje i svi importovi na vrhu datoteke, konstantu sam stavio u const Header prije returna, a `<Daterange.../>` nakon span elementa "date to date". Ovaj kod služi za kalendar u kojemu se može birati otkad do kad želimo rezervirati sobu.
-Nakon toga da bi sve radilo, bilo je potrebno preko terminala instalirati biblioteku date-fns za formatiranje datuma pomoću naredbe:
+Importi su normalno gdje i svi importi na vrhu datoteke, konstantu sam stavio u const Header prije returna, a `<Daterange.../>` nakon span elementa "date to date". Ovaj kod služi za kalendar u kojemu se može birati otkad do kad želimo rezervirati sobu.
+Nakon toga da bi sve radilo, bilo je potrebno preko terminala instalirati biblioteku date-fns za formatiranje datuma s pomoću naredbe:
 
 ```bash
    npm i date-fns
@@ -857,14 +897,14 @@ Nakon toga da bi sve radilo, bilo je potrebno preko terminala instalirati biblio
 No korištenjem naredbe naišao sam na
 problem korištenja react-date-range packagea.
 Naime, verzija paketa nije bila kompatibilna te je
-rješenje bilo unesti ove dvije naredbe koje su prepravile problem kompatibilnosti verzija
+rješenje bilo unijeti ove dvije naredbe koje su prepravile problem kompatibilnosti verzija
 
 ```bash
 npm uninstall date-fns
 npm install date-fns@^3.0.0
 ```
 
-Biblioteku sam uveo u kod pomoću importova:
+Biblioteku sam uveo u kod s pomoću importa:
 
 ```jsx
 import "react-date-range/dist/styles.css"; // main css file
@@ -1045,8 +1085,8 @@ Sada napokon moramo dodati izbornik za biranje broja osoba te soba nakon span el
 }
 ```
 
-Imamo gumbove koji imaju disabled ponašanje za postavljanje broja manjeg od nužnog(niti jedna odrasla osoba te niti jedna soba te negativan broj djece). Plus i minus gumb imat će definirano ponašanje pomoću funkcije handleoption koju još nismo napravili.
-Logično sada implementiramo funkciju iznad returna od Header-a:
+Imamo gumbove koji imaju disabled ponašanje za postavljanje broja manjeg od nužnog(niti jedna odrasla osoba te niti jedna soba te negativan broj djece). Plus i minus gumb imat će definirano ponašanje s pomoću funkcije handleoption koju još nismo napravili.
+Logično sada implementiramo funkciju iznad returna od Headera:
 
 ```jsx
 const handleoption = (name, operation) => {
@@ -1105,7 +1145,7 @@ Još nam preostaje implementirati izgled izbornika za biranje broja osoba te sob
 }
 ```
 
-Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar pomaknute prema dolje s sivim tekstom, bijelom pozadinom te žutim obrubom. Svaki item, odnosno npr. biranje broja odraslih osoba poredan je u jedan red širine 200 piksela s time da postoji razmak između spanova(npr. Adult) te gumbova i prikaza odgovarajućih brojeva koji su zajedno u jednom div elementu. Njihov jednostavan prikaz određen je `.optioncounter{}` CSS-om. Gumbovi imaju određenu visinu, širinu, obrub te pointer za prelazak s mišem. Ako su gumbi disabled onda će miš pokazivati precrtanu crvenu kružnicu kao znak zabrane.
+Opcije će biti ispred ostatka stranice zbog z-komponente, isto kao i kalendar pomaknute prema dolje sa sivim tekstom, bijelom pozadinom te žutim obrubom. Svaki item, odnosno npr. biranje broja odraslih osoba poredan je u jedan red širine 200 piksela s time da postoji razmak između span-ova(npr. Adult) te gumbova i prikaza odgovarajućih brojeva koji su zajedno u jednom div elementu. Njihov jednostavan prikaz određen je `.optioncounter{}` CSS-om. Gumbovi imaju određenu visinu, širinu, obrub te pointer za prelazak s mišem. Ako su gumbi disabled onda će miš pokazivati precrtanu crvenu kružnicu kao znak zabrane.
 
 Komponenta je u potpunosti responzivna i optimizirana za tablete(max-width: 768px), mobitele(max-width: 480px) te vrlo male ekrane(max-width: 360px). Glavne prilagodbe su redukcija fontova i margina.`headerSearch` prelazi u vertikalni layout, date i options elementi pozicioniraju se kao donji “sheet” na ekranu, a gumb i tekst postaju manji te razmaci proporcionalno kraći.
 
@@ -1329,7 +1369,7 @@ Komponenta je u potpunosti responzivna i optimizirana za tablete(max-width: 768p
 ```
 
 Promjene u responzivnosti služe za pozicioniranje elemenata poput kalendara i options prozora u donji dio ekrana kada se koristi mobilni prikaz.
-Cilj im je simulirati izgled tzv. “bottom sheet” panela, kakvi se često koriste u mobilnim aplikacijama npr. Booking, Google Maps,itd.
+Cilj im je simulirati izgled tzv. “bottom sheet” panela, kakvi se često koriste u mobilnim aplikacijama npr. Booking, Google Maps, itd.
 
 Dodajmo sada navbar i header na stranicu /hotels pomoću List.jsx-a:
 
@@ -1358,7 +1398,7 @@ const Header = ({ type }) => {
 };
 ```
 
-Dakle, prenesli smo taj prop te je od h1 tag-a pa do zadnjeg itema potrebno zatvoriti strukturu s {} zagradama te unutar zagrada `<></>` prije toga treba napisati da ako tip nije "list" onda će biti vidljiv ostatak headera, a inače su vidljivi samo spanovi Apartments i Rooms zaokruženi s svojim div elementima. Sada kod izgleda ovako:
+Dakle, prenijeli smo taj prop te je od h1 taga pa do zadnjeg itema potrebno zatvoriti strukturu s {} zagradama te unutar zagrada `<>` prije toga treba napisati da ako tip nije "list" onda će biti vidljiv ostatak headera, a inače su vidljivi samo span-ovi Apartments i Rooms zaokruženi s svojim div elementima. Sada kod izgleda ovako:
 
 ```jsx
 {
@@ -1366,13 +1406,13 @@ Dakle, prenesli smo taj prop te je od h1 tag-a pa do zadnjeg itema potrebno zatv
 }
 ```
 
-Potrebno je još promijeniti da ako je tip "list" onda imamo dvije klase, a inače samo jednu zbog css-a:
+Potrebno je još promijeniti da ako je tip "list" onda imamo dvije klase, a inače samo jednu zbog CSS-a:
 
 ```jsx
 <div className={type==="list"? "headerContainer listmode":"headerContainer"}>
 ```
 
-U CSS-u nadodamo kod za gornju marginu, kako bi se Apartments i Rooms prikazivali više dolje u usporedbi sa main stranicom:
+U CSS-u nadodamo kod za gornju marginu, kako bi se Apartments i Rooms prikazivali više dolje u usporedbi s main stranicom:
 
 ```css
 .headerContainer.listmode {
@@ -1388,7 +1428,7 @@ Na poslijetku, potrebno je za search dodati onclick event handler koji će preba
 </button>
 ```
 
-Sada nam još ostaje napraviti funkciju handleSearch pomoću hooka useNavigate uvezivanjem:
+Sada nam još ostaje napraviti funkciju handleSearch s pomoću hook-a useNavigate uvezivanjem:
 
 ```jsx
 import { useNavigate } from "react-router-dom";
@@ -1414,7 +1454,7 @@ const Header= ({type})=>{
 ```
 
 Klikom na gumb "Search" mijenja se adresa na /hotels te se šalje odabrano stanje.
-Ime apartmana ili sobe se mijenja pomoću promjene u kodu za input:
+Ime apartmana ili sobe se mijenja s pomoću promjene u kodu za input:
 
 ```jsx
 <input
@@ -1425,13 +1465,13 @@ Ime apartmana ili sobe se mijenja pomoću promjene u kodu za input:
 ></input>
 ```
 
-Nakon svake promjene input-a, destination(ime apartmana/sobe) se postavlja na upisanu vrijednost.
+Nakon svake promjene inputa, destination(ime apartmana/sobe) se postavlja na upisanu vrijednost.
 
-Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima svijetlo plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"headerBTN" ali zbog redundancije necu navoditi sve klase. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
+Dio CSS koda u ovom repozitoriju je također unaprijeđen s pomoću ChatGPT (OpenAI).
+Upit korišten za dobivanje komponenti CSS-a je dobiven upitom "Potrebno mi je poboljšanje i unaprjeđenje izgleda CSS-a tako da ima svijetlo plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"headerBTN" ali zbog redundancije neću navoditi sve klase. AI mi je poboljšao moj CSS te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
 **Alat:** ChatGPT (OpenAI)  
-**Datum pristupa:** 2025-10-12  
-**Svrha:** Unapređenje CSS-a refaktor.
+**Datum pristupa:** 2025-10-12 
+**Svrha:** Unapređenje CSS-a refraktor.
 
 ## Komponente koje se nalaze na sredini glavne stranice
 ### Izrada featured komponente
@@ -1455,7 +1495,7 @@ te je u mapu components potrebno dodati novu komponentu(mapu) featured s odgovar
 }
 ```
 
-Sada se homecontainer nalazi 50 piksela ispod headera. Svaki njegov element je centriran, u svome redu s razmakom između svakog reda(elementa containera) od 30 piksela i padding-om s lijeve i desne strane od 10 piksela.
+Sada se homecontainer nalazi 50 piksela ispod headera. Svaki njegov element je centriran, u svome redu s razmakom između svakog reda(elementa containera) od 30 piksela i paddingom s lijeve i desne strane od 10 piksela.
 
 Preostaje nam izraditi komponentu Featured:
 
@@ -1493,7 +1533,7 @@ const Featured = () => {
 export default Featured;
 ```
 
-Radi jednostavnosti, za sada ćemo dodati 3 statična elementa sa svojim slikama te naslovima. One će označavati kategorije(npr. pogled na more) za lakše filtriranje soba i apartmana. Ovi elementi trenutno ne pašu na stranici pa je bilo potrebno pozabaviti se s CSS-om:
+Radi jednostavnosti, za sada ćemo dodati 3 statična elementa sa svojim slikama te naslovima. One će označavati kategorije(npr. pogled na more) za lakše filtriranje soba i apartmana. Ovi elementi trenutačno ne pašu na stranici pa je bilo potrebno pozabaviti se s CSS-om:
 
 ```css
 .featured {
@@ -1510,7 +1550,7 @@ Radi jednostavnosti, za sada ćemo dodati 3 statična elementa sa svojim slikama
 }
 ```
 
-Širina je ista kao i kod ostatka komponenti. Ako smo na manjim ekranima, elementi će se prebaciti u novi red po potrebi. Oni imaju razmak između od 24 piksela, padding sa svih strana od 20 piksela, automatske margine s lijeve i desne strane te su u potpunosti zajedno s granicama unutar featured div-a te ispred ostalih komponenti stranice koji imaju z-index manji od 1 odnosno iza kalendara i izbornika za biranje broja osoba i broja soba.
+Širina je ista kao i kod ostatka komponenti. Ako smo na manjim ekranima, elementi će se prebaciti u novi red po potrebi. Oni imaju razmak između od 24 piksela, padding sa svih strana od 20 piksela, automatske margine s lijeve i desne strane te su u potpunosti s granicama unutar featured div-a te ispred ostalih komponenti stranice koji imaju z-index manji od 1 odnosno iza kalendara i izbornika za biranje broja osoba i broja soba.
 
 ```css
 .featureditem {
@@ -1531,7 +1571,7 @@ Radi jednostavnosti, za sada ćemo dodati 3 statična elementa sa svojim slikama
 }
 ```
 
-Svaki element ima relativnu poziciju, visinu od 260 piksela te mu je omogućeno povećanje ako ima mjesta, smanjenje ako nema mjesta te mu je početna širina tećina div-a featured umanjena za 24 piksela zbog razmaka od 24 piksela između elemenata. Tekst je bijele boje te svaki element ima zaobljene rubove i ako su elementi preveliki onda se taj overflow sakrije. Kursor je pokazivač što implicira da se elementi mogu kliknuti. Promjene pozicije i sjene traju 0.3 sekunde, a početna sjena je pomaknuta 4 piksela ispod elementa s zamućenjem radijusa 12 piksela te navedenom bojom sjene. Prelaskom preko elementa mišem, element se pomakne prema gore za 6 piksela te sjena postaje veća i neprozirnija.
+Svaki element ima relativnu poziciju, visinu od 260 piksela te mu je omogućeno povećanje ako ima mjesta, smanjenje ako nema mjesta te mu je početna širina trećina div-a featured umanjena za 24 piksela zbog razmaka od 24 piksela između elemenata. Tekst je bijele boje te svaki element ima zaobljene rubove i ako su elementi preveliki onda se taj overflow sakrije. Kursor je pokazivač što implicira da se elementi mogu kliknuti. Promjene pozicije i sjene traju 0.3 sekunde, a početna sjena je pomaknuta 4 piksela ispod elementa sa zamućenjem radijusa 12 piksela te navedenom bojom sjene. Prelaskom preko elementa mišem, element se pomakne prema gore za 6 piksela te sjena postaje veća i neprozirnija.
 
 ```css
 .featuredimg {
@@ -1555,7 +1595,7 @@ Svaki element ima relativnu poziciju, visinu od 260 piksela te mu je omogućeno 
 }
 ```
 
-Slike su širine i visine 100% featureditem containera te prekrivaju cijeli okvir s time da je višak odrezan. Prikazane su sa 70% svjetline te su tranzicije glatke u trajanju od 0.5 sekundi. Kada se prelazi mišem preko featureditema, onda se slika unutar njega poveća za 5% te se svjetlina smanji na 60%. Da bi tekst na slici bio čitljiviji, dodan je prazan element preko cijelog featureditem-a koji počinje od dna s 60% neprozirnom crnom te na pola featureditem-a postaje potpuno nevidlj.
+Slike su širine i visine 100 % featureditem containera te prekrivaju cijeli okvir s time da je višak odrezan. Prikazane su sa 70 % svjetline te su tranzicije glatke u trajanju od 0.5 sekundi. Kada se prelazi mišem preko featureditem-a, onda se slika unutar njega poveća za 5 % te se svjetlina smanji na 60%. Da bi tekst na slici bio čitljiviji, dodan je prazan element preko cijelog featureditem-a koji počinje od dna s 60 % neprozirnom crnom te na pola featureditem-a postaje potpuno nevidljiv.
 
 ```css
 .featuredtitles {
@@ -1601,7 +1641,7 @@ Naslovi se nalaze 20 piksela iznad dna featureditem-a te 20 piksela desno od lij
 
 ### Komponenta propertylist
 
-Da bi korisnik lakše filtrirao svoje preference, dodali smo komponentu propertylist koja omogućuje korisniku da odabere tip apartmana ili sobe(npr. dvokrevetna). Na glavnu stranicu(u Home.jsx), nakon featured komponente, dadao sam naslov za propertylist:
+Da bi korisnik lakše filtrirao svoje preference, dodali smo komponentu propertylist koja omogućuje korisniku da odabere tip apartmana ili sobe(npr. dvokrevetna). Na glavnu stranicu(u Home.jsx), nakon featured komponente, dodao sam naslov za propertylist:
 
 ```jsx
 <h1 className="hometitle">Browse apartments by capacity</h1>
@@ -1626,7 +1666,7 @@ te u CSS stil:
 ```
 
 kako bi širina odgovarala širini ostalih komponenti te da bi se naslov prikazao na sredini zaslona. Za manje ekrane, smanjena je i veličina fonta.
-Sada dodajmo mapu za komponentu propertylist te odgovarajuće .css i .jsx datoteke. Napravimo HTML stukturu istu kao i za featured komponentu:
+Sada dodajmo mapu za komponentu propertylist te odgovarajuće .css i .jsx datoteke. Napravimo HTML strukturu istu kao i za featured komponentu:
 
 ```jsx
 import "./propertylist.css";
@@ -1762,11 +1802,11 @@ Glavni container kao i njegovi elementi(itemi) i slike imaju standardni stil koj
 
 Budući da je visina fiksna, ovdje naslovi neće biti preko nego ispod slike. Naslovi imaju padding sa svih strana, poravnat tekst u lijevo te bijelu pozadinu. Veći naslov ima određen veći i deblji font tamnije boje te je donjom marginom odvojen od manjeg naslova. Za manje ekrane određena su dva elementa liste u svakome redu, a za najmanje ekrane imamo samo jedan element u redu te je visina slike umanjena za 20 piksela.
 
-Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima bolji izgled, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"plistItem" ali zbog redundancije necu navoditi sve klase. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
+Dio CSS koda u ovom repozitoriju je također unaprijeđen s pomoću ChatGPT (OpenAI).
+Upit korišten za dobivanje komponenti CSS-a je dobiven upitom "Potrebno mi je poboljšanje i unaprjeđenje izgleda CSS-a tako da ima bolji izgled, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"plistItem" ali zbog redundancije neću navoditi sve klase. AI mi je poboljšao moj CSS te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
 **Alat:** ChatGPT (OpenAI)  
-**Datum pristupa:** 2025-10-12  
-**Svrha:** Unapređenje CSS-a refaktor,poboljšanje responzivnosti.
+**Datum pristupa:** 2025-10-12 
+**Svrha:** Unapređenje CSS-a refraktor, poboljšanje responzivnosti.
 
 ### Komponenta featuredproperties
 
@@ -1842,7 +1882,7 @@ const Featuredproperties = () => {
 export default Featuredproperties;
 ```
 
-Svaki element(popularni apartman/soba) imati će svoju sliku, ime, lokaciju(broj paviljona i sl.), cijenu te ocjenu korisnika s gumbom i opisom ocjene. Sada je potrebno ovoj komponenti dodati CSS stil:
+Svaki element(popularni apartman/soba) imat će svoju sliku, ime, lokaciju(broj paviljona i sl.), cijenu te ocjenu korisnika s gumbom i opisom ocjene. Sada je potrebno ovoj komponenti dodati CSS stil:
 
 ```css
 .fp {
@@ -1913,7 +1953,7 @@ Isto kao i za propertylist, no sada ćemo umjesto tri elementa po redu imati če
 }
 ```
 
-Za ime apartmana/sobe, lokaciju te cijenu definirani su padding, veličina fonta te debljina i boja. Za ocjenu definiran je padding i gornja margina te su gumbu i spanu centrirane visine.
+Za ime apartmana/sobe, lokaciju te cijenu definirani su padding, veličina fonta te debljina i boja. Za ocjenu definiran je padding i gornja margina te su gumbu i span-u centrirane visine.
 
 ```css
 .fprating > button {
@@ -1952,11 +1992,11 @@ Za ime apartmana/sobe, lokaciju te cijenu definirani su padding, veličina fonta
 
 Gumbovima je definirana pozadinska boja, boja teksta, zakrivljena nevidljiva granica, padding sa svih strana te desna margina. Tekst je podebljan te se pokazivačem miša implicira da se gumb može stisnuti. Kada stavimo miš na gumb, boja gumba također lagano prelazi u svjetliju plavu boju. Također, definirani su veličina fonta te boja za span element(ocjenu). Za manje ekrane, prikazuje se dva odnosno jedan element u svakome redu.
 
-Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima tamnije plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"fpitem" ali zbog redundancije necu navoditi sve klase. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
+Dio CSS koda u ovom repozitoriju je također unaprijeđen s pomoću ChatGPT (OpenAI).
+Upit korišten za dobivanje komponenti CSS-a je dobiven upitom "Potrebno mi je poboljšanje i unaprjeđenje izgleda CSS-a tako da ima tamnije plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"fpitem" ali zbog redundancije neću navoditi sve klase. AI mi je poboljšao moj CSS te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
 **Alat:** ChatGPT (OpenAI)  
-**Datum pristupa:** 2025-10-12  
-**Svrha:** Unapređenje CSS-a refaktor, poboljsanje u responzivnosti.
+**Datum pristupa:** 2025-10-12 
+**Svrha:** Unapređenje CSS-a refraktor, poboljšanje u responzivnosti.
 
 ## Komponente podnožja stranice
 ### Komponenta maillist
@@ -1991,7 +2031,7 @@ const Maillist = () => {
 export default Maillist;
 ```
 
-Komponenta ima svoj container, naslov, opis(span element) te container gdje je moguće upisati e-mail pomoću input elementa i gumb za pretplatu. Dodajmo maillist komponenti CSS stil:
+Komponenta ima svoj container, naslov, opis(span element) te container gdje je moguće upisati e-mail s pomoću input elementa i gumb za pretplatu. Dodajmo maillist komponenti CSS stil:
 
 ```css
 .mail {
@@ -2023,7 +2063,7 @@ Komponenta ima svoj container, naslov, opis(span element) te container gdje je m
 }
 ```
 
-Container će biti širine cijele stranice, malo odmaknut od featuredproperties te će mu pozadina biti prijelaz iz tamne plave u svijetlu plavu dijagonalno od gornjeg lijevog prema donjem desnom kutu. Boja teksta je bijela, elementi su poravnati u sredinu po visini zaslona te je svaki element u svojem redu s razmakom od 24 piksela između njih. Dodatno, sadržaj containera ima svoj padding u odnosu na granicu containera te je tekst centriran. Rubovi containera su zaobljeni, a tamno plava sjena sa 30% neprozirnosti mu je 6 piksela ispod te joj je radijus zamućenosti 20 piksela. Naslovu su određeni veličina fonta i njegova debljina te su mu margine 0 piksela. Span element ima definiranu veličinu, debljinu te boju teksta, kao i maksimalnu širinu elementa od 500 piksela.
+Container će biti širine cijele stranice, malo odmaknut od featuredproperties te će mu pozadina biti prijelaz iz tamne plave u svijetlu plavu dijagonalno od gornjeg lijevog prema donjem desnom kutu. Boja teksta je bijela, elementi su poravnati u sredinu po visini zaslona te je svaki element u svojem redu s razmakom od 24 piksela između njih. Dodatno, sadržaj containera ima svoj padding u odnosu na granicu containera te je tekst centriran. Rubovi containera su zaobljeni, a tamno plava sjena sa 30 % neprozirnosti mu je 6 piksela ispod te joj je radijus zamućenosti 20 piksela. Naslovu su određeni veličina fonta i njegova debljina te su mu margine 0 piksela. Span element ima definiranu veličinu, debljinu te boju teksta, kao i maksimalnu širinu elementa od 500 piksela.
 
 ```css
 .mailinputcontainer {
@@ -2054,7 +2094,7 @@ Container će biti širine cijele stranice, malo odmaknut od featuredproperties 
 }
 ```
 
-Elementi containera za pretplatu su centrirani u jednome redu te je razmak između njih 12 piksela. Container je širok kao i cijela stranica s ograničenjem za ekrane veće od 500 piksela na statičku širinu od 500 piksela. Input element pokriva koliko može mjesta(najmanje 220 piksela širina) te mu je visina 48 piksela. Placeholder tekst mu je sive boje veličine 16 piksela te ima lijevi i desni padding od 16 piksela. Obruba nema te su kutevi zakrivljeni. Na fokus(klik miša) input element dobije bijelu sjenu neprozirnosti 40% s radijusom širenja izvan ruba elementa od 3 piksela.
+Elementi containera za pretplatu su centrirani u jednome redu te je razmak između njih 12 piksela. Container je širok kao i cijela stranica s ograničenjem za ekrane veće od 500 piksela na statičku širinu od 500 piksela. Input element pokriva koliko može mjesta(najmanje 220 piksela širina) te mu je visina 48 piksela. Placeholder tekst mu je sive boje veličine 16 piksela te ima lijevi i desni padding od 16 piksela. Obruba nema te su kutevi zakrivljeni. Na fokus(klik miša) input element dobije bijelu sjenu neprozirnosti 40 % s radijusom širenja izvan ruba elementa od 3 piksela.
 
 ```css
 .mailinputcontainer > button {
@@ -2079,7 +2119,7 @@ Elementi containera za pretplatu su centrirani u jednome redu te je razmak izme�
 }
 ```
 
-Gumb je iste visine kao i input element te mu je sadržaj pomaknut od granica elementa s lijeve i desne strane za 24 piksela. Boja pozadine je plava, a boja teksta je bijela debljine 600. Obruba nema, a rubovi su zaobljeni. Pokazivač miša koji se pojavi prelaskom preko gumba implicira da se gumb može kliknuti. Također, kada stavimo pokazivač miša ispred gumba, gumb se pomakne prema gore za 2 piksela te mu boja postane tamnija nijansa plave. Prilikom klika na gumb, on se smanji na 98% svoje prvotne veličine.
+Gumb je iste visine kao i input element te mu je sadržaj pomaknut od granica elementa s lijeve i desne strane za 24 piksela. Boja pozadine je plava, a boja teksta je bijela debljine 600. Obruba nema, a rubovi su zaobljeni. Pokazivač miša koji se pojavi prelaskom preko gumba implicira da se gumb može kliknuti. Također, kada stavimo pokazivač miša ispred gumba, gumb se pomakne prema gore za 2 piksela te mu boja postane tamnija nijansa plave. Prilikom klika na gumb, on se smanji na 98 % svoje prvotne veličine.
 
 ```css
 @media (max-width: 480px) {
@@ -2103,15 +2143,15 @@ Gumb je iste visine kao i input element te mu je sadržaj pomaknut od granica el
 
 Za manje ekrane(480 piksela i manje) umanjeni su padding elemenata glavnog containera te veličina fonta naslova i span elementa. Također, gumb je prebačen u novi red jer mu je širina ista širini ekrana, kako bi bilo više mjesta za unos korisnikovog e-maila.
 
-Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima plavu boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"mailinputcontainer" ali zbog redundancije necu navoditi sve klase. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
+Dio CSS koda u ovom repozitoriju je također unaprijeđen s pomoću ChatGPT (OpenAI).
+Upit korišten za dobivanje komponenti CSS-a je dobiven upitom "Potrebno mi je poboljšanje i unaprjeđenje izgleda CSS-a tako da ima plavu boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"mailinputcontainer" ali zbog redundancije neću navoditi sve klase. AI mi je poboljšao moj CSS te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
 **Alat:** ChatGPT (OpenAI)  
 **Datum pristupa:** 2025-10-13  
-**Svrha:** Unapređenje CSS-a refaktor, poboljsanje u responzivnosti.
+**Svrha:** Unapređenje CSS-a refraktor, poboljšanje u responzivnosti.
 
 ### Komponenta footer
 
-Na poslijetku, potrebno je dodati komponentu podnožja stranice. U Home.jsx(na glavnu stranicu) uvesti ćemo komponentu footer koju još nismo napravili:
+Na posljetku, potrebno je dodati komponentu podnožja stranice. U Home.jsx(na glavnu stranicu) uvesti ćemo komponentu footer koju još nismo napravili:
 
 ```jsx
 import Footer from "../../components/footer/footer";
@@ -2124,7 +2164,7 @@ te ćemo ju smjestiti ispod komponente maillist:
 <Footer></Footer>
 ```
 
-Sada je potrebno napraviti komponentu podnožja kao zadnji element glavne stranice. U mapu components, potrebno je dodati novu mapu footer te u nju smjestiti footer.jsx i footer.css datoteke. Komponenta podnožja sastojati će se od neporedanih lista u svojem posebnom containeru te će se taj container i div element koji prikazuje copyright nalaziti u containeru podnožja:
+Sada je potrebno napraviti komponentu podnožja kao zadnji element glavne stranice. U mapu components, potrebno je dodati novu mapu footer te u nju smjestiti footer.jsx i footer.css datoteke. Komponenta podnožja sastojat će se od neporedanih lista u svojem posebnom containeru te će se taj container i div element koji prikazuje copyright nalaziti u containeru podnožja:
 
 ```jsx
 import "./footer.css";
@@ -2202,11 +2242,11 @@ Podnožju je potrebno dodati CSS stil:
 
 Podnožje će biti širine cijelog zaslona s ograničenjem na 1024 piksela, što znači da će za ekrane veće od 1024 piksela, širina podnožja ostati(biti ograničena) na 1024 piksela. Veličina fonta postavljena je na 15 piksela. Container koji sadrži neporedane liste će zauzimati cijelu širinu containera podnožja te će neporedane liste unutar njega imati razmak među sobom. Za sadržaj toga containera, još je definirana i donja margina od 50 piksela. Neporedane liste nemaju nikakve bullete ispred teksta, kao ni padding između svakog elementa liste. Svaki element neporedanih lista ima postavljenu donju marginu od 10 piksela te je boja teksta plava i kursor miša postaje pointer kada ga držimo ispred elementa liste.
 
-Dio CSS koda u ovom repozitoriju je također unaprijeđen pomoću ChatGPT (OpenAI).  
-Upit korišten za dobijanje komponenti cssa je dobiven upitom "Potrebno mi je poboljšanje i unaprijeđenje izgleda CSS-a tako da ima plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"flistitem" ali zbog redundancije necu navoditi sve klase. AI mi je poboljšao moj css te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
+Dio CSS koda u ovom repozitoriju je također unaprijeđen s pomoću ChatGPT (OpenAI).
+Upit korišten za dobivanje komponenti CSS-a je dobiven upitom "Potrebno mi je poboljšanje i unaprjeđenje izgleda CSS-a tako da ima plavo boju, prilažem ti html klase koje je potrebno koristiti" te su naredane klase navedene gore u kodu kao i na prethodnom primjeru primjerice klasa"flistitem" ali zbog redundancije neću navoditi sve klase. AI mi je poboljšao moj CSS te nadogradio tako da vizualno ljepše izgleda naspram mog početnog koda.
 **Alat:** ChatGPT (OpenAI)  
 **Datum pristupa:** 2025-10-13  
-**Svrha:** Unapređenje CSS-a refaktor.
+**Svrha:** Unapređenje CSS-a refraktor.
 
 # Stranica list
 
@@ -2318,7 +2358,7 @@ const List = () => {
 export default List;
 ```
 
-Dakle, nakon headera dodali smo container i wrapper te sam listsearch. Naslov je normalno search te imamo lsitem-e koji će prikazivati naziv sobe/apartmana, datum i odabrane opcije. Da bismo dobili podatke s glavne stranice, koristimo `useLocation()` hook koji u sebi ima state koji smo poslali s glavne stranice. Naziv sobe odnosno apartmana ima placeholder destination koji dobiva s glavne stranice pomoću `location.state.destination` te nam je također potreban import `useState()` hooka. Datum dobivamo na isti način te ga dinamički prikazujemo isto kao i u headeru. Naravno, klikom na input, pojavi se kalendar gdje se može promijeniti datum kao i kod headera te se ponovnim klikom zatvori. Opcijama ćemo dodati odabir minimalne i maksimalne cijene po noćenju te cijene neće moći ići ispod nule. Broj odraslih, djece i soba dobivamo s glavne stranice, a za promjenu imamo iste ograde kao i na glavnoj stranici. Dakle, barem jedna odrasla osoba, jedna soba te broj djece nesmije biti manji od nule. Na dnu imati ćemo gumb search za pretraživanje. Osim toga, na stranici je potrebno prikazati i rezultate pretraživanja pa ćemo za sada staviti 8 searchitem komponenta. Searchitem komponenta još nije napravljena, no prvo se trebamo pozabaviti CSS-om pa ju možemo trenutno zakomentirati:
+Dakle, nakon headera dodali smo container i wrapper te sam listsearch. Naslov je normalno search te imamo lsitem-e koji će prikazivati naziv sobe/apartmana, datum i odabrane opcije. Da bismo dobili podatke s glavne stranice, koristimo `useLocation()` hook koji u sebi ima state koji smo poslali s glavne stranice. Naziv sobe odnosno apartmana ima placeholder destination koji dobiva s glavne stranice s pomoću `location.state.destination` te nam je također potreban import `useState()` hook-a. Datum dobivamo na isti način te ga dinamički prikazujemo isto kao i u headeru. Naravno, klikom na input, pojavi se kalendar gdje se može promijeniti datum kao i kod headera te se ponovnim klikom zatvori. Opcijama ćemo dodati odabir minimalne i maksimalne cijene po noćenju te cijene neće moći ići ispod nule. Broj odraslih, djece i soba dobivamo s glavne stranice, a za promjenu imamo iste ograde kao i na glavnoj stranici. Dakle, barem jedna odrasla osoba, jedna soba te broj djece ne smije biti manji od nule. Na dnu imat ćemo gumb search za pretraživanje. Osim toga, na stranici je potrebno prikazati i rezultate pretraživanja pa ćemo za sada staviti 8 searchitem komponenta. Searchitem komponenta još nije napravljena, no prvo se trebamo pozabaviti CSS-om pa ju možemo trenutno zakomentirati:
 
 ```css
 .listcontainer {
@@ -2362,7 +2402,7 @@ Containeru će sadržaj biti flex te centriran s gornjom marginom od 30 piksela 
 }
 ```
 
-Search će imati žutu pozadinu s dijagonalnim prijelazom iz tamnije u svjetliju od gornjeg desnog kuta. Sadržaj će biti pomaknut za 20 piksela u odnosu na granice te će kutevi biti zakrivljeni. Ima crnu sjenu i crnu boju teksta sivo-crnu te maksimalnu širinu od 100% containera. Naslov će imati minimalnu veličinu od 18 piksela i maksimalnu od 20 piksela s idealnom veličinom od 2% širine stranice. Za njega su također definirani debljina fonta, boja, gornja margina te ponašanje prelamanja naslova kada nema mjesta na stranici.
+Search će imati žutu pozadinu s dijagonalnim prijelazom iz tamnije u svjetliju od gornjeg desnog kuta. Sadržaj će biti pomaknut za 20 piksela u odnosu na granice te će kutevi biti zakrivljeni. Ima crnu sjenu i crnu boju teksta sivo-crnu te maksimalnu širinu od 100 % containera. Naslov će imati minimalnu veličinu od 18 piksela i maksimalnu od 20 piksela s idealnom veličinom od 2 % širine stranice. Za njega su također definirani debljina fonta, boja, gornja margina te ponašanje prelamanja naslova kada nema mjesta na stranici.
 
 ```css
 .lsitem {
@@ -2418,7 +2458,7 @@ Search će imati žutu pozadinu s dijagonalnim prijelazom iz tamnije u svjetliju
 }
 ```
 
-Elementi liste biti će svaki u svome redu s razmakom od 6 piksela te donjom marginom od 16 piksela i zauzimati će 100% širine containera. Za labelu, definirana je responzivnost veličine fonta, debljina fonta te boja. Za input i span elemente imena sobe i datuma, definirana je visina, zakrivljeni rubovi, padding sa svih strana, responzivnost veličine fonta te širina u odnosu na container. Za input je dodatno definirana boja teksta te obrub i sjena kada kliknemo na input. Osim toga, span elementu dodana je boja pozadine te je visina teksta centrirana. Kursor je pointer dok ga držimo iznad span-a te je boja teksta siva. Ako je element prevelik, onda se višak sakrije te će višak teksta biti prikazan s tri točke, a sav tekst će biti prikazan u istome redu. Na hover, boja span elementa postaje malo tamnija.
+Elementi liste bit će svaki u svome redu s razmakom od 6 piksela te donjom marginom od 16 piksela i zauzimat će 100 % širine containera. Za labelu, definirana je responzivnost veličine fonta, debljina fonta te boja. Za input i span elemente imena sobe i datuma, definirana je visina, zakrivljeni rubovi, padding sa svih strana, responzivnost veličine fonta te širina u odnosu na container. Za input je dodatno definirana boja teksta te obrub i sjena kada kliknemo na input. Osim toga, span elementu dodana je boja pozadine te je visina teksta centrirana. Kursor je pointer dok ga držimo iznad spana te je boja teksta siva. Ako je element prevelik, onda se višak sakrije te će višak teksta biti prikazan s tri točke, a sav tekst će biti prikazan u istome redu. Na hover, boja span elementa postaje malo tamnija.
 
 ```css
 .lsoptions {
@@ -2440,7 +2480,7 @@ Elementi liste biti će svaki u svome redu s razmakom od 6 piksela te donjom mar
 }
 ```
 
-Opcije imaju definirani gornji i donji padding od 10 piksela te gornji obrub crne boje s neprozirnosti 10%. Također imaju gornju marginu te zauzimaju cijelu širinu containera. Elementi lsoptionitema imaju razmak među sobom te su centrirani u odnosu na visinu. Osim toga imaju donju marginu, responzivnu veličinu fonta, boju teksta te zauzimaju cijelu širinu containera i razmaknuti su od drugih itema za 10 piksela.
+Opcije imaju definirani gornji i donji padding od 10 piksela te gornji obrub crne boje s neprozirnosti 10 %. Također imaju gornju marginu te zauzimaju cijelu širinu containera. Elementi lsoptionitema imaju razmak među sobom te su centrirani u odnosu na visinu. Osim toga imaju donju marginu, responzivnu veličinu fonta, boju teksta te zauzimaju cijelu širinu containera i razmaknuti su od drugih itema za 10 piksela.
 
 ```css
 .lsoptioninput {
@@ -2485,7 +2525,7 @@ Input elementi koji služe za promjenu brojeva u opcijama imaju definiranu širi
 }
 ```
 
-Gumb ima svoj padding, boju pozadine i teksta, debljinu fonta te zauzima cijelu širinu containera. Rubovi gumba su zakrivljeni, a kursor kada ga držimo ispred gumba postaje pointer. Osim toga, definirani su gornja margina te responzivna veličina fonta. U veličinu elementa uračunata je i granica, a kada hoveramo gumb mišem, boja pozadine se promijeni u tamniju te se gumb pomakne za 2 piksela prema gore.
+Gumb ima svoj padding, boju pozadine i teksta, debljinu fonta te zauzima cijelu širinu containera. Rubovi gumba su zakrivljeni, a kursor kada ga držimo ispred gumba postaje pointer. Osim toga, definirani su gornja margina te responzivna veličina fonta. U veličinu elementa uračunata je i granica, a kada hover-amo gumb mišem, boja pozadine se promijeni u tamniju te se gumb pomakne za 2 piksela prema gore.
 
 ```css
 .listresult {
@@ -2517,7 +2557,7 @@ Rezultati pretraživanja zauzimaju 3/4 širine containera, dok listsearch zauzim
 }
 ```
 
-Za ekrane širine manje ili jednake 900 piksela, search će zauzimati 100% širine ekrana kao i rezultati te će se rezultati nalaziti ispod njega razmaknuti za 20 piksela.
+Za ekrane širine manje ili jednake 900 piksela, search će zauzimati 100 % širine ekrana kao i rezultati te će se rezultati nalaziti ispod njega razmaknuti za 20 piksela.
 
 ```css
 @media (max-width: 768px) {
@@ -2580,7 +2620,7 @@ Za ekrane širine manje ili jednake 768 piksela, container će imati manji lijev
 }
 ```
 
-Kao i kod ekrana širine manje ili jednake 768 piksela, kod ekranja širine manje ili jednake 480 piksela smanjiti će se još više iste stvari kod listcontainera te listsearcha. Smanjiti će se donja margina lsitema te visina input i span elementa unutar njih. Padding će se također smanjiti za njih kao i za gumb te opcije.
+Kao i kod ekrana širine manje ili jednake 768 piksela, kod ekrana širine manje ili jednake 480 piksela smanjit će se još više iste stvari kod listcontainer-a te listsearch-a. Smanjit će se donja margina lsitem-a te visina input i span elementa unutar njih. Padding će se također smanjiti za njih kao i za gumb te opcije.
 
 ```css
 @media (max-width: 360px) {
@@ -2612,11 +2652,11 @@ body {
 }
 ```
 
-Za ekrane širine manje ili jednake 360 piksela smanjen je padding containera i searcha. Elementi lsoptionitem-a poravnati su u lijevo, a input elementi sada zauzimaju 100% širine containera(nalaze se u svojem redu). Širina sadržaja stranice ne smije biti veća od 100%, a eventualni višak će biti sakriven.
+Za ekrane širine manje ili jednake 360 piksela smanjen je padding containera i searcha. Elementi lsoptionitem-a poravnati su u lijevo, a input elementi sada zauzimaju 100 % širine containera(nalaze se u svojem redu). Širina sadržaja stranice ne smije biti veća od 100 %, a eventualni višak će biti sakriven.
 
 ## Komponenta searchitem koja se koristi na stranici list
 
-Sada kada smo završili s izradom stranice list, potrebno je napraviti komponentu searchitem koja će se koristiti na stranici list, a trenutno je zakomentirana. Napravimo mapu seachitem u mapi components s odgovarajućim .jsx i .css datotekama. Sada možemo otkomentirati komponentu na stranici list. Struktura komponente izgledati će ovako:
+Sada kada smo završili s izradom stranice list, potrebno je napraviti komponentu searchitem koja će se koristiti na stranici list, a trenutačno je zakomentirana. Napravimo mapu seachitem u mapi components s odgovarajućim .jsx i .css datotekama. Sada možemo otkomentirati komponentu na stranici list. Struktura komponente izgledat će ovako:
 
 ```jsx
 import "./searchitem.css";
@@ -2656,7 +2696,7 @@ const Searchitem = () => {
 export default Searchitem;
 ```
 
-Dakle, div container imati će sliku apartmana te sve potrebne informacije vezane za apartman i gumb koji će prikazati raspoloživost. Sada je potrebno komponenti dodati izgled pomoću CSS stila:
+Dakle, div container imat će sliku apartmana te sve potrebne informacije vezane za apartman i gumb koji će prikazati raspoloživost. Sada je potrebno komponenti dodati izgled s pomoću CSS stila:
 
 ```css
 .searchitem {
@@ -2678,7 +2718,7 @@ Dakle, div container imati će sliku apartmana te sve potrebne informacije vezan
 }
 ```
 
-Elementi containera(slika, opis i detalji) imaju razmak među sobom od 24 piksela. Granica containera je sive boje s zakrivljenim rubovima. Sadržaj containera pomaknut je od granica za 16 piksela te container ima donju marginu od 24 piksela i bijelu pozadinsku boju. Osim toga, definirana je crna sjena ispod containera s neprozirnosti 5% koja hoverom postaje manje neprozirna te je veća i više ispod elementa. Kada hoveramo container, također, on se pomakne za 4 piksela prema gore.
+Elementi containera(slika, opis i detalji) imaju razmak među sobom od 24 piksela. Granica containera je sive boje sa zakrivljenim rubovima. Sadržaj containera pomaknut je od granica za 16 piksela te container ima donju marginu od 24 piksela i bijelu pozadinsku boju. Osim toga, definirana je crna sjena ispod containera s neprozirnosti 5 % koja hover-om postaje manje neprozirna te je veća i više ispod elementa. Kada hover-amo container, također, on se pomakne za 4 piksela prema gore.
 
 ```css
 .siimg {
@@ -2793,7 +2833,7 @@ Podnaslovu su definirane debljina i boja fonta, a značajkama samo boja. Opcijam
 }
 ```
 
-Elementi ocjene(opis i gumb), nalaze se na desnoj strani njihovog containera, centrirane visine te s razmakom među njima od 8 piksela. Opisu su definirane debljina, veličina i boja teksta, dok gumbu nije definirana veličina fonta. Gumb osim toga ima tamno plavu pozadinu bez granice te padding sa svih strana. Kutevi su mu zaobljeni, a hoverom kursor postaje pointer te pozadinska boja svjetlija.
+Elementi ocjene(opis i gumb), nalaze se na desnoj strani njihovog containera, centrirane visine te s razmakom među njima od 8 piksela. Opisu su definirane debljina, veličina i boja teksta, dok gumbu nije definirana veličina fonta. Gumb osim toga ima tamno plavu pozadinu bez granice te padding sa svih strana. Kutevi su mu zaobljeni, a hover-om kursor postaje pointer te pozadinska boja svjetlija.
 
 ```css
 .sidetailtexts {
@@ -2978,7 +3018,7 @@ Potrebno je napraviti stanicu koja će se prikazivati kada kliknemo na neki hote
 
 ## Uvećani prikaz slika te pomicanje po slikama
 
-Napravimo kostur stranice koristeći napravljene komponente, slike te sam tekst koji će se prikazivati na stranici sa svojim div containerima i wrapperima:
+Napravimo kostur stranice koristeći napravljene komponente, slike te sam tekst koji će se prikazivati na stranici sa svojim div container-ima i wrapper-ima:
 
 ```jsx
 import Header from "../../components/header/Header";
@@ -3111,16 +3151,16 @@ const Hotel = () => {
 export default Hotel;
 ```
 
-Unutar div elementa klase hotelimages definirano je da će se naše slike prikazati po redu, svaka sa svojim wrapperom, a klikom na neku od njih poziva se funkcija koja postavlja broj slike koja je kliknuta te open poprima istinitu vrijednost. Sada se na početku hotelcontainera prikazuje "slider" odnosno kliknuta slika te span elementi strelica za otvaranje ostalih slika i križić za zatvaranje slike. Kada kliknemo na križić, open se postavlja na false što znači da će se slider zatvoriti. Pomicanje po slikama klikom na strelice definirano je `handlemove()` funkcijom koja prima smjer kao argument te postavlja novu sliku. Ako je trenutna slika s indeksom 0 te je kliknuta lijeva stralica, onda se prikazuje peta slika, a inače slika s indeksom manjim za 1. Isto tako, ako je trenutno otvorena slika s indeksom 5 te je kliknuta desna strelica, onda će biti prikazana slika s indeksom 0, a inače slika s indeksom većim za 1. Ovako je definirano ponašanje za 6 slika, da se može beskonačno klikati strelice.
+Unutar div elementa klase hotelimages definirano je da će se naše slike prikazati po redu, svaka sa svojim wrapperom, a klikom na neku od njih poziva se funkcija koja postavlja broj slike koja je kliknuta te open poprima istinitu vrijednost. Sada se na početku hotelcontainer-a prikazuje "slider" odnosno kliknuta slika te span elementi strelica za otvaranje ostalih slika i križić za zatvaranje slike. Kada kliknemo na križić, open se postavlja na false što znači da će se slider zatvoriti. Pomicanje po slikama klikom na strelice definirano je `handlemove()` funkcijom koja prima smjer kao argument te postavlja novu sliku. Ako je trenutačna slika s indeksom 0 te je kliknuta lijeva strelica, onda se prikazuje peta slika, a inače slika s indeksom manjim za 1. Isto tako, ako je trenutačno otvorena slika s indeksom 5 te je kliknuta desna strelica, onda će biti prikazana slika s indeksom 0, a inače slika s indeksom većim za 1. Ovako je definirano ponašanje za 6 slika, da se može beskonačno klikati strelice.
 
 ## Google maps
 
 Inspiracija izrade i integracije Google maps servisa napravljena je korištenjem [Tutorial videozapisa](https://youtu.be/oP-0wi0CRzc?si=EEQ6gW1SnbTN21bL)
 Za samu izradu elementa koristila se web-stranica [Generator maps html koda](https://www.maps.ie/create-google-map) koja nam unosom potrebnih parametara za našu stranicu
 stvori div/IFrame komponentu koja se onda ubaci u naš Hotel.jsx kod. Parametri koje sam unio u stranicu pod Enter your settings su ->
-Title : Apartman Ani , Address: Odranska Ulica 8, Coordinates -> program automatski popunio, Height: 600, Width: 100%, te ostali parametri poput views, Zoom su imali automatski postavljene default vrijednosti na Map, 400 m (district), Auto-fit Width je uključen te on omogućuje da se expanda na veličinu Containera.
+Title: Apartman Ani, Address: Odranska Ulica 8, Coordinates -> program automatski popunio, Height: 600, Width: 100 %, te ostali parametri poput views, Zoom su imali automatski postavljene default vrijednosti na Map, 400 m (district), Auto-fit Width je uključen te on omogućuje da se expanda na veličinu Containera.
 Nakon unosa željenih parametara možemo s desne strane prekopirati iFrame kod koji koristimo na Hotel.jsx fileu.
-Nije bilo potrebno instalirati vanjske pakete niti povezivati se s Gooogle maps Api-em što omogućuje lakše integriranje u stranicu. Na kraju hotelwrappera, nakon hoteldetails div elementa, potrebno je dodati sljedeći kod:
+Nije bilo potrebno instalirati vanjske pakete niti povezivati se s Google maps Api-em što omogućuje lakše integriranje u stranicu. Na kraju hotelwrapper-a, nakon hoteldetails div elementa, potrebno je dodati sljedeći kod:
 
 ```jsx
 <div className="gmap-frame">
@@ -3136,17 +3176,17 @@ Nije bilo potrebno instalirati vanjske pakete niti povezivati se s Gooogle maps 
 </div>
 ```
 
-### Inline css objašnjenja:
+### Inline CSS objašnjenja:
 
-- `width="100%"` - Širina <iframe> elementa - 100% znači da će iframe zauzeti cijelu širinu roditeljskog elementa.
-- `height="600"` - Visina iframea u pikselima. U ovom slučaju 600px.
-- `frameborder="0"` - Stari HTML atribut koji uklanja okvir (border) oko iframea. Vrijednost 0 znači nema okvira.
-- `scrolling="no"` - Kontrolira da li iframe prikazuje scroll barove. no znači da scroll bar neće biti prikazan, čak ako sadržaj iframea prelazi veličinu.
-- `marginheight="0"` i `marginwidth="0"` - Definiraju vanjske margine (padding) unutar iframea. Vrijednost 0 znači da nema margina.
+- `width="100%"` - Širina `<iframe>` elementa - 100 % znači da će iframe zauzeti cijelu širinu roditeljskog elementa.
+- `height="600"` - Visina iframe-a u pikselima. U ovom slučaju 600px.
+- `frameborder="0"` - Stari HTML atribut koji uklanja okvir (border) oko iframe-a. Vrijednost 0 znači nema okvira.
+- `scrolling="no"` - Kontrolira da li iframe prikazuje scroll barove. no znači da scroll bar neće biti prikazan, čak ako sadržaj iframe-a prelazi veličinu.
+- `marginheight="0"` i `marginwidth="0"` - Definiraju vanjske margine (padding) unutar iframe-a. Vrijednost 0 znači da nema margina.
 
 ### Objašnjenje parametara u URL-u:
 
-- `width=100%25` - širina mape (100%, %25 je URL encoding za %)
+- `width=100%25` - širina mape (100 %, %25 je URL encoding za %)
 - `height=600` - visina mape (600px)
 - `hl=hr` - jezik sučelja mape (hr - hrvatski)
 - `q=Odranska Ulica 8 (Apartman Ani)` - lokacija koju mapa prikazuje
@@ -3184,7 +3224,7 @@ Naposljetku, potrebno je našim elementima dodati CSS stil kako bi stranica izgl
 }
 ```
 
-Elementi containera, nalaze se svaki u svome redu, poravnati u sredinu po širini. Container ima gornju marginu od 20 piksela kako bi bio odmaknut od zaglavlja te lijevi i desni padding od 20 piksela. Span elementima slidera(strelicama i križiću), definirane su lijeva i desna margina, veličina fonta te prilikom hovera preko njih, kursor postaje pointer. Wrapper hotela, koji u biti sadrži sve osim komponenti i slidera, zauzima 100% širine hotel containera s maksimalnom širinom od 1024 piksela. Njegovi elementi smješteni su svaki u svome redu s razmakom među njima od 20 piksela. Pozicija mu je relativna kako bi booknow gumb mogli pozicionirati apsolutno u odnosu na njega.
+Elementi containera, nalaze se svaki u svome redu, poravnati u sredinu po širini. Container ima gornju marginu od 20 piksela kako bi bio odmaknut od zaglavlja te lijevi i desni padding od 20 piksela. Span elementima slidera(strelicama i križiću), definirane su lijeva i desna margina, veličina fonta te prilikom hovera preko njih, kursor postaje pointer. Wrapper hotela, koji u biti sadrži sve osim komponenti i slidera, zauzima 100 % širine hotel containera s maksimalnom širinom od 1024 piksela. Njegovi elementi smješteni su svaki u svome redu s razmakom među njima od 20 piksela. Pozicija mu je relativna kako bi booknow gumb mogli pozicionirati apsolutno u odnosu na njega.
 
 ```css
 .hoteltitle {
@@ -3237,7 +3277,7 @@ Glavnom naslovu definirani su veličina, debljina i boja fonta te donja margina 
 }
 ```
 
-Gumb booknow postavljen je na krajnje desnom mjestu hotelwrappera udaljen 10 piksela od njegova vrha. Granica mu je skrivena te mu je definiran padding sa svih strana. Pozadinska boja započinje s svjetlo plavom iz gornjeg lijevog kuta te prelazi dijagonalno u tamno plavu. Rubovi su mu zaobljeni te mu je tekst bijel i podebljan. Prilikom hoveranja, kursor postaje pointer te gumb postaje tamniji i pomakne se za 2 piksela prema gore.
+Gumb booknow postavljen je na krajnje desnom mjestu hotelwrapper-a udaljen 10 piksela od njegova vrha. Granica mu je skrivena te mu je definiran padding sa svih strana. Pozadinska boja započinje sa svjetlo plavom iz gornjeg lijevog kuta te prelazi dijagonalno u tamno plavu. Rubovi su mu zaobljeni te mu je tekst bijel i podebljan. Prilikom hover-a, kursor postaje pointer te gumb postaje tamniji i pomakne se za 2 piksela prema gore.
 
 ```css
 .hotelimages {
@@ -3268,7 +3308,7 @@ Gumb booknow postavljen je na krajnje desnom mjestu hotelwrappera udaljen 10 pik
 }
 ```
 
-Slike su po 3 u svakome redu s razmakom između njih te razmakom između redova od 10 piksela. Rubovi slika su zaobljeni te je višak sakriven. Također je definirana sjena koja se povećava na hover kao i sama slika. Slike su širine 100% wrappera, visine 200 piksela, prikazane su kao block element te zauzimaju cijeli wrapper.
+Slike su po 3 u svakome redu s razmakom između njih te razmakom između redova od 10 piksela. Rubovi slika su zaobljeni te je višak sakriven. Također je definirana sjena koja se povećava na hover kao i sama slika. Slike su širine 100 % wrappera, visine 200 piksela, prikazane su kao block element te zauzimaju cijeli wrapper.
 
 ```css
 .hoteldetails {
@@ -3342,7 +3382,7 @@ Elementi containera detalja imaju razmak među sobom od 30 piksela te započinju
 }
 ```
 
-Detalji cijene koji se nalaze u containeru sličnog naziva, imaju definiranu boju pozadine, zakrivljene rubove i padding sa svih strana. Osim toga, njegovi elementi, nalaze se svaki u svome redu razmaknuti za 20 piksela te on ima sjenu i zauzima 100% širine svog containera s maksimalnom širinom od 360 piksela. Za naslove unutar detalja cijena definirani su veličina, boja i debljina fonta, dok je za span element koji opisuje lokaciju umjesto debljine fonta definirana visina reda.
+Detalji cijene koji se nalaze u containeru sličnog naziva, imaju definiranu boju pozadine, zakrivljene rubove i padding sa svih strana. Osim toga, njegovi elementi, nalaze se svaki u svome redu razmaknuti za 20 piksela te on ima sjenu i zauzima 100 % širine svog containera s maksimalnom širinom od 360 piksela. Za naslove unutar detalja cijena definirani su veličina, boja i debljina fonta, dok je za span element koji opisuje lokaciju umjesto debljine fonta definirana visina reda.
 
 ```css
 .hotelDetailsPrice > button {
@@ -3399,7 +3439,7 @@ Gumb unutar detalja cijene ima gotovo isti stil s razlikom u veličini paddinga 
 }
 ```
 
-Za ekrane širine manje ili jednake 900 piksela, detalji cijene prelaze u svoj red te zauzimaju 100% širine hoteldetails containera. Slikama je smanjena visina za 20 piksela, a gumb booknow koji se prije nalazio na krajnje desnoj poziciji hoterwrappera u istome redu kao glavni naslov, sada je pozicioniran statički i zauzima 100% širine wrappera(u svome jer redu iznad naslova) te ima donju marginu od 10 piksela kako bi bio odmaknut od naslova. Za ekrane širine manje ili jednake 600 odnosno 400 piksela slike su dvije odnosno jedna po svakome redu.
+Za ekrane širine manje ili jednake 900 piksela, detalji cijene prelaze u svoj red te zauzimaju 100 % širine hoteldetails containera. Slikama je smanjena visina za 20 piksela, a gumb booknow koji se prije nalazio na krajnje desnoj poziciji hoterwrapper-a u istome redu kao glavni naslov, sada je pozicioniran statički i zauzima 100 % širine wrappera(u svome jer redu iznad naslova) te ima donju marginu od 10 piksela kako bi bio odmaknut od naslova. Za ekrane širine manje ili jednake 600 odnosno 400 piksela slike su dvije odnosno jedna po svakome redu.
 
 ```css
 .slider {
@@ -3434,4 +3474,4 @@ Za ekrane širine manje ili jednake 900 piksela, detalji cijene prelaze u svoj r
 }
 ```
 
-Slider ne prati tok dokumenta nego ima fiksnu poziciju preko cijelog ekrana. Nalazi se ispred ostatka stranice te je visina njegovih elemenata poravnata u sredinu. Ostatak stranice je zatamnjen zbog crne pozadinske boje neprozirnosti 36.7%. Wrapper slike zauzima širinu i visinu slidera koliko može te mu je sadržaj centriran. Križić za zatvaranje slidera ima apsolutnu poziciju u odnosu na slider te se tako nalazi 20 piksela ispod vrha te 20 piksela lijevo od granica slidera. Naposljetku, slika će zauzimati 80% širine wrappera te 80% visine zaslona.
+Slider ne prati tok dokumenta nego ima fiksnu poziciju preko cijelog ekrana. Nalazi se ispred ostatka stranice te je visina njegovih elemenata poravnata u sredinu. Ostatak stranice je zatamnjen zbog crne pozadinske boje neprozirnosti 36.7 %. Wrapper slike zauzima širinu i visinu slidera koliko može te mu je sadržaj centriran. Križić za zatvaranje slidera ima apsolutnu poziciju u odnosu na slider te se tako nalazi 20 piksela ispod vrha te 20 piksela lijevo od granica slidera. Naposljetku, slika će zauzimati 80 % širine wrappera te 80 % visine zaslona.

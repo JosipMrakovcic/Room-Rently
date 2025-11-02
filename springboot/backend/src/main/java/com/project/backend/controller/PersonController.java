@@ -5,6 +5,9 @@ import com.project.backend.model.Person;
 import com.project.backend.repository.PersonRepo;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,8 +18,6 @@ import java.util.Optional;
 @CrossOrigin(origins = "http://localhost:3000")
 public class PersonController {
 
-    public Person newPerson;
-
     @Autowired
     PersonRepo repo;
 
@@ -26,12 +27,23 @@ public class PersonController {
     }
 
     @PostMapping("/addPerson")
-    public void addPerson(@RequestBody String infoUser){
-        JSONObject obj = new JSONObject(infoUser);
-        String name = obj.getString("name");
-        String email = obj.getString("email");
-        newPerson = new Person(email, true, false, false, name);
-        repo.save(newPerson);
+    public ResponseEntity<?> addPerson(@AuthenticationPrincipal Jwt jwt) {
+        String email = jwt.getClaimAsString("email");
+        String name = jwt.getClaimAsString("name");
+
+        if (email == null) {
+            throw new RuntimeException("Invalid Google token: no email found.");
+        }
+
+        if (repo.findByEmail(email).isPresent()) {
+            return ResponseEntity
+                    .status(409)
+                    .body("User already exists");
+        }
+
+        Person person = new Person(email, true, false, false, name);
+        repo.save(person);
+        return ResponseEntity.ok("User added successfully");
     }
 
     @GetMapping("/{id}")

@@ -633,8 +633,8 @@ locale="en"
 ```
 
 Objašnjenja svakog:
-*```useOneTap```  omogućuje Google One Tap login pojavljuje se mali prompt za brži login.
-*```theme="filled_blue"```promjena vizualnog izgleda gumba na plavi.
+* ```useOneTap```  omogućuje Google One Tap login pojavljuje se mali prompt za brži login.
+* ```theme="filled_blue"```promjena vizualnog izgleda gumba na plavi.
 * ```shape="rectangular"```	Gumb je pravokutnog oblika umjesto default.
 * ```text="signin_with"```	Prikazuje tekst “Sign in with Google”.
 * ```size="medium"```	Određuje veličinu gumba na srednju.
@@ -672,14 +672,17 @@ Poboljšanja vizualnog izgleda .navButton i .navItems
 (prethodne verzije CSS-a su ostavljene u kodu kako bi se moglo pratiti napredak i kako bi ostalo u toku s dokumentacijom)
 
 Dodan gap: 15px u .navItems radi ravnomjernog razmaka između elemenata:
+
 ```css
 .navItems {
   display: flex;
   align-items: center;
   gap: 15px;
-}```
+}
+```
 
 Stari stil gumba imao je plavo bijelu kombinaciju, novi je ažuriran na:
+
 ```css
 .navButton {
   padding: 8px 16px;
@@ -693,6 +696,7 @@ Stari stil gumba imao je plavo bijelu kombinaciju, novi je ažuriran na:
 .navButton:hover {
   background-color: #005a9e;
 }
+
 ```
 Novi dizajn gumba bolje se slaže s plavim gradientom navbar-a te je poboljšan kontrast i hover efekt (tamnija plava prilikom hovera).
 

@@ -60,3 +60,59 @@
   transform: scale(0.97);
   box-shadow: 0 2px 6px rgba(0, 119, 255, 0.2);
 }
+/* Dodano novo s fixom nakon backenda */
+.custom-google-login {
+  display: flex;
+  align-items: center;
+  transform: translateY(-7px); 
+}
+
+
+.custom-google-login iframe {
+  margin: 0 !important;
+  border-radius: 4px !important; 
+}
+
+
+.navItems {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.navButton {
+  padding: 8px 16px;
+  background-color: #0071c2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.navButton:hover {
+  background-color: #005a9e;
+}
+
+
+.navbar {
+  height: 50px;
+  background-color: #003580;
+  display: flex;
+  justify-content: center;
+}
+
+.navContainer {
+  width: 100%;
+  max-width: 1024px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 24px;
+  cursor: pointer;
+}

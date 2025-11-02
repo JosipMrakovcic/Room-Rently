@@ -606,6 +606,102 @@ Ako korisnik nije prijavljen (`!user`), prikazuje se gumb „Login with Google�
 Klikom na gumb poziva se funkcija `login()`, koja otvara Google prozor za autentifikaciju.
 Inače, ako je prijavljen, prikazuje se profilna slika korisnika i ova inline CSS svojstva: veličina slike je 35 × 35 piksela, rubovi su zaobljeni `(borderRadius: "50%")`, razmak između slike i imena korisnika je `(marginRight: "10px")`, ispisuje se ime korisnika `({user.name})` koji je dobiven gore iz dohvata sa Google API-ja te se prikazuje gumb za odjavu (Logout), koji poziva funkciju `logout()` i briše korisničke podatke iz stanja i localStorage-a.
 
+### Navigacijska traka Update nakon Backend updatea
+
+
+U novoj verziji dodan je ```<div className="custom-google-login">``` oko GoogleLogin komponente:
+  ```jsx
+  <div className="custom-google-login">
+  <GoogleLogin/>
+  </div>
+  ```
+Razlog dodavanja je što omogućuje lakše stiliziranje logina u CSS-u (navbar.css) te daje mogućnost dodavanja dodatnog izgleda po potrebi.
+
+
+##### Dodatni props za GoogleLogin
+
+U drugoj verziji dodani su sljedeći props za GoogleLogin komponentu:
+
+```jsx
+useOneTap
+theme="filled_blue"
+shape="rectangular"
+text="signin_with"
+size="medium"
+width="200"
+locale="en"
+```
+
+Objašnjenja svakog:
+* ```useOneTap```  omogućuje Google One Tap login pojavljuje se mali prompt za brži login.
+* ```theme="filled_blue"```promjena vizualnog izgleda gumba na plavi.
+* ```shape="rectangular"```	Gumb je pravokutnog oblika umjesto default.
+* ```text="signin_with"```	Prikazuje tekst “Sign in with Google”.
+* ```size="medium"```	Određuje veličinu gumba na srednju.
+* ```width="200"```	Postavlja fiksnu širinu gumba na 200px.
+* ```locale="en"```	Prikazuje gumb na engleskom jeziku.
+
+Poboljšava korisničko sučelje i omogućuje veću kontrolu nad izgledom i ponašanjem Google login gumba.
+
+### CSS update za poboljšanje Login buttona
+
+Kao što sam gore naveo prvotno sam stvorio wrapper oko buttona ovdje sam ga uredio u CSS kodu:  
+```css
+.custom-google-login {
+  display: flex;
+  align-items: center;
+  transform: translateY(-7px); 
+}
+```
+Nadodao sam efekte za wrapper oko buttona koji postižu ovo: 
+* Dodaje wrapper oko Google login gumba te poravnava gumb vertikalno s ostalim elementima u navbaru.
+* transform: translateY(-7px) lagano podiže gumb kako bi bio u istoj liniji s ostalim elementima.
+
+Stilovi za Google gumb unutar iframe-a: 
+```css
+.custom-google-login iframe {
+  margin: 0 !important;
+  border-radius: 4px !important;
+}
+```
+Uklanja marginu unutar iframe-a koju Google automatski dodaje te dodaje zaobljene rubove ```border-radius: 4px``` daju gumbu ljepši izgled.
+Također !important prisiljava da se ignoriraju default vrijednosti odnosno prethodno definirani stilovi tako da osiguram update.
+
+
+Poboljšanja vizualnog izgleda .navButton i .navItems
+(prethodne verzije CSS-a su ostavljene u kodu kako bi se moglo pratiti napredak i kako bi ostalo u toku s dokumentacijom)
+
+Dodan gap: 15px u .navItems radi ravnomjernog razmaka između elemenata:
+
+```css
+.navItems {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+```
+
+Stari stil gumba imao je plavo bijelu kombinaciju, novi je ažuriran na:
+
+```css
+.navButton {
+  padding: 8px 16px;
+  background-color: #0071c2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.navButton:hover {
+  background-color: #005a9e;
+}
+
+```
+Novi dizajn gumba bolje se slaže s plavim gradientom navbar-a te je poboljšan kontrast i hover efekt (tamnija plava prilikom hovera).
+
+Nove promjene su poboljšale izgled nakon Backend updatea i promjene funkcionalnosti buttona stoga se kod morao prilagoditi.
+
 ## Izrada zaglavlja
 
 ### Dodavanje mapi te uvezivanje u Home.jsx

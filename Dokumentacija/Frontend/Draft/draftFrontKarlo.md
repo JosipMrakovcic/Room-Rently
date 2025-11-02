@@ -608,9 +608,8 @@ Inače, ako je prijavljen, prikazuje se profilna slika korisnika i ova inline CS
 
 ### Navigacijska traka Update nakon Backend updatea
 
-1.
 
-U novoj verziji dodan je ```<div className="custom-google-login">```` oko GoogleLogin komponente:
+U novoj verziji dodan je ```<div className="custom-google-login">``` oko GoogleLogin komponente:
   ```jsx
   <div className="custom-google-login">
   <GoogleLogin/>
@@ -618,9 +617,9 @@ U novoj verziji dodan je ```<div className="custom-google-login">```` oko Google
   ```
 Razlog dodavanja je što omogućuje lakše stiliziranje logina u CSS-u (navbar.css) te daje mogućnost dodavanja dodatnog izgleda po potrebi.
 
-2.
 
-Dodatni props za GoogleLogin
+##### Dodatni props za GoogleLogin
+
 U drugoj verziji dodani su sljedeći props za GoogleLogin komponentu:
 
 ```jsx

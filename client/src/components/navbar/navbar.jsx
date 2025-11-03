@@ -33,15 +33,16 @@ const Navbar = () => {
 
         <div className="navItems">
           {!user ? (
-            // Google Login gumb
-            <GoogleLogin
-              onSuccess={async (credentialResponse) => {
-                try {
-                  const idToken = credentialResponse.credential; // JWT ID token
-                  if (!idToken) {
-                    console.error("No ID token received from Google");
-                    return;
-                  }
+            // Custom Google Login gumb
+            <div className="custom-google-login">
+              <GoogleLogin
+                onSuccess={async (credentialResponse) => {
+                  try {
+                    const idToken = credentialResponse.credential; // JWT ID token
+                    if (!idToken) {
+                      console.error("No ID token received from Google");
+                      return;
+                    }
 
                     // Pošalji ID token backendu
                     try {
@@ -64,9 +65,9 @@ const Navbar = () => {
                       // U svakom slučaju nastavi s loginom
                     }
 
-                  // Dekodiraj token da dobiješ ime i email
-                  const decoded = jwtDecode(idToken);
-                  console.log("Decoded user:", decoded);
+                    // Dekodiraj token da dobiješ ime i email
+                    const decoded = jwtDecode(idToken);
+                    console.log("Decoded user:", decoded);
 
                     // Spremi korisnika lokalno
                     setUser(decoded);

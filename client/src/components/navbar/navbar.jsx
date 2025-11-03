@@ -34,7 +34,7 @@ const Navbar = () => {
 
         <div className="navItems">
           {!user ? (
-            // 🔹 Google Login gumb
+            // Google Login gumb
             <GoogleLogin
               onSuccess={async (credentialResponse) => {
                 try {
@@ -65,7 +65,7 @@ const Navbar = () => {
                     // U svakom slučaju – nastavi s loginom
                   }
 
-                  // Dekodiraj token da dobiješ ime i email (nije obavezno)
+                  // Dekodiraj token da dobiješ ime i email
                   const decoded = jwtDecode(idToken);
                   console.log("Decoded user:", decoded);
 

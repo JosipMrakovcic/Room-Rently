@@ -11,12 +11,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "apartmentReservation")
-public class ApartmentReservation {
+@Table(name = "unitReservation")
+public class UnitReservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idApartmentReservation;
+    private Long idUnitReservation;
 
     @Column(nullable = false)
     private LocalDate startDate;
@@ -24,7 +24,7 @@ public class ApartmentReservation {
     @Column(nullable = false)
     private LocalDate endDate;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "text", nullable = false)
     private String status;
 
     @ManyToOne
@@ -32,6 +32,7 @@ public class ApartmentReservation {
     private Person person;
 
     @ManyToOne
-    @JoinColumn(name = "idApartment", nullable = false)
-    private Apartment apartment;
+    @JoinColumn(name = "idUnit", nullable = false)
+    private Unit unit;
+
 }

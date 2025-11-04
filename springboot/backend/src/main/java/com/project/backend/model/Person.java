@@ -8,33 +8,19 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
-// generira automatski gettere i settere za sva polja
-// generira toString(), equals(), hashCode() metode
-// gkraćuje kod jer ne moraš ručno pisati ove metode
-
 @NoArgsConstructor
-// stvara konstruktor bez argumenata (public Person() {})
-// potrebno npr. za JPA, jer Hibernate koristi konstruktor bez argumenata
-// za instanciranje objekata iz baze
-
 @AllArgsConstructor
-// stvara konstruktor sa svim poljima (public Person(Long id, String email, boolean isAdmin, ...))
-// pomaže za brzo kreiranje objekta s vrijednostima svih polja
-
 @Entity
-// označava da je ova klasa JPA entitet, tj. da predstavlja tablicu u bazi podataka
-// spring Boot/Hibernate koristi ovo za mapiranje objekata na redove u tablici
-
-@Table(name = "person") // ime tablice iz SQL-a
-
+@Table(name = "person")
 public class Person {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //auto-increment dodane vrijednosti u bazu
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(columnDefinition = "text", nullable = false, unique = true)
     private String email;
+
 
     @Column(nullable = false)
     private boolean isAdmin;
@@ -45,8 +31,10 @@ public class Person {
     @Column(nullable = false)
     private boolean isOwner;
 
-    @Column(nullable = false)
+
+    @Column(columnDefinition = "text", nullable = false)
     private String name;
+
 
     public Person(String email, boolean isAdmin, boolean isUser, boolean isOwner, String name) {
         this.email = email;
@@ -56,11 +44,7 @@ public class Person {
         this.name = name;
     }
 
-
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ApartmentReservation> apartmentReservations;
-
-    @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RoomReservation> roomReservations;
+    private List<UnitReservation> unitReservations;
 
 }

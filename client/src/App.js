@@ -1,5 +1,7 @@
 import "./App.css";
 import LandingScreen from "./screens/Landingscreen";
+import ApartmentForm from "./pages/form/form";
+import RentalUnits from "./pages/administration/RentalUnits";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/home/Home";
 import List from "./pages/list/List";
@@ -15,6 +17,8 @@ function App() {
           <Route path="/main" element={<Home />} />
           <Route path="/hotels" element={<List />} />
           <Route path="/hotels/:id" element={<Hotel />} />
+          <Route path="/form" element={<ApartmentForm />} />
+          <Route path="/admin" element={<RentalUnits />} />
         </Routes>
       </BrowserRouter>
     </GoogleOAuthProvider>

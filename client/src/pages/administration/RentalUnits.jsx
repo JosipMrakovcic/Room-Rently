@@ -4,20 +4,20 @@ import "./RentalUnits.css";
 
 const RentalUnits = () => {
   const [units, setUnits] = useState([
-    { id: 1, name: "Apartman Sunce", type: "Apartman" },
+    { id: 1, name: "Apartment Sun", type: "Apartment" },
     { id: 2, name: "Room Blue", type: "Room" },
-    { id: 3, name: "Apartman More", type: "Apartman" },
+    { id: 3, name: "Apartment Sea", type: "Apartment" },
   ]);
 
   const navigate = useNavigate();
 
   const handleEdit = (id) => {
     console.log("Edit unit with ID:", id);
-    // kasnije možeš navigirati na formu s ID-om
+    // later you can navigate to the form with the given ID
   };
 
   const handleDelete = (id) => {
-    if (window.confirm("Jesi li siguran da želiš obrisati ovu jedinicu?")) {
+    if (window.confirm("Are you sure you want to delete this unit?")) {
       setUnits(units.filter((unit) => unit.id !== id));
     }
   };
@@ -28,7 +28,7 @@ const RentalUnits = () => {
 
   return (
     <div className="rental-units-container">
-      <h1 className="title">Iznajmljivačke jedinice</h1>
+      <h1 className="title">Rental Units</h1>
       <ul className="units-list">
         {units.map((unit) => (
           <li key={unit.id} className="unit-item">

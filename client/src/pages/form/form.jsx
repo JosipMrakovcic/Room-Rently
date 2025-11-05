@@ -114,15 +114,68 @@ const ApartmentForm = () => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (id) {
-      console.log("Updating existing unit:", { id, ...formData });
-    } else {
-      console.log("Creating new unit:", formData);
+
+    const unitPayload = {
+      unitName: formData.unitName,
+      mainDescName: formData.mainDescriptionTitle,
+      mainDescContent: formData.mainDescription,
+      secDescName: formData.secondaryDescriptionTitle,
+      secDescContent: formData.secondaryDescription,
+      price: parseInt(formData.price),
+      numRooms: 1,
+      capAdults: 2,
+      capChildren: 0,
+      numBeds: 1,
+      hasParking: formData.amenities.parking,
+      hasWifi: formData.amenities.wifi,
+      hasBreakfast: formData.amenities.breakfast,
+      hasTowels: formData.amenities.towels,
+      hasShampoo: formData.amenities.shampoo,
+      hasHairDryer: formData.amenities.hairDryer,
+      hasHeater: formData.amenities.heater,
+      hasAirConditioning: formData.amenities.airConditioning,
+      isApartment: true,
+      location: "Zagreb, Croatia", // fixat da povlači lokaciju od lokacije hotela da nije hard kodirano
+      rating: 0 // fixat kasnije da bude rating sobe na temelju recenzija
+    };
+
+    try {
+      const response = await fetch("http://localhost:8080/unit/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(unitPayload),
+      });
+
+      if (response.ok) {
+        alert("Unit added successfully!");
+        setFormData({
+          unitName: "",
+          mainDescriptionTitle: "",
+          mainDescription: "",
+          secondaryDescriptionTitle: "",
+          secondaryDescription: "",
+          price: "",
+          amenities: {
+            parking: false,
+            wifi: false,
+            breakfast: false,
+            towels: false,
+            shampoo: false,
+            hairDryer: false,
+            heater: false,
+            airConditioning: false,
+          },
+        });
+      } else {
+        const errorText = await response.text();
+        alert("Error: " + errorText);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Something went wrong!");
     }
-    console.log("Images:", images);
-    alert(id ? "Apartment updated!" : "Apartment created!");
   };
 
   return (

@@ -33,7 +33,7 @@ public class Unit {
     @Column(nullable = false)
     private Integer numBeds;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer rating;
 
     @Column(nullable = false)
@@ -66,7 +66,7 @@ public class Unit {
     @Column(columnDefinition = "text", nullable = false)
     private String unitName;
 
-    @Column(columnDefinition = "text", nullable = false)
+    @Column(columnDefinition = "text", nullable = true)
     private String location;
 
     @Column(columnDefinition = "text", nullable = false)

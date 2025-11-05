@@ -21,7 +21,7 @@ public class Unit {
     @Column(nullable = false)
     private Integer price;
 
-    @Column(nullable = false)
+    @Column
     private Integer numRooms;
 
     @Column(nullable = false)

@@ -22,6 +22,7 @@ function App() {
           <Route path="/hotels" element={<List />} />
           <Route path="/hotels/:id" element={<Hotel />} />
           <Route path="/form" element={<ApartmentForm />} />
+          <Route path="/form/:id" element={<ApartmentForm />} /> 
           <Route path="/admin" element={<RentalUnits />} />
         </Routes>
       </BrowserRouter>

@@ -150,7 +150,6 @@
   transform: translateY(-2px);
 }
 
-/* Enhanced Responsive Design */
 @media (max-width: 1024px) {
   .searchitem {
     gap: 20px;

@@ -3747,7 +3747,7 @@ return (
 ```
 
 Komponenta vraća JSX sadržaj unutar glavnog div elementa s klasom "form-container" što je glavni okvir forme.
-Naslov (<h2>) se dinamički mijenja ovisno o postojanju id parametra
+Naslov (```<h2>```) se dinamički mijenja ovisno o postojanju id parametra
 
 * Ako id postoji prikazuje se "Edit Unit #id".
 * Ako id ne postoji  prikazuje se "Create New Unit".
@@ -3861,8 +3861,8 @@ Tekstualna polja služe za unos naslova i sadržaja glavnog opisa te naslova i s
   onChange={handleChange}
 />
 ```
-Koristi se type="number" kako bi se omogućio unos samo numeričkih vrijednosti.
-Vrijednost se sprema u formData.price, a backend kasnije očekuje broj pretvoren pomoću parseInt() u handleSubmit.
+Koristi se ```type="number"``` kako bi se omogućio unos samo numeričkih vrijednosti.
+Vrijednost se sprema u formData.price, a backend kasnije očekuje broj pretvoren pomoću ```parseInt()``` u handleSubmit.
 Ova vrijednost se koristi za prikaz cijene jedinice na stranici i u bazi podataka.
 
 ##### Učitavanje i pregled slika
@@ -3889,7 +3889,7 @@ Funkcija handleImageUpload stvara lokalne URL-ove URL.createObjectURL za trenuta
 
 ```images.map()``` prolazi kroz sve slike i prikazuje:
 * ```<img>``` element za pregled slike
-* Gumb "Remove" koji poziva removeImage(index) za brisanje pojedine slike iz liste
+* Gumb "Remove" koji poziva ```removeImage(index)``` za brisanje pojedine slike iz liste
 * Klase image-upload, image-preview, i preview-item koriste se za stilizaciju i raspored slika.
 
 ##### Odabir pogodnosti (Amenities)
@@ -4011,7 +4011,7 @@ font-size: 15px za ugodnu čitljivost.
 }
 ```
 Kada korisnik klikne u input onda 
-* okvir (border) postaje plav vizualna potvrda fokusa.
+* okvir border postaje plav vizualna potvrda fokusa.
 * outline: none uklanja zadani “glow” efekt.
 * pozadina postaje čisto bijela daje osjećaj aktivnog polja.
 
@@ -4291,9 +4291,9 @@ return (
 ```
 
 * Glavni kontejner: .rental-units-container sadrži sve elemente prikaza.
-* Naslov: <h1> označava naslov sekcije.
+* Naslov: ```<h1>``` označava naslov sekcije.
 *  Lista jedinica: ```<ul className="units-list">```
-* Svaka jedinica (<li>) prikazuje naziv i tip Apartment/Room.
+* Svaka jedinica (```<li>```) prikazuje naziv i tip Apartment/Room.
 * Edit  preusmjerava korisnika na /form/:id
 * Delete  briše jedinicu nakon potvrde
 * Na dnu se nalazi gumb za dodavanje nove jedinice.

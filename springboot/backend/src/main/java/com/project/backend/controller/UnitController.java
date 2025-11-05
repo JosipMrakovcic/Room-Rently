@@ -42,4 +42,12 @@ public class UnitController {
     public void deleteUnit(@PathVariable Long id) {
         repo.deleteById(id);
     }
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateUnit(@PathVariable Long id, @RequestBody Unit updatedUnit) {
+        return repo.findById(id).map(existingUnit -> {
+            updatedUnit.setIdUnit(id);
+            repo.save(updatedUnit);
+            return ResponseEntity.ok("Unit updated successfully");
+        }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

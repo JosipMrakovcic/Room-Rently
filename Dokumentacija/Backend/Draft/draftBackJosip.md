@@ -486,3 +486,50 @@ Ovo u...
 id: u.idUnit,
 ```
 Sad radi delete button i briše se iz baze.
+
+## Update funkcionalnost za jedinice
+
+### UnitController.java
+Trebalo je napraviti novu funkciju za update već postojećih jedinica u tablici. Nadodajemo na kraj ovo.
+
+```
+@PutMapping("/update/{id}")
+    public ResponseEntity<?> updateUnit(@PathVariable Long id, @RequestBody Unit updatedUnit) {
+        return repo.findById(id).map(existingUnit -> {
+            updatedUnit.setIdUnit(id);
+            repo.save(updatedUnit);
+            return ResponseEntity.ok("Unit updated successfully");
+        }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+```
+
+### Form.jsx
+Mijenjamo način na koji frontend submita formu
+
+Dodajemo ovo prije try operacije u handleSubmit funkciji. Ovime ovisno imamo li id ili ne šaljemo submit na funkciju dodavanja ili updateanja koju smo malo prije nadodali.
+```
+ const url = id
+      ? `http://localhost:8080/unit/update/${id}`
+      : "http://localhost:8080/unit/add";
+    const method = id ? "PUT" : "POST";
+```
+
+U try bloku imamo...
+```
+    const response = await fetch("http://localhost:8080/unit/add", {
+        method: "POST",
+```
+...što mijenjamo s ovime. Sada će fetchat metodu i url koji smo prije odredili ovisno o tome imamo li ili ne ID jedinice.
+```
+    const response = await fetch(url, {
+        method,
+```
+Također mijenjamo alert da znamo da smo updateali, a ne dodali jedinicu. <br>
+Ovo..
+```
+    alert("Unit added successfully!");
+```
+...u ovo.
+```
+    alert(id ? "Unit updated successfully!" : "Unit added successfully!");
+```

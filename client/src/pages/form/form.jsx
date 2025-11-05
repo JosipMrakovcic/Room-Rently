@@ -105,20 +105,25 @@ const ApartmentForm = () => {
       hasHairDryer: formData.amenities.hairDryer,
       hasHeater: formData.amenities.heater,
       hasAirConditioning: formData.amenities.airConditioning,
-      isApartment: formData.isApartment, 
+      isApartment: formData.isApartment,
       location: "Zagreb, Croatia",
       rating: 0,
     };
 
+    const url = id
+      ? `http://localhost:8080/unit/update/${id}`
+      : "http://localhost:8080/unit/add";
+    const method = id ? "PUT" : "POST";
+
     try {
-      const response = await fetch("http://localhost:8080/unit/add", {
-        method: "POST",
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(unitPayload),
       });
 
       if (response.ok) {
-        alert("Unit added successfully!");
+        alert(id ? "Unit updated successfully!" : "Unit added successfully!");
         navigate("/admin");
       } else {
         const errorText = await response.text();
@@ -128,7 +133,8 @@ const ApartmentForm = () => {
       console.error("Error submitting form:", error);
       alert("Something went wrong!");
     }
-  };
+};
+
 
   return (
     <div className="form-container">

@@ -1,23 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./RentalUnits.css";
 
 const RentalUnits = () => {
-  const [units, setUnits] = useState([
-    { id: 1, name: "Apartment Sun", type: "Apartment" },
-    { id: 2, name: "Room Blue", type: "Room" },
-    { id: 3, name: "Apartment Sea", type: "Apartment" },
-  ]);
-
+  const [units, setUnits] = useState([]);
   const navigate = useNavigate();
 
-  const handleEdit = (id) => {
-  navigate(`/form/${id}`);
-};
+  
+  useEffect(() => {
+    const fetchUnits = async () => {
+      try {
+        const response = await fetch("http://localhost:8080/unit/all");
+        if (!response.ok) throw new Error("Failed to fetch units");
+        const data = await response.json();
 
-  const handleDelete = (id) => {
+        
+        const formatted = data.map((u) => ({
+          id: u.idUnit,
+          name: u.unitName,
+          type: u.isApartment ? "Apartment" : "Room", 
+        }));
+
+        setUnits(formatted);
+      } catch (err) {
+        console.error("Error fetching units:", err);
+      }
+    };
+
+    fetchUnits();
+  }, []);
+
+  const handleEdit = (id) => {
+    navigate(`/form/${id}`);
+  };
+
+  const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this unit?")) {
-      setUnits(units.filter((unit) => unit.id !== id));
+      try {
+        const response = await fetch(`http://localhost:8080/unit/delete/${id}`, {
+          method: "DELETE",
+        });
+        if (response.ok) {
+          setUnits((prev) => prev.filter((unit) => unit.id !== id));
+        } else {
+          alert("Failed to delete unit.");
+        }
+      } catch (err) {
+        console.error("Error deleting unit:", err);
+      }
     }
   };
 
@@ -33,7 +63,7 @@ const RentalUnits = () => {
           <li key={unit.id} className="unit-item">
             <div className="unit-info">
               <span className="unit-name">{unit.name}</span>
-              <span className="unit-type">({unit.type})</span>
+              <span className="unit-type">({unit.type})</span> {}
             </div>
             <div className="unit-actions">
               <button className="edit-button" onClick={() => handleEdit(unit.id)}>

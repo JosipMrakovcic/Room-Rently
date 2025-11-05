@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./ApartmentForm.css";
 
 const ApartmentForm = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     unitName: "",
@@ -12,6 +13,7 @@ const ApartmentForm = () => {
     secondaryDescriptionTitle: "",
     secondaryDescription: "",
     price: "",
+    isApartment: true, // 🔹 NEW — default vrijednost
     amenities: {
       parking: false,
       wifi: false,
@@ -26,66 +28,33 @@ const ApartmentForm = () => {
 
   const [images, setImages] = useState([]);
 
-  // ✅ Simulirani "database" podaci za demonstraciju
-  const mockUnits = [
-    {
-      id: 1,
-      unitName: "Apartment Sun",
-      mainDescriptionTitle: "Bright & Cozy Apartment",
-      mainDescription: "Spacious apartment with sunlight and balcony view.",
-      secondaryDescriptionTitle: "Perfect for couples",
-      secondaryDescription: "Located in the heart of Krakow.",
-      price: "120",
-      amenities: {
-        parking: true,
-        wifi: true,
-        breakfast: false,
-        towels: true,
-        shampoo: true,
-        hairDryer: true,
-        heater: false,
-        airConditioning: true,
-      },
-      images: [], // ovdje bi išle slike ako postoje
-    },
-    {
-      id: 2,
-      unitName: "Room Blue",
-      mainDescriptionTitle: "Comfortable private room",
-      mainDescription: "Ideal for solo travelers.",
-      secondaryDescriptionTitle: "Budget-friendly stay",
-      secondaryDescription: "Near public transport and shops.",
-      price: "80",
-      amenities: {
-        parking: false,
-        wifi: true,
-        breakfast: true,
-        towels: true,
-        shampoo: false,
-        hairDryer: false,
-        heater: true,
-        airConditioning: false,
-      },
-      images: [],
-    },
-  ];
-
-  // ✅ Kad postoji ID u URL-u, pronađi postojeće podatke
+  // ✅ Kad postoji ID u URL-u, dohvatiti podatke iz backenda
   useEffect(() => {
     if (id) {
-      const unitToEdit = mockUnits.find((unit) => unit.id === parseInt(id));
-      if (unitToEdit) {
-        setFormData({
-          unitName: unitToEdit.unitName,
-          mainDescriptionTitle: unitToEdit.mainDescriptionTitle,
-          mainDescription: unitToEdit.mainDescription,
-          secondaryDescriptionTitle: unitToEdit.secondaryDescriptionTitle,
-          secondaryDescription: unitToEdit.secondaryDescription,
-          price: unitToEdit.price,
-          amenities: unitToEdit.amenities,
-        });
-        setImages(unitToEdit.images || []);
-      }
+      fetch(`http://localhost:8080/unit/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setFormData({
+            unitName: data.unitName || "",
+            mainDescriptionTitle: data.mainDescName || "",
+            mainDescription: data.mainDescContent || "",
+            secondaryDescriptionTitle: data.secDescName || "",
+            secondaryDescription: data.secDescContent || "",
+            price: data.price || "",
+            isApartment: data.isApartment ?? true,
+            amenities: {
+              parking: data.hasParking || false,
+              wifi: data.hasWifi || false,
+              breakfast: data.hasBreakfast || false,
+              towels: data.hasTowels || false,
+              shampoo: data.hasShampoo || false,
+              hairDryer: data.hasHairDryer || false,
+              heater: data.hasHeater || false,
+              airConditioning: data.hasAirConditioning || false,
+            },
+          });
+        })
+        .catch((err) => console.error("Error fetching unit:", err));
     }
   }, [id]);
 
@@ -136,9 +105,9 @@ const ApartmentForm = () => {
       hasHairDryer: formData.amenities.hairDryer,
       hasHeater: formData.amenities.heater,
       hasAirConditioning: formData.amenities.airConditioning,
-      isApartment: true,
-      location: "Zagreb, Croatia", // fixat da povlači lokaciju od lokacije hotela da nije hard kodirano
-      rating: 0 // fixat kasnije da bude rating sobe na temelju recenzija
+      isApartment: formData.isApartment, 
+      location: "Zagreb, Croatia",
+      rating: 0,
     };
 
     try {
@@ -150,24 +119,7 @@ const ApartmentForm = () => {
 
       if (response.ok) {
         alert("Unit added successfully!");
-        setFormData({
-          unitName: "",
-          mainDescriptionTitle: "",
-          mainDescription: "",
-          secondaryDescriptionTitle: "",
-          secondaryDescription: "",
-          price: "",
-          amenities: {
-            parking: false,
-            wifi: false,
-            breakfast: false,
-            towels: false,
-            shampoo: false,
-            hairDryer: false,
-            heater: false,
-            airConditioning: false,
-          },
-        });
+        navigate("/admin");
       } else {
         const errorText = await response.text();
         alert("Error: " + errorText);
@@ -180,7 +132,7 @@ const ApartmentForm = () => {
 
   return (
     <div className="form-container">
-      <h2>{id ? `Edit Apartment #${id}` : "Create New Apartment"}</h2>
+      <h2>{id ? `Edit Unit #${id}` : "Create New Unit"}</h2>
       <form onSubmit={handleSubmit} className="apartment-form">
         <label>Unit Name</label>
         <input
@@ -190,6 +142,30 @@ const ApartmentForm = () => {
           onChange={handleChange}
           required
         />
+
+        {/* 🔹 NEW — izbor između Apartment i Room */}
+        <label>Unit Type</label>
+        <div className="radio-group">
+          <label>
+            <input
+              type="radio"
+              name="isApartment"
+              checked={formData.isApartment === true}
+              onChange={() => setFormData({ ...formData, isApartment: true })}
+            />
+            Apartment
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="isApartment"
+              checked={formData.isApartment === false}
+              onChange={() => setFormData({ ...formData, isApartment: false })}
+            />
+            Room
+          </label>
+        </div>
+
 
         <label>Main Description Title</label>
         <input

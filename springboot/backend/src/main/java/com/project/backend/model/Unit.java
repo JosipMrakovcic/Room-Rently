@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
@@ -60,8 +61,10 @@ public class Unit {
     @Column(nullable = false)
     private boolean hasAirConditioning;
 
-    @Column(nullable = false)
-    private boolean isApartment; //ako je true onda je jedinica apratman, u suprotnom je soba
+    @Column(name = "is_apartment", nullable = false)
+    @JsonProperty("isApartment")
+    private boolean apartment;
+
 
     @Column(columnDefinition = "text", nullable = false)
     private String unitName;

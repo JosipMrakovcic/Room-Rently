@@ -15,7 +15,6 @@
   align-items: flex-start;
 }
 
-/* ===== Search Sidebar ===== */
 .listsearch {
   flex: 1;
   background: linear-gradient(135deg, #f3c247, #f9d76a);
@@ -142,16 +141,14 @@
   transform: translateY(-2px);
 }
 
-/* ===== Results Section ===== */
 .listresult {
   flex: 3;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  min-width: 0; /* Prevents flex item overflow */
+  min-width: 0; 
 }
 
-/* ===== Responsive Design ===== */
 @media (max-width: 900px) {
   .listwrapper {
     flex-direction: column;
@@ -223,7 +220,6 @@
   }
 }
 
-/* Prevent horizontal scrolling on very small screens */
 @media (max-width: 360px) {
   .listcontainer {
     padding: 0 8px;
@@ -243,7 +239,6 @@
   }
 }
 
-/* Ensure no content overflows on any screen size */
 * {
   max-width: 100%;
 }

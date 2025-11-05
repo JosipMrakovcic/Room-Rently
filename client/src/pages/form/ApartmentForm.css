@@ -1,0 +1,130 @@
+.form-container {
+  max-width: 650px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #e8f4fd;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 100, 200, 0.2);
+  font-family: 'Segoe UI', sans-serif;
+  color: #03426a;
+}
+
+.form-container h2 {
+  text-align: center;
+  color: #025c9a;
+  margin-bottom: 25px;
+}
+
+.apartment-form label {
+  display: block;
+  margin-top: 12px;
+  font-weight: 500;
+}
+
+.apartment-form input[type="text"],
+.apartment-form input[type="number"],
+.apartment-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border: 1px solid #b5d5f5;
+  border-radius: 8px;
+  background-color: #f9fcff;
+  font-size: 15px;
+  transition: 0.2s ease;
+}
+
+.apartment-form input:focus,
+.apartment-form textarea:focus {
+  border-color: #4aa3ff;
+  outline: none;
+  background-color: #ffffff;
+}
+
+.image-upload {
+  margin-top: 20px;
+}
+
+.image-preview {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  gap: 12px;
+}
+
+.preview-item {
+  position: relative;
+  display: inline-block;
+}
+
+.preview-item img {
+  width: 120px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #b5d5f5;
+}
+
+.preview-item button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #ff5c5c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+
+.preview-item button:hover {
+  background-color: #e74c3c;
+}
+
+.checkbox-section {
+  margin-top: 20px;
+}
+
+.checkbox-section h4 {
+  margin-bottom: 10px;
+  color: #025c9a;
+}
+
+.checkbox-label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.submit-btn {
+  margin-top: 25px;
+  width: 100%;
+  padding: 12px;
+  background-color: #4aa3ff;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #3a91e0;
+}
+.price-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.price-input input {
+  flex: 1;
+}
+
+.price-input span {
+  font-weight: bold;
+  color: #03426a;
+}

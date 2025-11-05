@@ -12,9 +12,8 @@ const RentalUnits = () => {
   const navigate = useNavigate();
 
   const handleEdit = (id) => {
-    console.log("Edit unit with ID:", id);
-    // later you can navigate to the form with the given ID
-  };
+  navigate(`/form/${id}`);
+};
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this unit?")) {

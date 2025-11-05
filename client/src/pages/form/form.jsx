@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import "./ApartmentForm.css";
 
 const ApartmentForm = () => {
+  const { id } = useParams();
+
   const [formData, setFormData] = useState({
     unitName: "",
     mainDescriptionTitle: "",
@@ -22,6 +25,69 @@ const ApartmentForm = () => {
   });
 
   const [images, setImages] = useState([]);
+
+  // ✅ Simulirani "database" podaci za demonstraciju
+  const mockUnits = [
+    {
+      id: 1,
+      unitName: "Apartment Sun",
+      mainDescriptionTitle: "Bright & Cozy Apartment",
+      mainDescription: "Spacious apartment with sunlight and balcony view.",
+      secondaryDescriptionTitle: "Perfect for couples",
+      secondaryDescription: "Located in the heart of Krakow.",
+      price: "120",
+      amenities: {
+        parking: true,
+        wifi: true,
+        breakfast: false,
+        towels: true,
+        shampoo: true,
+        hairDryer: true,
+        heater: false,
+        airConditioning: true,
+      },
+      images: [], // ovdje bi išle slike ako postoje
+    },
+    {
+      id: 2,
+      unitName: "Room Blue",
+      mainDescriptionTitle: "Comfortable private room",
+      mainDescription: "Ideal for solo travelers.",
+      secondaryDescriptionTitle: "Budget-friendly stay",
+      secondaryDescription: "Near public transport and shops.",
+      price: "80",
+      amenities: {
+        parking: false,
+        wifi: true,
+        breakfast: true,
+        towels: true,
+        shampoo: false,
+        hairDryer: false,
+        heater: true,
+        airConditioning: false,
+      },
+      images: [],
+    },
+  ];
+
+  // ✅ Kad postoji ID u URL-u, pronađi postojeće podatke
+  useEffect(() => {
+    if (id) {
+      const unitToEdit = mockUnits.find((unit) => unit.id === parseInt(id));
+      if (unitToEdit) {
+        setFormData({
+          unitName: unitToEdit.unitName,
+          mainDescriptionTitle: unitToEdit.mainDescriptionTitle,
+          mainDescription: unitToEdit.mainDescription,
+          secondaryDescriptionTitle: unitToEdit.secondaryDescriptionTitle,
+          secondaryDescription: unitToEdit.secondaryDescription,
+          price: unitToEdit.price,
+          amenities: unitToEdit.amenities,
+        });
+        setImages(unitToEdit.images || []);
+      }
+    }
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -50,14 +116,18 @@ const ApartmentForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form data:", formData);
+    if (id) {
+      console.log("Updating existing unit:", { id, ...formData });
+    } else {
+      console.log("Creating new unit:", formData);
+    }
     console.log("Images:", images);
-    alert("Form submitted!");
+    alert(id ? "Apartment updated!" : "Apartment created!");
   };
 
   return (
     <div className="form-container">
-      <h2>Apartment Entry Form</h2>
+      <h2>{id ? `Edit Apartment #${id}` : "Create New Apartment"}</h2>
       <form onSubmit={handleSubmit} className="apartment-form">
         <label>Unit Name</label>
         <input
@@ -84,7 +154,7 @@ const ApartmentForm = () => {
           onChange={handleChange}
         />
 
-        <label>Secondary Description Title (Perfect for a 9-day stay)</label>
+        <label>Secondary Description Title</label>
         <input
           type="text"
           name="secondaryDescriptionTitle"
@@ -92,10 +162,7 @@ const ApartmentForm = () => {
           onChange={handleChange}
         />
 
-        <label>
-          Secondary Description (Located in the real heart of Krakow, this property
-          has an excellent location, Pavilion 4)
-        </label>
+        <label>Secondary Description</label>
         <textarea
           name="secondaryDescription"
           rows="3"
@@ -103,28 +170,17 @@ const ApartmentForm = () => {
           onChange={handleChange}
         />
 
-        <label>Price</label>
-        <div className="price-input">
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            min="0"
-            step="0.01"
-            required
-          />
-          <span>€</span>
-        </div>
+        <label>Price (€)</label>
+        <input
+          type="number"
+          name="price"
+          value={formData.price}
+          onChange={handleChange}
+        />
 
         <div className="image-upload">
-          <label>Images (Apartment photo attachments)</label>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleImageUpload}
-          />
+          <label>Images</label>
+          <input type="file" multiple accept="image/*" onChange={handleImageUpload} />
           <div className="image-preview">
             {images.map((img, index) => (
               <div key={index} className="preview-item">
@@ -147,15 +203,13 @@ const ApartmentForm = () => {
                 checked={formData.amenities[option]}
                 onChange={handleChange}
               />
-              {option
-                .replace(/([A-Z])/g, " $1")
-                .replace(/^./, (str) => str.toUpperCase())}
+              {option.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
             </label>
           ))}
         </div>
 
         <button type="submit" className="submit-btn">
-          Submit
+          {id ? "Update" : "Submit"}
         </button>
       </form>
     </div>

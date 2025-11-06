@@ -10,7 +10,7 @@ const RentalUnits = () => {
   useEffect(() => {
     const fetchUnits = async () => {
       try {
-        const response = await fetch("http://localhost:8080/unit/all");
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/unit/all`);
         if (!response.ok) throw new Error("Failed to fetch units");
         const data = await response.json();
 
@@ -37,7 +37,7 @@ const RentalUnits = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this unit?")) {
       try {
-        const response = await fetch(`http://localhost:8080/unit/delete/${id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/unit/delete/${id}`, {
           method: "DELETE",
         });
         if (response.ok) {

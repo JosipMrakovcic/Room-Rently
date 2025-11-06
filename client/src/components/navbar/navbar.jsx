@@ -46,8 +46,9 @@ const Navbar = () => {
 
                     // Pošalji ID token backendu
                     try {
+                      console.log(`here: ${process.env.REACT_APP_API_URL}`);
                       await axios.post(
-                        "http://localhost:8080/addPerson",
+                        `${process.env.REACT_APP_API_URL}/addPerson`,
                         {},
                         {
                           headers: {

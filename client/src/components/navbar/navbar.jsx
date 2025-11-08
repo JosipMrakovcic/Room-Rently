@@ -18,8 +18,9 @@ const Navbar = () => {
   const logout = () => {
     googleLogout();
     setUser(null);
-    localStorage.removeItem("googleUser"); 
-    window.location.reload(); 
+    localStorage.removeItem("googleUser");
+    localStorage.removeItem("access_token"); 
+    window.location.reload();
   };
 
 
@@ -65,7 +66,7 @@ const Navbar = () => {
 
                     setUser(finalUser);
                     localStorage.setItem("googleUser", JSON.stringify(finalUser));
-
+                    localStorage.setItem("access_token", idToken);
                     // Refresh da se prikaže admin gumb
                     window.location.reload();
 

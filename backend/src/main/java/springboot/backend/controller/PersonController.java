@@ -76,9 +76,20 @@ public class PersonController {
         return repo.findById(id);
     }
 
-
     @DeleteMapping("/deletePerson/{id}")
-    public void deletePerson(@PathVariable Long id) {
+    public ResponseEntity<?> deletePerson(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+        String email = jwt.getClaimAsString("email");
+        Optional<Person> current = repo.findByEmail(email);
+
+        if (current.isEmpty()) return ResponseEntity.status(403).body("Unauthorized");
+
+        Person currentUser = current.get();
+        if (currentUser.getId().equals(id)) {
+            return ResponseEntity.status(403).body("You cannot delete yourself!");
+        }
+
         repo.deleteById(id);
+        return ResponseEntity.ok("User deleted");
     }
+
 }

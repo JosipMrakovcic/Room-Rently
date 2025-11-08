@@ -96,6 +96,7 @@ const handleSubmit = async (e) => {
 ### form.jsx
 Form nam nije imao opciju za označavanje jel jedinica apartman ili nije pa sam dodao checkbox da se označi Apartment ili Room. Bilo je problema i sa slanjem true false za isApartment to je isto popravljeno. Sad nas submitanjem forme vraća na listu svih jedinica gdje se prikaže naša nova jedinica.
 
+useEffect metodu u form.jsx koristimo kasnije za popunjavanje forme s podacima iz baze tokom editanja postoje'ih jedinica. Poziva funkciju s backenda za izvlačenje podataka iz baze i zapisuje ih u formu.
 ```
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -112,7 +113,7 @@ const ApartmentForm = () => {
     secondaryDescriptionTitle: "",
     secondaryDescription: "",
     price: "",
-    isApartment: true, // 🔹 NEW — default vrijednost
+    isApartment: true, 
     amenities: {
       parking: false,
       wifi: false,
@@ -127,7 +128,7 @@ const ApartmentForm = () => {
 
   const [images, setImages] = useState([]);
 
-  // ✅ Kad postoji ID u URL-u, dohvatiti podatke iz backenda
+  
   useEffect(() => {
     if (id) {
       fetch(`http://localhost:8080/unit/${id}`)
@@ -242,7 +243,7 @@ const ApartmentForm = () => {
           required
         />
 
-        {/* 🔹 NEW — izbor između Apartment i Room */}
+        {}
         <label>Unit Type</label>
         <div className="radio-group">
           <label>
@@ -351,6 +352,7 @@ export default ApartmentForm;
 Trebalo je promjeniti RentalUnits.jsx kako bi mogao koristiti podatke iz već postojeće funkcije iz baze/backenda. (/unit/all koji vraća json svih podataka iz baze) <br>
 Dodana je parcijalna funkcionalnost za delete button ali nije još u funkcionalnosti. Treba izmjeniti malo backend funkciju
 
+useEffect metoda povlači kao i u form.jsx s backenda sve podatke iz baze te prikazuje one potrebne na stranici kako bi se vidjela situacija spremljenih jedinica i kako bi ih se moglo brisati i editati.
 ```
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";

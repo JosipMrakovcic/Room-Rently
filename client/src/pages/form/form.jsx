@@ -13,7 +13,7 @@ const ApartmentForm = () => {
     secondaryDescriptionTitle: "",
     secondaryDescription: "",
     price: "",
-    isApartment: true, // 🔹 NEW — default vrijednost
+    isApartment: true, 
     amenities: {
       parking: false,
       wifi: false,
@@ -28,7 +28,7 @@ const ApartmentForm = () => {
 
   const [images, setImages] = useState([]);
 
-  // ✅ Kad postoji ID u URL-u, dohvatiti podatke iz backenda
+  
   useEffect(() => {
     if (id) {
       fetch(`http://localhost:8080/unit/${id}`)

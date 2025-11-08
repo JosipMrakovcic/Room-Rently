@@ -14,7 +14,7 @@ import { useEffect } from 'react';
 function App() {
 
   return (
-    <GoogleOAuthProvider clientId="163730135993-4a4kfcsq2qvjgqrn5iiosgj3r5ovh25r.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId="939982947137-jkggl2itogjo9neanp87ika3vnnva7a4.apps.googleusercontent.com">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingScreen />} />

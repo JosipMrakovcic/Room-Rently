@@ -76,3 +76,24 @@
 .create-button:hover {
   background-color: #218838;
 }
+.back-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s ease-in-out;
+  margin-left: 10px;
+}
+
+.back-button:hover {
+  background-color: #0056b3;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

@@ -13,7 +13,11 @@ const ApartmentForm = () => {
     secondaryDescriptionTitle: "",
     secondaryDescription: "",
     price: "",
-    isApartment: true, // 🔹 NEW — default vrijednost
+    capAdults: 2,
+    capChildren: 0,
+    numRooms: 1,
+    numBeds: 1,
+    isApartment: true,
     amenities: {
       parking: false,
       wifi: false,
@@ -28,10 +32,17 @@ const ApartmentForm = () => {
 
   const [images, setImages] = useState([]);
 
-  // ✅ Kad postoji ID u URL-u, dohvatiti podatke iz backenda
   useEffect(() => {
+    const savedUser = localStorage.getItem("googleUser");
+    const user = savedUser ? JSON.parse(savedUser) : null;
+
+    if (!user || !user.is_admin) {
+      navigate("/main");
+      return;
+    }
+
     if (id) {
-      fetch(`http://localhost:8080/unit/${id}`)
+      fetch(`${process.env.REACT_APP_API_URL}/unit/${id}`)
         .then((res) => res.json())
         .then((data) => {
           setFormData({
@@ -41,6 +52,10 @@ const ApartmentForm = () => {
             secondaryDescriptionTitle: data.secDescName || "",
             secondaryDescription: data.secDescContent || "",
             price: data.price || "",
+            capAdults: data.capAdults || 2,
+            capChildren: data.capChildren || 0,
+            numRooms: data.numRooms || 1,
+            numBeds: data.numBeds || 1,
             isApartment: data.isApartment ?? true,
             amenities: {
               parking: data.hasParking || false,
@@ -56,7 +71,7 @@ const ApartmentForm = () => {
         })
         .catch((err) => console.error("Error fetching unit:", err));
     }
-  }, [id]);
+  }, [id, navigate]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -93,10 +108,10 @@ const ApartmentForm = () => {
       secDescName: formData.secondaryDescriptionTitle,
       secDescContent: formData.secondaryDescription,
       price: parseInt(formData.price),
-      numRooms: 1,
-      capAdults: 2,
-      capChildren: 0,
-      numBeds: 1,
+      capAdults: parseInt(formData.capAdults),
+      capChildren: parseInt(formData.capChildren),
+      numRooms: formData.isApartment ? parseInt(formData.numRooms) : 1,
+      numBeds: parseInt(formData.numBeds),
       hasParking: formData.amenities.parking,
       hasWifi: formData.amenities.wifi,
       hasBreakfast: formData.amenities.breakfast,
@@ -111,8 +126,8 @@ const ApartmentForm = () => {
     };
 
     const url = id
-      ? `http://localhost:8080/unit/update/${id}`
-      : "http://localhost:8080/unit/add";
+      ? `${process.env.REACT_APP_API_URL}/unit/update/${id}`
+      : `${process.env.REACT_APP_API_URL}/unit/add`;
     const method = id ? "PUT" : "POST";
 
     try {
@@ -133,8 +148,13 @@ const ApartmentForm = () => {
       console.error("Error submitting form:", error);
       alert("Something went wrong!");
     }
-};
+  };
 
+  const handleCancel = () => {
+    if (window.confirm("Are you sure you want to cancel? Changes will not be saved.")) {
+      navigate("/admin");
+    }
+  };
 
   return (
     <div className="form-container">
@@ -149,29 +169,69 @@ const ApartmentForm = () => {
           required
         />
 
-        {/* 🔹 NEW — izbor između Apartment i Room */}
         <label>Unit Type</label>
-        <div className="radio-group">
-          <label>
-            <input
-              type="radio"
-              name="isApartment"
-              checked={formData.isApartment === true}
-              onChange={() => setFormData({ ...formData, isApartment: true })}
-            />
-            Apartment
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="isApartment"
-              checked={formData.isApartment === false}
-              onChange={() => setFormData({ ...formData, isApartment: false })}
-            />
-            Room
-          </label>
+        <div className="radio-group with-rooms">
+          <div className="radio-options">
+            <label>
+              <input
+                type="radio"
+                name="isApartment"
+                checked={formData.isApartment === true}
+                onChange={() => setFormData({ ...formData, isApartment: true })}
+              />
+              Apartment
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="isApartment"
+                checked={formData.isApartment === false}
+                onChange={() => setFormData({ ...formData, isApartment: false })}
+              />
+              Room
+            </label>
+          </div>
+
+          {formData.isApartment && (
+            <div className="num-rooms-inline">
+              <label>Rooms:</label>
+              <input
+                type="number"
+                name="numRooms"
+                value={formData.numRooms}
+                onChange={handleChange}
+                min="1"
+              />
+            </div>
+          )}
         </div>
 
+        <label>Capacity (Adults)</label>
+        <input
+          type="number"
+          name="capAdults"
+          value={formData.capAdults}
+          onChange={handleChange}
+          min="1"
+        />
+
+        <label>Capacity (Children)</label>
+        <input
+          type="number"
+          name="capChildren"
+          value={formData.capChildren}
+          onChange={handleChange}
+          min="0"
+        />
+
+        <label>Number of Beds</label>
+        <input
+          type="number"
+          name="numBeds"
+          value={formData.numBeds}
+          onChange={handleChange}
+          min="1"
+        />
 
         <label>Main Description Title</label>
         <input
@@ -215,7 +275,12 @@ const ApartmentForm = () => {
 
         <div className="image-upload">
           <label>Images</label>
-          <input type="file" multiple accept="image/*" onChange={handleImageUpload} />
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleImageUpload}
+          />
           <div className="image-preview">
             {images.map((img, index) => (
               <div key={index} className="preview-item">
@@ -238,14 +303,25 @@ const ApartmentForm = () => {
                 checked={formData.amenities[option]}
                 onChange={handleChange}
               />
-              {option.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
+              {option
+                .replace(/([A-Z])/g, " $1")
+                .replace(/^./, (str) => str.toUpperCase())}
             </label>
           ))}
         </div>
 
-        <button type="submit" className="submit-btn">
-          {id ? "Update" : "Submit"}
-        </button>
+        <div className="button-row">
+          <button type="submit" className="submit-btn">
+            {id ? "Update" : "Submit"}
+          </button>
+          <button
+            type="button"
+            className="cancel-btn"
+            onClick={handleCancel}
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -18,8 +18,10 @@ const Navbar = () => {
   const logout = () => {
     googleLogout();
     setUser(null);
-    localStorage.removeItem("googleUser");
+    localStorage.removeItem("googleUser"); 
+    window.location.reload(); 
   };
+
 
   // Navigacija na početnu
   const navigatelandingscreen = () => navigate("/");
@@ -38,45 +40,40 @@ const Navbar = () => {
               <GoogleLogin
                 onSuccess={async (credentialResponse) => {
                   try {
-                    const idToken = credentialResponse.credential; // JWT ID token
-                    if (!idToken) {
-                      console.error("No ID token received from Google");
-                      return;
-                    }
+                    const idToken = credentialResponse.credential;
+                    if (!idToken) return;
 
-                    // Pošalji ID token backendu
                     try {
-                      console.log(`here: ${process.env.REACT_APP_API_URL}`);
-                      await axios.post(
-                        `${process.env.REACT_APP_API_URL}/addPerson`,
-                        {},
-                        {
-                          headers: {
-                            Authorization: `Bearer ${idToken}`,
-                          },
-                        }
-                      );
-                      console.log("User successfully added to DB");
-                    } catch (error) {
-                      if (error.response && error.response.status === 409) {
-                        console.warn("User already exists in database");
-                      } else {
-                        console.error("Error adding user to DB:", error);
+                      await axios.post(`${process.env.REACT_APP_API_URL}/addPerson`, {}, {
+                        headers: { Authorization: `Bearer ${idToken}` },
+                      });
+                    } catch (err) {
+                      // Ako već postoji user (409), to nije greška
+                      if (err.response && err.response.status !== 409) {
+                        throw err;
                       }
-                      // U svakom slučaju nastavi s loginom
                     }
 
-                    // Dekodiraj token da dobiješ ime i email
-                    const decoded = jwtDecode(idToken);
-                    console.log("Decoded user:", decoded);
+                    // Sad uvijek dohvaća podatke
+                    const { data: userFromDB } = await axios.get(
+                      `${process.env.REACT_APP_API_URL}/me`,
+                      { headers: { Authorization: `Bearer ${idToken}` } }
+                    );
 
-                    // Spremi korisnika lokalno
-                    setUser(decoded);
-                    localStorage.setItem("googleUser", JSON.stringify(decoded));
+                    const decoded = jwtDecode(idToken);
+                    const finalUser = { ...decoded, ...userFromDB };
+
+                    setUser(finalUser);
+                    localStorage.setItem("googleUser", JSON.stringify(finalUser));
+
+                    // Refresh da se prikaže admin gumb
+                    window.location.reload();
+
                   } catch (err) {
                     console.error("Error processing Google login:", err);
                   }
                 }}
+
                 onError={() => {
                   console.log("Login Failed");
                 }}

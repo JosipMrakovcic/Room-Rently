@@ -16,7 +16,7 @@ import java.util.Optional;
 
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "${FRONTEND_URL}")
 public class PersonController {
 
     @Autowired
@@ -37,14 +37,38 @@ public class PersonController {
         }
 
         if (repo.findByEmail(email).isPresent()) {
-            return ResponseEntity
-                    .status(409)
-                    .body("User already exists");
+            return ResponseEntity.status(409).body("User already exists");
         }
 
-        Person person = new Person(email, true, false, false, name);
+
+        Person person = new Person();
+        person.setEmail(email);
+        person.setName(name);
+
+
+        boolean isFirstUser = repo.count() == 0;
+
+        person.setAdmin(isFirstUser);
+        person.setOwner(false);
+        person.setUser(true);
+
         repo.save(person);
-        return ResponseEntity.ok("User added successfully");
+
+        return ResponseEntity.ok("User added successfully" + (isFirstUser ? " (as admin)" : ""));
+    }
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
+        String email = jwt.getClaimAsString("email");
+        if (email == null) {
+            return ResponseEntity.badRequest().body("Invalid token");
+        }
+
+        Optional<Person> person = repo.findByEmail(email);
+        if (person.isEmpty()) {
+            return ResponseEntity.status(404).body("User not found");
+        }
+
+        return ResponseEntity.ok(person.get());
     }
 
     @GetMapping("/{id}")

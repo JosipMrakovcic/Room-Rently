@@ -97,23 +97,6 @@
   margin-bottom: 6px;
 }
 
-.submit-btn {
-  margin-top: 25px;
-  width: 100%;
-  padding: 12px;
-  background-color: #4aa3ff;
-  border: none;
-  border-radius: 10px;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.submit-btn:hover {
-  background-color: #3a91e0;
-}
 .price-input {
   display: flex;
   align-items: center;
@@ -139,4 +122,47 @@
   align-items: center;
   gap: 0.3rem;
   cursor: pointer;
+}
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.submit-btn,
+.cancel-btn {
+  flex: 1;
+  padding: 12px 0;
+  height: 46px; /* ✅ fiksna visina da budu identični */
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1; /* ✅ sprječava različitu vertikalnu visinu */
+}
+
+.submit-btn {
+  background-color: #4aa3ff;
+  color: white;
+}
+
+.submit-btn:hover {
+  background-color: #3a91e0;
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  background-color: #ff7f7f;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #e86a6a;
+  transform: translateY(-1px);
 }

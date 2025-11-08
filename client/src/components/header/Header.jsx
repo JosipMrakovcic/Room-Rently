@@ -8,6 +8,11 @@ import { useNavigate } from "react-router-dom";
 const Header = ({ type }) => {
   const [opendate, setOpendate] = useState(false);
   const [destination, setdestination] = useState("");
+  const [user, setUser] = useState(() => {
+  const savedUser = localStorage.getItem("googleUser");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
   const [date, setDate] = useState([
     {
       startDate: new Date(),
@@ -62,7 +67,14 @@ const Header = ({ type }) => {
               locations. Easy booking and the best prices, only with
               Room-Rently.
             </p>
-            <button className="headerBTN">Sign in/Register</button>
+            {user?.is_admin && (
+              <button
+                className="headerBTN"
+                onClick={() => navigate("/admin")}
+              >
+                Admin Page
+              </button>
+            )}
 
             <div className="headerSearch">
               <div className="headerSearchItem">

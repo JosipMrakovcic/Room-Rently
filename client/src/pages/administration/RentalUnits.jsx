@@ -19,7 +19,6 @@ const AdminDashboard = () => {
     }
 
     setCurrentUser(user);
-
     fetchUnits();
     fetchUsers();
   }, [navigate]);
@@ -42,7 +41,6 @@ const AdminDashboard = () => {
     }
   };
 
-  
   const fetchUsers = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/allPersons`);
@@ -55,7 +53,7 @@ const AdminDashboard = () => {
           if (u.is_admin) role = "Admin";
           else if (u.is_owner) role = "Owner";
           return {
-            id: u.id, // ✅ ovo je ispravno
+            id: u.id,
             name: u.name,
             email: u.email,
             role,
@@ -67,15 +65,13 @@ const AdminDashboard = () => {
     }
   };
 
-
-
   const handleEdit = (id) => navigate(`/form/${id}`);
 
   const handleDeleteUnit = async (id) => {
     if (window.confirm("Are you sure you want to delete this unit?")) {
       try {
-        const token = localStorage.getItem("access_token"); // ako ga spremaš
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/deletePerson/${id}`, {
+        const token = localStorage.getItem("access_token");
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/unit/delete/${id}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -100,12 +96,11 @@ const AdminDashboard = () => {
 
     if (window.confirm(`Are you sure you want to delete user ${email}?`)) {
       try {
-        const token = localStorage.getItem("access_token"); // ✅ uzmi token
-
+        const token = localStorage.getItem("access_token");
         const response = await fetch(`${process.env.REACT_APP_API_URL}/deletePerson/${id}`, {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${token}`, // ✅ pošalji ga backendu
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -121,7 +116,6 @@ const AdminDashboard = () => {
       }
     }
   };
-
 
   const handleCreate = () => navigate("/form");
   const handleBackToMain = () => navigate("/main");
@@ -172,7 +166,6 @@ const AdminDashboard = () => {
                 </li>
               ))}
             </ul>
-
             <button className="create-button" onClick={handleCreate}>
               + Create New Unit
             </button>

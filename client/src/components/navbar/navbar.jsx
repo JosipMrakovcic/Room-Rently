@@ -19,10 +19,9 @@ const Navbar = () => {
     googleLogout();
     setUser(null);
     localStorage.removeItem("googleUser");
-    localStorage.removeItem("access_token"); 
-    window.location.reload();
+    localStorage.removeItem("access_token");
+    navigate(0); // ✅ umjesto reload-a — redirect na početnu
   };
-
 
   // Navigacija na početnu
   const navigatelandingscreen = () => navigate("/");
@@ -36,7 +35,6 @@ const Navbar = () => {
 
         <div className="navItems">
           {!user ? (
-            // Custom Google Login gumb
             <div className="custom-google-login">
               <GoogleLogin
                 onSuccess={async (credentialResponse) => {
@@ -45,17 +43,17 @@ const Navbar = () => {
                     if (!idToken) return;
 
                     try {
-                      await axios.post(`${process.env.REACT_APP_API_URL}/addPerson`, {}, {
-                        headers: { Authorization: `Bearer ${idToken}` },
-                      });
+                      await axios.post(
+                        `${process.env.REACT_APP_API_URL}/addPerson`,
+                        {},
+                        { headers: { Authorization: `Bearer ${idToken}` } }
+                      );
                     } catch (err) {
-                      // Ako već postoji user (409), to nije greška
                       if (err.response && err.response.status !== 409) {
                         throw err;
                       }
                     }
 
-                    // Sad uvijek dohvaća podatke
                     const { data: userFromDB } = await axios.get(
                       `${process.env.REACT_APP_API_URL}/me`,
                       { headers: { Authorization: `Bearer ${idToken}` } }
@@ -67,14 +65,12 @@ const Navbar = () => {
                     setUser(finalUser);
                     localStorage.setItem("googleUser", JSON.stringify(finalUser));
                     localStorage.setItem("access_token", idToken);
-                    // Refresh da se prikaže admin gumb
-                    window.location.reload();
 
+                    navigate(0); // 🔁 elegantni "soft refresh" (refetch UI bez reload-a)
                   } catch (err) {
                     console.error("Error processing Google login:", err);
                   }
                 }}
-
                 onError={() => {
                   console.log("Login Failed");
                 }}

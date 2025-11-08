@@ -74,14 +74,14 @@ const ApartmentForm = () => {
   }, [id, navigate]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, checked } = e.target;
     if (name in formData.amenities) {
-      setFormData({
-        ...formData,
-        amenities: { ...formData.amenities, [name]: checked },
-      });
+      setFormData((prev) => ({
+        ...prev,
+        amenities: { ...prev.amenities, [name]: checked },
+      }));
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -139,7 +139,7 @@ const ApartmentForm = () => {
 
       if (response.ok) {
         alert(id ? "Unit updated successfully!" : "Unit added successfully!");
-        navigate("/admin");
+        navigate("/admin"); // ✅ bez reloada
       } else {
         const errorText = await response.text();
         alert("Error: " + errorText);
@@ -303,9 +303,7 @@ const ApartmentForm = () => {
                 checked={formData.amenities[option]}
                 onChange={handleChange}
               />
-              {option
-                .replace(/([A-Z])/g, " $1")
-                .replace(/^./, (str) => str.toUpperCase())}
+              {option.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
             </label>
           ))}
         </div>
@@ -314,11 +312,7 @@ const ApartmentForm = () => {
           <button type="submit" className="submit-btn">
             {id ? "Update" : "Submit"}
           </button>
-          <button
-            type="button"
-            className="cancel-btn"
-            onClick={handleCancel}
-          >
+          <button type="button" className="cancel-btn" onClick={handleCancel}>
             Cancel
           </button>
         </div>

@@ -10,7 +10,7 @@ Backend aplikacija služi za autentifikaciju korisnika putem Google računa, poh
 
 1. Otvori projekt u **IntelliJ IDEA**.
 2. Provjeri da su instalirane sve ovisnosti (ako nije, u terminalu projekta pokreni naredbu `mvn clean install`).
-3. Otvori glavnu klasu projekta, najčešće se nalazi u `src/main/java/com/project/backend/BackendApplication.java`.
+3. Otvori glavnu klasu projekta, najčešće se nalazi u `src/main/java/springboot/backend/SpringApplication.java`.
 4. Desnim klikom na datoteku **BackendApplication.java** odaberi **Run 'BackendApplication'**.
 5. Nakon pokretanja, backend će po defaultu biti dostupan na adresi **[http://localhost:8080/](http://localhost:8080/)**.
 

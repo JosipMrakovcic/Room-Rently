@@ -1639,3 +1639,16 @@ Sličnu stvar radimo i za form page.
 }
 ```
 **Autor: Josip Mrakovčić Datum završetka: 8.11.2025. Utrošeno vrijeme: ~1 sati**
+
+# Izjava o korištenju alata umjetne inteligencije
+Tijekom izrade ovog rada korišten je alat ChatGPT (model GPT-5) tvrtke OpenAI kao pomoćni alat za:
+
+- formuliranje i jezično uređivanje teksta,
+
+- pojašnjenje teorijskih pojmova,
+
+- generiranje primjera koda i provjeru sintakse.
+
+Sav sadržaj dobiven uz pomoć ChatGPT-a je samostalno provjeren, analiziran i po potrebi izmijenjen od strane autora.<br>
+Alat nije korišten za generiranje cjelovitih dijelova rada bez nadzora, niti za donošenje zaključaka umjesto autora.<br>
+Ova uporaba je u skladu s Etičkim kodeksom i pravilnikom Fakulteta elektrotehnike i računarstva Sveučilišta u Zagrebu o korištenju alata temeljenih na umjetnoj inteligenciji.

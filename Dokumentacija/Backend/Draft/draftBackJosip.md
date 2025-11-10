@@ -535,7 +535,7 @@ Ovo..
 ```
     alert(id ? "Unit updated successfully!" : "Unit added successfully!");
 ```
-**Datum završetka: 5.11.2025. Utrošeno vrijeme: ~8 sati**
+**Autor: Josip Mrakovčić Datum završetka: 5.11.2025. Utrošeno vrijeme: ~8 sati**
 # Fixovi
 ## Admin profil
 
@@ -900,7 +900,7 @@ Mjenjamo neke stare dizajne i dodajemo nove.
   transform: translateY(-1px);
 }
 ```
-**Datum završetka: 8.11.2025. Utrošeno vrijeme: ~6 sati**
+**Autor: Josip Mrakovčić Datum završetka: 8.11.2025. Utrošeno vrijeme: ~6 sati**
 
 # User lista na admin pageu
 ## Podijeliti admin page na unit i users tabove
@@ -1426,7 +1426,7 @@ public ResponseEntity<?> deletePerson(@PathVariable Long id, @AuthenticationPrin
         return ResponseEntity.ok("User deleted");
     }
 ```
-**Datum završetka: 8.11.2025. Utrošeno vrijeme: ~1 sat**
+**Autor: Josip Mrakovčić Datum završetka: 8.11.2025. Utrošeno vrijeme: ~1 sat**
 
 # Netlify bugovi i responzivnost admin i form pagea
 ## Netlify bugovi
@@ -1638,4 +1638,4 @@ Sličnu stvar radimo i za form page.
   }
 }
 ```
-**Datum završetka: 8.11.2025. Utrošeno vrijeme: ~1 sati**
+**Autor: Josip Mrakovčić Datum završetka: 8.11.2025. Utrošeno vrijeme: ~1 sati**

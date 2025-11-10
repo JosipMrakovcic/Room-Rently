@@ -17,7 +17,7 @@ const ApartmentForm = () => {
     capChildren: 0,
     numRooms: 1,
     numBeds: 1,
-    isApartment: true,
+    isApartment: true, 
     amenities: {
       parking: false,
       wifi: false,
@@ -139,7 +139,7 @@ const ApartmentForm = () => {
 
       if (response.ok) {
         alert(id ? "Unit updated successfully!" : "Unit added successfully!");
-        navigate("/admin"); // ✅ bez reloada
+        navigate("/admin"); 
       } else {
         const errorText = await response.text();
         alert("Error: " + errorText);

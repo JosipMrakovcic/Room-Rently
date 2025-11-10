@@ -1427,3 +1427,215 @@ public ResponseEntity<?> deletePerson(@PathVariable Long id, @AuthenticationPrin
     }
 ```
 **Datum završetka: 8.11.2025. Utrošeno vrijeme: ~1 sat**
+
+# Netlify bugovi i responzivnost admin i form pagea
+## Netlify bugovi
+Imamo problema da hostanjem frontenda na Netlify refresh stranice baca bug da ne postoji stranica. <br>
+Treba mjenjati sve localhost vrijednosti.<br>
+### Hardkodirane localhost varijable
+U svim .java kontrolerima treba mjenjati ovo...
+```
+@CrossOrigin(origins = "http://localhost:3000")
+```
+...u ovo kako bismo kasnije kod hostanja na Render mogli upisati env varijable da se spaja ispravno.
+```
+@CrossOrigin(origins = "${FRONTEND_URL}")
+```
+Slično je napravljeno i za frontend za backend i za backend za bazu podataka, ali to već imamo.
+### Refresh baca page not found na Netlify
+Promjenili smo sve...
+```
+window.location.reload();
+```
+...u ovo.
+```
+ navigate(0);
+```
+S time da to nije bio fix koji je popravio stvari. <br>
+Rješenje je dodati _redirect file u public folder na frontendu.
+```
+/*    /index.html   200
+```
+Sad packageanjem frontenda s npm run build i uploadanjem tog builda na Netlify imamo ispravno refreshanje.
+## Responzivnost
+### RentalUnits.css
+Samo dodajemo na kraju basic responzivnost
+```
+@media (max-width: 1024px) {
+  .admin-dashboard {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .sidebar h2 {
+    display: none; /* skriva naslov za manje ekrane */
+  }
+
+  .tab-btn {
+    flex: 1;
+    margin: 5px;
+  }
+
+  .back-main-btn {
+    margin-top: 0;
+    background-color: #4aa3ff;
+  }
+
+  .dashboard-content {
+    width: 100%;
+  }
+
+  .units-list {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .unit-item {
+    flex: 0 1 100%;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 8px 6px;
+    font-size: 14px;
+  }
+
+  .tab-btn,
+  .back-main-btn {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .section-block {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 500px) {
+  .admin-dashboard {
+    padding: 10px;
+  }
+
+  .unit-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .unit-actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .create-button {
+    width: 90%;
+  }
+
+  .users-table {
+    font-size: 13px;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 6px;
+  }
+}
+```
+### ApartmentForm.css
+Sličnu stvar radimo i za form page.
+```
+@media (max-width: 1024px) {
+  .form-container {
+    width: 90%;
+    padding: 25px;
+  }
+
+  .apartment-form input,
+  .apartment-form textarea {
+    font-size: 15px;
+  }
+
+  .image-preview img {
+    width: 100px;
+    height: 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .form-container {
+    width: 95%;
+    margin: 20px auto;
+    padding: 20px;
+  }
+
+  .radio-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .num-rooms-inline {
+    margin-top: 10px;
+  }
+
+  .image-preview {
+    justify-content: center;
+  }
+
+  .preview-item img {
+    width: 90px;
+    height: 75px;
+  }
+
+  .button-row {
+    flex-direction: column;
+  }
+
+  .submit-btn,
+  .cancel-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-container {
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  .form-container h2 {
+    font-size: 20px;
+  }
+
+  label {
+    font-size: 14px;
+  }
+
+  .apartment-form input,
+  .apartment-form textarea {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .preview-item img {
+    width: 80px;
+    height: 70px;
+  }
+
+  .checkbox-label {
+    font-size: 14px;
+  }
+}
+```
+**Datum završetka: 8.11.2025. Utrošeno vrijeme: ~1 sati**

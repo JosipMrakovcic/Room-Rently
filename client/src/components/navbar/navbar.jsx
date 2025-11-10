@@ -1,46 +1,29 @@
 import "./navbar.css";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { useGoogleLogin, googleLogout } from "@react-oauth/google";
+import { useState } from "react";
+import { googleLogout, GoogleLogin } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 
 const Navbar = () => {
   const navigate = useNavigate();
 
-  //LOadanje usera iz local storeagea
+  // Učitavanje usera iz localStorage-a
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("googleUser");
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  //loginanje handler
-  const login = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        const res = await axios.get(
-          "https://www.googleapis.com/oauth2/v3/userinfo",
-          {
-            headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-          }
-        );
-
-        setUser(res.data);
-        localStorage.setItem("googleUser", JSON.stringify(res.data)); //spremanje podataka u localstorage
-        console.log("User info:", res.data);
-      } catch (err) {
-        console.error("Error fetching user info:", err);
-      }
-    },
-    onError: (error) => console.log("Login Failed:", error),
-  });
-
-  //logoutanje handler
+  // Logout handler
   const logout = () => {
     googleLogout();
     setUser(null);
     localStorage.removeItem("googleUser");
+    localStorage.removeItem("access_token");
+    navigate(0); // ✅ umjesto reload-a — redirect na početnu
   };
 
+  // Navigacija na početnu
   const navigatelandingscreen = () => navigate("/");
 
   return (
@@ -52,9 +35,54 @@ const Navbar = () => {
 
         <div className="navItems">
           {!user ? (
-            <button className="navButton" onClick={() => login()}>
-              Login with Google
-            </button>
+            <div className="custom-google-login">
+              <GoogleLogin
+                onSuccess={async (credentialResponse) => {
+                  try {
+                    const idToken = credentialResponse.credential;
+                    if (!idToken) return;
+
+                    try {
+                      await axios.post(
+                        `${process.env.REACT_APP_API_URL}/addPerson`,
+                        {},
+                        { headers: { Authorization: `Bearer ${idToken}` } }
+                      );
+                    } catch (err) {
+                      if (err.response && err.response.status !== 409) {
+                        throw err;
+                      }
+                    }
+
+                    const { data: userFromDB } = await axios.get(
+                      `${process.env.REACT_APP_API_URL}/me`,
+                      { headers: { Authorization: `Bearer ${idToken}` } }
+                    );
+
+                    const decoded = jwtDecode(idToken);
+                    const finalUser = { ...decoded, ...userFromDB };
+
+                    setUser(finalUser);
+                    localStorage.setItem("googleUser", JSON.stringify(finalUser));
+                    localStorage.setItem("access_token", idToken);
+
+                    navigate(0); // 🔁 elegantni "soft refresh" (refetch UI bez reload-a)
+                  } catch (err) {
+                    console.error("Error processing Google login:", err);
+                  }
+                }}
+                onError={() => {
+                  console.log("Login Failed");
+                }}
+                useOneTap
+                theme="filled_blue"
+                shape="rectangular"
+                text="signin_with"
+                size="medium"
+                width="200"
+                locale="en"
+              />
+            </div>
           ) : (
             <>
               <img

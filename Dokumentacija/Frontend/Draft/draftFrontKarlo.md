@@ -3571,3 +3571,898 @@ Za ekrane širine manje ili jednake 900 piksela, detalji cijene prelaze u svoj r
 ```
 
 Slider ne prati tok dokumenta nego ima fiksnu poziciju preko cijelog ekrana. Nalazi se ispred ostatka stranice te je visina njegovih elemenata poravnata u sredinu. Ostatak stranice je zatamnjen zbog crne pozadinske boje neprozirnosti 36.7 %. Wrapper slike zauzima širinu i visinu slidera koliko može te mu je sadržaj centriran. Križić za zatvaranje slidera ima apsolutnu poziciju u odnosu na slider te se tako nalazi 20 piksela ispod vrha te 20 piksela lijevo od granica slidera. Naposljetku, slika će zauzimati 80 % širine wrappera te 80 % visine zaslona.
+
+# Stranica Form za unos i uređivanje smještajnih jedinica
+
+ApartmentForm.jsx je komponenta omogućuje dodavanje i uređivanje smještajnih jedinica apartmana ili soba putem jednostavnog i intuitivnog sučelja.
+Podaci se spremaju u backend , a moguće je i dodavanje fotografija te označavanje dostupnih pogodnosti "amenities".
+Komponenta koristi React hook-ove i react-router-dom za dinamičko dohvaćanje, navigaciju i upravljanje stanjem forme.
+
+
+### Uvoz potrebnih modula
+```jsx
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import "./ApartmentForm.css";
+```
+
+Na početku su uvezeni osnovni React moduli i hook-ovi:
+
+* useState koristi se za upravljanje lokalnim stanjem forme (formData, images).
+* useEffect omogućuje dohvaćanje podataka s backend-a ako je u URL-u prisutan id.
+* useParams dohvaća dinamički parametar id iz URL-a.
+* useNavigate omogućuje navigaciju korisnika na drugu stranicu (npr. /admin nakon uspješnog spremanja).
+* ApartmentForm.css sadrži stilove za vizualno oblikovanje forme.
+
+
+
+### Inicijalno stanje komponente
+```jsx
+const [formData, setFormData] = useState({
+  unitName: "",
+  mainDescriptionTitle: "",
+  mainDescription: "",
+  secondaryDescriptionTitle: "",
+  secondaryDescription: "",
+  price: "",
+  isApartment: true,
+  amenities: {
+    parking: false,
+    wifi: false,
+    breakfast: false,
+    towels: false,
+    shampoo: false,
+    hairDryer: false,
+    heater: false,
+    airConditioning: false,
+  },
+});
+```
+
+Ovim kodom definiramo početno stanje forme formData.
+Svi tekstualni unosi naziv, opis, cijena... inicijalno su prazni stringovi, dok su opcije pogodnosti "amenities" boolean vrijednosti koje smo predefinirali i koji odgovaraju bazi podataka.
+isApartment služi za razlikovanje tipa jedinice apartman ili soba i inicijalno je postavljen na true što predstavlja da je jedinica apartman.
+```jsx
+const [images, setImages] = useState([]);
+```
+
+images čuva listu slika koje korisnik učita svaka slika sadrži file i lokalni url za prikaz.
+
+### handleChange(e) univerzalna obrada svih polja u formi
+```jsx
+const handleChange = (e) => {
+  const { name, value, type, checked } = e.target;
+  if (name in formData.amenities) {
+    setFormData({
+      ...formData,
+      amenities: { ...formData.amenities, [name]: checked },
+    });
+  } else {
+    setFormData({ ...formData, [name]: value });
+  }
+};
+```
+
+##### Destrukturiranje event objekta
+* Kada korisnik unese ili promijeni neki podatak u formi, React event (e) sadrži sve potrebne informacije o tom input elementu.
+
+Destrukturiranjem dohvaćamo:
+
+* name naziv inputa (npr. "unitName", "wifi")
+* value tekstualna ili numerička vrijednost inputa
+* type tip elementa (text, checkbox, radio, number…)
+* checked boolean vrijednost checkbox-a (true ili false)
+
+##### Provjera je li promijenjeno “amenity” polje
+Linija:
+```jsx
+if (name in formData.amenities)
+```
+provjerava nalazi li se naziv inputa (npr. "wifi", "towels") unutar objekta formData.amenities.
+Time razlikujemo “obične” inpute tekst, broj, opis od checkbox opcija za pogodnosti.
+
+##### Ažuriranje state-a
+
+Ako je riječ o pogodnostima (checkbox), ažurira se samo taj checkbox unutar formData.amenities, dok se ostali podaci ne diraju:
+```jsx
+amenities: { ...formData.amenities, [name]: checked }
+```
+Time se koristi spread operator ... kako bi se sačuvale postojeće vrijednosti drugih checkbox-ova.
+U suprotnom slučaju tekstualni input, radio gumb..., ažurira se odgovarajuće polje u glavnom formData objektu:
+```jsx
+setFormData({ ...formData, [name]: value });
+```
+
+Time korisnik može slobodno unositi tekst, broj ili označavati pogodnosti sve promjene se odmah spremaju u React state bez potrebe za dodatnim funkcijama za svaki pojedini input.
+
+### handleImageUpload(e)  učitavanje slika
+```jsx
+const handleImageUpload = (e) => {
+  const files = Array.from(e.target.files);
+  const newImages = files.map((file) => ({
+    file,
+    url: URL.createObjectURL(file),
+  }));
+  setImages((prev) => [...prev, ...newImages]);
+};
+```
+
+Služi za dohvat svih odabranih datoteka
+```jsx
+const files = Array.from(e.target.files);
+```
+e.target.files vraća FileList objekt .
+Funkcija Array.from() ga pretvara u pravu JS listu kako bi se mogla koristiti map() i druge metode.
+
+Nakon toga ide kreiranje objekta za svaku sliku
+```jsx
+const newImages = files.map((file) => ({
+  file,
+  url: URL.createObjectURL(file),
+}));
+```
+Za svaku sliku se stvara privremeni lokalni URL pomoću URL.createObjectURL(file).
+Taj URL omogućuje trenutni prikaz slike u pregledniku, bez slanja na server.
+Svaka slika se sprema kao objekt s dva ključa:
+* file  originalni objekt datoteke
+* url lokalni link za prikaz
+
+##### Ažuriranje stanja s novim slikama
+```jsx
+setImages((prev) => [...prev, ...newImages]);
+```
+
+Spread operator ... dodaje nove slike uz već postojeće (ako korisnik više puta učitava).
+Time korisnik vidi odmah pregled učitanih slika u formi, prije nego ih pošalje backendu.
+
+### removeImage(index) brisanje slike iz pregleda
+```jsx
+const removeImage = (index) => {
+  setImages((prev) => prev.filter((_, i) => i !== index));
+};
+```
+Funkcija prima indeks slike koju treba izbrisati.
+setImages ažurira trenutno stanje images tako da
+koristi .filter() metodu te
+zadrži sve slike osim one čiji je indeks jednak index koji je poslan.
+
+```jsx
+prev.filter((_, i) => i !== index)
+```
+
+underscore _ se koristi jer nam sama vrijednost nije potrebna, samo indeks i.
+Rezultat je nova lista slika bez obrisane.
+Time postižemo kada korisnik klikne gumb “Remove” ispod slike, ona se odmah briše iz prikaza i ne šalje se na server.
+
+### JSX struktura komponente ApartmentForm
+
+Ovaj dio predstavlja vizualni prikaz forme i povezuje korisnički unos s logikom komponente.
+Svaki input element koristi React state formData i images te funkcije za obradu događaja handleChange, handleImageUpload, removeImage, handleSubmit.
+Cilj ove forme je omogućiti unos, uređivanje i prikaz podataka o smještajnim jedinicama (apartmanima ili sobama).
+
+```jsx
+return (
+  <div className="form-container">
+    <h2>{id ? `Edit Unit #${id}` : "Create New Unit"}</h2>
+```
+
+Komponenta vraća JSX sadržaj unutar glavnog div elementa s klasom "form-container" što je glavni okvir forme.
+Naslov (```<h2>```) se dinamički mijenja ovisno o postojanju id parametra
+
+* Ako id postoji prikazuje se "Edit Unit #id".
+* Ako id ne postoji  prikazuje se "Create New Unit".
+
+Na taj način se koristi ista forma za uređivanje i dodavanje smještaja.
+
+Glavna HTML <form> oznaka
+```html
+<form onSubmit={handleSubmit} className="apartment-form">
+```
+```onSubmit={handleSubmit}``` povezuje formu s funkcijom koja šalje podatke na backend kada korisnik klikne gumb Submit ili Update.
+Klasa "apartment-form" koristi se za stilizaciju.
+
+##### Unos naziva jedinice
+```jsx
+<label>Unit Name</label>
+<input
+  type="text"
+  name="unitName"
+  value={formData.unitName}
+  onChange={handleChange}
+  required
+/>
+```
+Standardni tekstualni input koji koristi kontroliranu vrijednost ```value={formData.unitName}```.
+```onChange={handleChange}``` osigurava da se promjena odmah pohrani u formData.
+required osigurava da polje ne može ostati prazno pri slanju forme.
+
+##### Odabir tipa jedinice Apartment ili Room
+```jsx
+<label>Unit Type</label>
+<div className="radio-group">
+  <label>
+    <input
+      type="radio"
+      name="isApartment"
+      checked={formData.isApartment === true}
+      onChange={() => setFormData({ ...formData, isApartment: true })}
+    />
+    Apartment
+  </label>
+  <label>
+    <input
+      type="radio"
+      name="isApartment"
+      checked={formData.isApartment === false}
+      onChange={() => setFormData({ ...formData, isApartment: false })}
+    />
+    Room
+  </label>
+</div>
+```
+Koristi se radio grupa s dvije opcije
+
+* Apartment  isApartment = true
+* Room  isApartment = false
+checked svojstvo određuje koja je opcija trenutno aktivna.
+Klikom na neku opciju ažurira se formData.isApartment u stanju komponente pomoću setFormData.
+Klasa "radio-group" koristi se u CSS-u.
+
+##### Opisni podaci glavni i sekundarni opisi
+
+Ova sekcija omogućuje unos naslova i sadržaja za glavni i sekundarni opis.
+```jsx
+<label>Main Description Title</label>
+<input
+  type="text"
+  name="mainDescriptionTitle"
+  value={formData.mainDescriptionTitle}
+  onChange={handleChange}
+/>
+
+<label>Main Description</label>
+<textarea
+  name="mainDescription"
+  rows="3"
+  value={formData.mainDescription}
+  onChange={handleChange}
+/>
+
+<label>Secondary Description Title</label>
+<input
+  type="text"
+  name="secondaryDescriptionTitle"
+  value={formData.secondaryDescriptionTitle}
+  onChange={handleChange}
+/>
+
+<label>Secondary Description</label>
+<textarea
+  name="secondaryDescription"
+  rows="3"
+  value={formData.secondaryDescription}
+  onChange={handleChange}
+/>
+```
+
+Kombinacija ``` <input> ``` i ``` <textarea> ``` elemenata omogućuje unos tekstualnih podataka.
+Svako polje koristi handleChange, što omogućuje automatsko ažuriranje React state-a.
+``` rows="3 "``` određuje visinu tekstualnog polja.
+
+Tekstualna polja služe za unos naslova i sadržaja glavnog opisa te naslova i sadržaja sekundarnog opisa (dodatne informacije, npr. pogodnosti lokacije)
+
+##### Cijena
+```jsx
+<label>Price (€)</label>
+<input
+  type="number"
+  name="price"
+  value={formData.price}
+  onChange={handleChange}
+/>
+```
+Koristi se ```type="number"``` kako bi se omogućio unos samo numeričkih vrijednosti.
+Vrijednost se sprema u formData.price, a backend kasnije očekuje broj pretvoren pomoću ```parseInt()``` u handleSubmit.
+Ova vrijednost se koristi za prikaz cijene jedinice na stranici i u bazi podataka.
+
+##### Učitavanje i pregled slika
+```jsx
+<div className="image-upload">
+  <label>Images</label>
+  <input type="file" multiple accept="image/*" onChange={handleImageUpload} />
+  <div className="image-preview">
+    {images.map((img, index) => (
+      <div key={index} className="preview-item">
+        <img src={img.url} alt={`Image ${index + 1}`} />
+        <button type="button" onClick={() => removeImage(index)}>
+          Remove
+        </button>
+      </div>
+    ))}
+  </div>
+</div>
+```
+
+input ```type="file"``` omogućuje odabir više slika .
+```accept="image/*"``` ograničava odabir samo na slikovne datoteke.
+Funkcija handleImageUpload stvara lokalne URL-ove URL.createObjectURL za trenutačni prikaz.
+
+```images.map()``` prolazi kroz sve slike i prikazuje:
+* ```<img>``` element za pregled slike
+* Gumb "Remove" koji poziva ```removeImage(index)``` za brisanje pojedine slike iz liste
+* Klase image-upload, image-preview, i preview-item koriste se za stilizaciju i raspored slika.
+
+##### Odabir pogodnosti (Amenities)
+```jsx
+<div className="checkbox-section">
+  <h4>Amenities</h4>
+  {Object.keys(formData.amenities).map((option) => (
+    <label key={option} className="checkbox-label">
+      <input
+        type="checkbox"
+        name={option}
+        checked={formData.amenities[option]}
+        onChange={handleChange}
+      />
+      {option.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
+    </label>
+  ))}
+</div>
+```
+
+``` Object.keys(formData.amenities) ``` dohvaća sve nazive pogodnosti (wifi, parking, towels, itd.).
+Svaki checkbox koristi ``` checked={formData.amenities[option]} ``` za kontrolu stanja i ima ```onChange={handleChange}``` koji automatski ažurira state
+Ispod svakog checkboxa prikazuje se naziv pogodnosti u ljepšem formatu:
+``` option.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()) ```
+Regex dodaje razmak ispred velikih slova i kapitalizira prvo slovo npr. "airConditioning" u "Air Conditioning".
+Klase checkbox-section i checkbox-label služe za CSS.
+
+##### Gumb za slanje forme
+```jsx
+<button type="submit" className="submit-btn">
+  {id ? "Update" : "Submit"}
+</button>
+```
+Gumb pokreće onSubmit događaj forme i time poziva funkciju handleSubmit().
+Tekst na gumbu se dinamički mijenja ovisno o kontekstu
+* Ako postoji id  "Update"
+* Inače  "Submit"
+Klasa "submit-btn" definira stil gumba .
+
+# ApartmentForm CSS 
+
+Ovaj CSS definira izgled, raspored i interakciju forme za unos smještajnih jedinica ApartmentForm.
+Naglasak je na svijetlom i čistom dizajnu s nagovještajem plave boje u skladu s temom turističkih i smještajnih web-aplikacija.
+
+### .form-container glavni okvir forme
+```css
+.form-container {
+  max-width: 650px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #e8f4fd;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0, 100, 200, 0.2);
+  font-family: 'Segoe UI', sans-serif;
+  color: #03426a;
+}
+```
+
+* max-width: 650px forma ima maksimalnu širinu, centrira se u viewportu.
+* margin: 40px auto dodaje razmak od vrha ili dna i automatski centrira po širini.
+* padding: 30px unutarnji razmak.
+* background-color: #e8f4fd svijetloplava pozadina.
+* border-radius: 16px zaobljeni rubovi, vizualno ljepši dojam.
+* box-shadow suptilna sjena ispod forme za dubinu.
+* font-family koristi se čitljiv, moderan font.
+* color osnovna boja teksta tamno plava za dobar kontrast.
+
+### Naslov forme
+```css
+.form-container h2 {
+  text-align: center;
+  color: #025c9a;
+  margin-bottom: 25px;
+}
+```
+Korišten je text align koji centrira naslov forme a boja #025c9a je jača nijansa plave, naglašava naslov.
+margin-bottom dodaje prostor prije sadržaja forme.
+
+### Označavanje polja (label)
+```css
+.apartment-form label {
+  display: block;
+  margin-top: 12px;
+  font-weight: 500;
+}
+```
+
+* display: block svaki label zauzima svoj red.
+* margin-top vertikalni razmak između polja.
+* font-weight: 500 srednje zadebljani font čini label jasno vidljivim.
+
+### Polja za unos teksta i brojeva
+```css
+.apartment-form input[type="text"],
+.apartment-form input[type="number"],
+.apartment-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border: 1px solid #b5d5f5;
+  border-radius: 8px;
+  background-color: #f9fcff;
+  font-size: 15px;
+  transition: 0.2s ease;
+}
+```
+
+Polja su puna širina unutar forme te lagano plava pozadina  i mekani rubovi ```border-radius: 8px```.
+Transition omogućuje glatki prijelaz prilikom fokusa.
+font-size: 15px za ugodnu čitljivost.
+
+### Efekt fokusa
+``` css
+.apartment-form input:focus,
+.apartment-form textarea:focus {
+  border-color: #4aa3ff;
+  outline: none;
+  background-color: #ffffff;
+}
+```
+Kada korisnik klikne u input onda 
+* okvir border postaje plav vizualna potvrda fokusa.
+* outline: none uklanja zadani “glow” efekt.
+* pozadina postaje čisto bijela daje osjećaj aktivnog polja.
+
+### Učitavanje slika
+
+Kontejner:
+```css
+.image-upload {
+  margin-top: 20px;
+}
+```
+Ima marginu 20 pixela
+
+Pregled slika:
+```css
+.image-preview {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  gap: 12px;
+}
+```
+* display: flex + flex-wrap: wrap slike se automatski raspoređuju u više redova.
+* gap: 12px prostor između svake slike.
+
+### Pojedina slika 
+```css
+.preview-item {
+  position: relative;
+  display: inline-block;
+}
+```
+
+Omogućuje pozicioniranje gumba “Remove” unutar slike pomoću ```position: absolute```.
+
+Slika:
+```css
+.preview-item img {
+  width: 120px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #b5d5f5;
+}
+```
+
+Sve slike imaju jednaku veličinu.
+object-fit: cover osigurava da se slika proporcionalno izreže bez izobličenja.
+border-radius i border prate vizualni stil forme.
+
+##### Gumb za brisanje slike:
+```css
+.preview-item button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #ff5c5c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+
+.preview-item button:hover {
+  background-color: #e74c3c;
+}
+```
+
+Gumb se pozicionira u gornji desni kut slike.
+Crvena boja (#ff5c5c) jasno označava funkciju brisanja.
+Opet ima transition kao i gore što je objašnjeno.
+Hover nijansa (#e74c3c) daje vizualnu povratnu informaciju o akciji.
+
+### Checkbox 
+```css
+.checkbox-section {
+  margin-top: 20px;
+}
+
+.checkbox-section h4 {
+  margin-bottom: 10px;
+  color: #025c9a;
+}
+
+.checkbox-label {
+  display: block;
+  margin-bottom: 6px;
+}
+```
+
+margin-top odvaja sekciju od gornjih elemenata.
+h4 ima istu plavu boju kao naslovi radi vizualne konzistencije.
+Svaki checkbox ima display: block lijep vertikalni raspored.
+
+### Sekcija za cijenu
+```css
+.price-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.price-input input {
+  flex: 1;
+}
+
+.price-input span {
+  font-weight: bold;
+  color: #03426a;
+}
+```
+
+display: flex omogućuje da broj i oznaka valute budu u istom redu.
+gap: 6px daje prostor između broja i “€” simbola.
+flex: 1 rasteže input tako da koristi preostali prostor.
+
+### Radio grupa Apartment / Room
+```css
+.radio-group {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+}
+```
+
+Koristi flex raspored kako bi radio opcije bile horizontalno poravnate.
+gap: 1rem osigurava razmak između “Apartment” i “Room”.
+cursor: pointer čini cijelu oznaku klikabilnom, ne samo kružić.
+
+### Gumb za slanje
+```css
+.submit-btn {
+  margin-top: 25px;
+  width: 100%;
+  padding: 12px;
+  background-color: #4aa3ff;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #3a91e0;
+}
+```
+
+* Gumb je širok koliko i forma width: 100%.
+* Boja #4aa3ff prati plavu temu.
+* hover tamnija nijansa #3a91e0 daje efekt “aktivnog” gumba.
+* transition osigurava glatki prijelaz pri prelasku mišem kao i prije.
+* Vizualno zatvara formu i jasno označava akciju slanja.
+
+Dio CSS koda u ovom repozitoriju je također unaprijeđen s pomoću ChatGPT (OpenAI).
+Forma je generirana putem umjetne inteligencije te kasnije nadograđena. 
+Razlog korištenja umjetne inteligencije je lakši razvoj sučelja za unos podataka po našim željenim parametrima te povezani CSS stil. Cijeli razgovor možete pronaći na poveznici
+https://chatgpt.com/share/690b88c9-06d0-8012-97df-ba1e3d51edc1 .AI mi je stvorio osnovnu stranicu sa povezanim CSS-om koja je kasnije ručno nadograđena.
+**Alat:** ChatGPT (OpenAI)  
+**Datum pristupa:** 2025-11-5 
+**Svrha:** Izrada osnovne stranice te CSS-a.
+
+
+# Komponenta RentalUnits.jsx
+
+Komponenta RentalUnits prikazuje popis svih smještajnih jedinica Apartmani / Sobe koje su spremljene u backend bazi podataka.
+Korisniku omogućuje pregled svih jedinica dohvaćenih iz API-ja,uređivanje postojeće jedinice,brisanje jedinice,dodavanje nove jedinice.
+
+### Uvoz modula i početna postavka
+```jsx
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import "./RentalUnits.css";
+```
+
+* useState koristi se za pohranu i ažuriranje popisa jedinica (units).
+* useEffect izvršava se kod učitavanja komponente, i koristi se za dohvat podataka iz backend API-ja.
+* useNavigate hook iz react-router-dom biblioteke koji omogućuje navigaciju između ruta.
++ RentalUnits.css povezan CSS dokument.
+
+### Definicija komponente
+```jsx
+const RentalUnits = () => {
+  const [units, setUnits] = useState([]);
+  const navigate = useNavigate();
+```
+
+* units niz koji sadrži sve smještajne jedinice.
+* setUnits funkcija za ažuriranje stanja.
+* navigate koristi se za preusmjeravanje korisnika na druge rute (npr. /form ili /form/:id).
+
+
+### Uređivanje postojeće jedinice
+```jsx
+const handleEdit = (id) => {
+  navigate(`/form/${id}`);
+};
+```
+
+* Kada korisnik klikne gumb “Edit”, funkcija handleEdit koristi navigate za preusmjeravanje na URL /form/:id.
+* Taj URL otvara ApartmentForm komponentu, koja prema ID-u dohvaća podatke o konkretnoj jedinici i omogućuje uređivanje.
+
+### Brisanje jedinice
+```jsx
+const handleDelete = async (id) => {
+  if (window.confirm("Are you sure you want to delete this unit?")) {
+    try {
+      const response = await fetch(`http://localhost:8080/unit/delete/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        setUnits((prev) => prev.filter((unit) => unit.id !== id));
+      } else {
+        alert("Failed to delete unit.");
+      }
+    } catch (err) {
+      console.error("Error deleting unit:", err);
+    }
+  }
+};
+```
+* Pita korisnika za potvrdu (window.confirm()).
+* Ako korisnik potvrdi, šalje DELETE zahtjev na backend (/unit/delete/{id}).
+* Ako je odgovor pozitivan response.ok, jedinica se uklanja iz lokalnog stanja pomoću: ```setUnits((prev) => prev.filter((unit) => unit.id !== id));``` čime se odmah ažurira prikaz bez ponovnog učitavanja stranice.
+* Ako nije uspješno, prikazuje se alert poruka o pogrešci.
+
+### Dodavanje nove jedinice
+```jsx
+const handleCreate = () => {
+  navigate("/form");
+};
+```
+Kada korisnik klikne gumb “+ Create New Unit”, otvara se forma bez ID-a.
+Budući da ApartmentForm provjerava postoji li id u URL-u, zna da je riječ o novom unosu.
+
+### Render stranice Admin
+```jsx
+return (
+  <div className="rental-units-container">
+    <h1 className="title">Rental Units</h1>
+    <ul className="units-list">
+      {units.map((unit) => (
+        <li key={unit.id} className="unit-item">
+          <div className="unit-info">
+            <span className="unit-name">{unit.name}</span>
+            <span className="unit-type">({unit.type})</span>
+          </div>
+          <div className="unit-actions">
+            <button className="edit-button" onClick={() => handleEdit(unit.id)}>
+              Edit
+            </button>
+            <button className="delete-button" onClick={() => handleDelete(unit.id)}>
+              Delete
+            </button>
+          </div>
+        </li>
+      ))}
+    </ul>
+
+    <button className="create-button" onClick={handleCreate}>
+      + Create New Unit
+    </button>
+  </div>
+);
+```
+
+* Glavni kontejner: .rental-units-container sadrži sve elemente prikaza.
+* Naslov: ```<h1>``` označava naslov sekcije.
+*  Lista jedinica: ```<ul className="units-list">```
+* Svaka jedinica (```<li>```) prikazuje naziv i tip Apartment/Room.
+* Edit  preusmjerava korisnika na /form/:id
+* Delete  briše jedinicu nakon potvrde
+* Na dnu se nalazi gumb za dodavanje nove jedinice.
+
+# RentalUnits.css
+
+Ovaj CSS određuje izgled stranice koja prikazuje listu smještajnih jedinica .
+Cilj dizajna je jednostavan s naglaskom na čitljivost i intuitivno korištenje.
+
+### Glavni kontejner
+```css
+.rental-units-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #fafafa;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+```
+
+* max-width: 600px; Ograničava širinu sadržaja kako ne bi bio preširok.
+* margin: 40px auto; Centriranje kontejnera na sredinu stranice s razmakom od vrha.
+* padding: 20px; Unutarnji razmak .
+* background-color: #fafafa; Svijetlosiva pozadina .
+* border-radius: 12px; Blago zaobljeni rubovi .
+* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); Lagana sjena stvara osjećaj dubine i odvojenosti od pozadine.
+### Naslov stranice
+```css
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+```
+
+* text-align: center; Poravnava naslov “Rental Units” na sredinu.
+* margin-bottom: 20px; Odvaja naslov od ostatka sadržaja.
+* color: #333; Tamnosiva boja za dobar kontrast bez oštrine crne (#000).
+
+### Lista jedinica
+```css
+.units-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+```
+* list-style: none; Uklanja točkice (•) koje su standardne u HTML listama.
+* padding i margin: 0;Uklanja zadane razmake koje preglednici dodaju <ul> elementima.
+### Jedna jedinica 
+```css
+.unit-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+```
+
+* display: flex;  Omogućuje da se podaci i gumbi prikažu u jednom redu.
+* justify-content: space-between; Lijevo su informacije, desno akcijski gumbi.
+* align-items: center; Vertikalno centrira sadržaj.
+* padding: 12px; Dodaje unutarnji razmak unutar svake kartice.
+* margin-bottom: 10px; Stvara razmak između kartica.
+* background-color: #fff; Bijela pozadina.
+* border-radius: 8px; Zaobljeni rubovi.
+* border: 1px solid #ddd; Diskretni obrub pomaže u vizualnom razdvajanju elemenata.
+
+### Informacije o jedinici
+```css
+.unit-info {
+  display: flex;
+  flex-direction: column;
+}
+```
+* display: flex; flex-direction: column; Postavlja naziv i tip jedinice jedan ispod drugog.
+
+### Naziv jedinice
+```css
+.unit-name {
+  font-weight: bold;
+}
+```
+
+* font-weight: bold;  Podebljava naziv kako bi se istaknuo kao glavni podatak.
+
+### Tip jedinice
+```css
+.unit-type {
+  color: #666;
+  font-size: 0.9em;
+}
+```
+
+* color: #666; Svjetlija siva boja .
+* font-size: 0.9em;  Blago smanjen font .
+
+### Akcijski gumbi Uredi / Obriši
+```css
+.unit-actions button {
+  margin-left: 8px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+```
+* margin-left: 8px; Razmak između gumba “Edit” i “Delete”.
+* padding: 6px 12px; Udoban razmak unutar gumba za lakše klikanje.
+* border: none; Uklanja standardni rub gumba.
+* border-radius: 6px; Blago zaobljeni rubovi gumba.
+* cursor: pointer; Pokazivač miša se promijeni da se može kliknut.
+
+##### Gumb “Edit”
+```css
+.edit-button {
+  background-color: #007bff;
+  color: white;
+}
+```
+* background-color: #007bff; plava boja za akcije tipa “uredi”.
+* color: white; Bijeli tekst .
+
+##### Gumb “Delete”
+```css
+.delete-button {
+  background-color: #dc3545;
+  color: white;
+}
+```
+
+* background-color: #dc3545; Crvena boja koja upozorava da je riječ o brisanju.
+* color: white; bijela boja.
+
+##### Gumb “Create New Unit”
+```css
+.create-button {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+```
+* display: block; margin: 20px auto 0; Gumb je centriran ispod liste jedinica.
+* padding: 10px 20px; Dovoljno velik .
+* background-color: #28a745; Zelena boja označava akciju (dodaj / kreiraj).
+* border-radius: 8px; U skladu s ostatkom dizajna.
+* cursor: pointer; Pokazuje da je gumb aktivan.
+
+##### Hover efekt
+```css
+.create-button:hover {
+  background-color: #218838;
+}
+```
+Kad korisnik prijeđe mišem preko gumba, zelena postaje malo tamnija (#218838).
+Daje vizualni feedback korisniku.
+
+Dio CSS koda u ovom repozitoriju je također unaprijeđen s pomoću ChatGPT (OpenAI).
+Upit korišten za dobivanje komponente jsx-a te CSS-a je dobiven upitom koj se nalazi na poveznici https://chatgpt.com/share/690b9a50-fe54-8012-b0fb-96ef7c2b96c6. AI mi je stvorio osnovnu stranicu sa povezanim CSS-om koja je kasnije ručno nadograđena i unaprijeđena.
+**Alat:** ChatGPT (OpenAI)  
+**Datum pristupa:** 2025-11-5 
+**Svrha:** Izrada osnovne stranice te CSS-a.

@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import "./ApartmentForm.css";
 
 const ApartmentForm = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     unitName: "",
     mainDescriptionTitle: "",
@@ -9,6 +13,11 @@ const ApartmentForm = () => {
     secondaryDescriptionTitle: "",
     secondaryDescription: "",
     price: "",
+    capAdults: 2,
+    capChildren: 0,
+    numRooms: 1,
+    numBeds: 1,
+    isApartment: true,
     amenities: {
       parking: false,
       wifi: false,
@@ -23,15 +32,56 @@ const ApartmentForm = () => {
 
   const [images, setImages] = useState([]);
 
+  useEffect(() => {
+    const savedUser = localStorage.getItem("googleUser");
+    const user = savedUser ? JSON.parse(savedUser) : null;
+
+    if (!user || !user.is_admin) {
+      navigate("/main");
+      return;
+    }
+
+    if (id) {
+      fetch(`${process.env.REACT_APP_API_URL}/unit/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setFormData({
+            unitName: data.unitName || "",
+            mainDescriptionTitle: data.mainDescName || "",
+            mainDescription: data.mainDescContent || "",
+            secondaryDescriptionTitle: data.secDescName || "",
+            secondaryDescription: data.secDescContent || "",
+            price: data.price || "",
+            capAdults: data.capAdults || 2,
+            capChildren: data.capChildren || 0,
+            numRooms: data.numRooms || 1,
+            numBeds: data.numBeds || 1,
+            isApartment: data.isApartment ?? true,
+            amenities: {
+              parking: data.hasParking || false,
+              wifi: data.hasWifi || false,
+              breakfast: data.hasBreakfast || false,
+              towels: data.hasTowels || false,
+              shampoo: data.hasShampoo || false,
+              hairDryer: data.hasHairDryer || false,
+              heater: data.hasHeater || false,
+              airConditioning: data.hasAirConditioning || false,
+            },
+          });
+        })
+        .catch((err) => console.error("Error fetching unit:", err));
+    }
+  }, [id, navigate]);
+
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, checked } = e.target;
     if (name in formData.amenities) {
-      setFormData({
-        ...formData,
-        amenities: { ...formData.amenities, [name]: checked },
-      });
+      setFormData((prev) => ({
+        ...prev,
+        amenities: { ...prev.amenities, [name]: checked },
+      }));
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -48,16 +98,67 @@ const ApartmentForm = () => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form data:", formData);
-    console.log("Images:", images);
-    alert("Form submitted!");
+
+    const unitPayload = {
+      unitName: formData.unitName,
+      mainDescName: formData.mainDescriptionTitle,
+      mainDescContent: formData.mainDescription,
+      secDescName: formData.secondaryDescriptionTitle,
+      secDescContent: formData.secondaryDescription,
+      price: parseInt(formData.price),
+      capAdults: parseInt(formData.capAdults),
+      capChildren: parseInt(formData.capChildren),
+      numRooms: formData.isApartment ? parseInt(formData.numRooms) : 1,
+      numBeds: parseInt(formData.numBeds),
+      hasParking: formData.amenities.parking,
+      hasWifi: formData.amenities.wifi,
+      hasBreakfast: formData.amenities.breakfast,
+      hasTowels: formData.amenities.towels,
+      hasShampoo: formData.amenities.shampoo,
+      hasHairDryer: formData.amenities.hairDryer,
+      hasHeater: formData.amenities.heater,
+      hasAirConditioning: formData.amenities.airConditioning,
+      isApartment: formData.isApartment,
+      location: "Zagreb, Croatia",
+      rating: 0,
+    };
+
+    const url = id
+      ? `${process.env.REACT_APP_API_URL}/unit/update/${id}`
+      : `${process.env.REACT_APP_API_URL}/unit/add`;
+    const method = id ? "PUT" : "POST";
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(unitPayload),
+      });
+
+      if (response.ok) {
+        alert(id ? "Unit updated successfully!" : "Unit added successfully!");
+        navigate("/admin"); // ✅ bez reloada
+      } else {
+        const errorText = await response.text();
+        alert("Error: " + errorText);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Something went wrong!");
+    }
+  };
+
+  const handleCancel = () => {
+    if (window.confirm("Are you sure you want to cancel? Changes will not be saved.")) {
+      navigate("/admin");
+    }
   };
 
   return (
     <div className="form-container">
-      <h2>Apartment Entry Form</h2>
+      <h2>{id ? `Edit Unit #${id}` : "Create New Unit"}</h2>
       <form onSubmit={handleSubmit} className="apartment-form">
         <label>Unit Name</label>
         <input
@@ -66,6 +167,70 @@ const ApartmentForm = () => {
           value={formData.unitName}
           onChange={handleChange}
           required
+        />
+
+        <label>Unit Type</label>
+        <div className="radio-group with-rooms">
+          <div className="radio-options">
+            <label>
+              <input
+                type="radio"
+                name="isApartment"
+                checked={formData.isApartment === true}
+                onChange={() => setFormData({ ...formData, isApartment: true })}
+              />
+              Apartment
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="isApartment"
+                checked={formData.isApartment === false}
+                onChange={() => setFormData({ ...formData, isApartment: false })}
+              />
+              Room
+            </label>
+          </div>
+
+          {formData.isApartment && (
+            <div className="num-rooms-inline">
+              <label>Rooms:</label>
+              <input
+                type="number"
+                name="numRooms"
+                value={formData.numRooms}
+                onChange={handleChange}
+                min="1"
+              />
+            </div>
+          )}
+        </div>
+
+        <label>Capacity (Adults)</label>
+        <input
+          type="number"
+          name="capAdults"
+          value={formData.capAdults}
+          onChange={handleChange}
+          min="1"
+        />
+
+        <label>Capacity (Children)</label>
+        <input
+          type="number"
+          name="capChildren"
+          value={formData.capChildren}
+          onChange={handleChange}
+          min="0"
+        />
+
+        <label>Number of Beds</label>
+        <input
+          type="number"
+          name="numBeds"
+          value={formData.numBeds}
+          onChange={handleChange}
+          min="1"
         />
 
         <label>Main Description Title</label>
@@ -84,7 +249,7 @@ const ApartmentForm = () => {
           onChange={handleChange}
         />
 
-        <label>Secondary Description Title (Perfect for a 9-day stay)</label>
+        <label>Secondary Description Title</label>
         <input
           type="text"
           name="secondaryDescriptionTitle"
@@ -92,10 +257,7 @@ const ApartmentForm = () => {
           onChange={handleChange}
         />
 
-        <label>
-          Secondary Description (Located in the real heart of Krakow, this property
-          has an excellent location, Pavilion 4)
-        </label>
+        <label>Secondary Description</label>
         <textarea
           name="secondaryDescription"
           rows="3"
@@ -103,22 +265,16 @@ const ApartmentForm = () => {
           onChange={handleChange}
         />
 
-        <label>Price</label>
-        <div className="price-input">
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            min="0"
-            step="0.01"
-            required
-          />
-          <span>€</span>
-        </div>
+        <label>Price (€)</label>
+        <input
+          type="number"
+          name="price"
+          value={formData.price}
+          onChange={handleChange}
+        />
 
         <div className="image-upload">
-          <label>Images (Apartment photo attachments)</label>
+          <label>Images</label>
           <input
             type="file"
             multiple
@@ -147,16 +303,19 @@ const ApartmentForm = () => {
                 checked={formData.amenities[option]}
                 onChange={handleChange}
               />
-              {option
-                .replace(/([A-Z])/g, " $1")
-                .replace(/^./, (str) => str.toUpperCase())}
+              {option.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
             </label>
           ))}
         </div>
 
-        <button type="submit" className="submit-btn">
-          Submit
-        </button>
+        <div className="button-row">
+          <button type="submit" className="submit-btn">
+            {id ? "Update" : "Submit"}
+          </button>
+          <button type="button" className="cancel-btn" onClick={handleCancel}>
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -8,9 +8,13 @@ import List from "./pages/list/List";
 import Hotel from "./pages/hotel/Hotel";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
+
+import { useEffect } from 'react';
+
 function App() {
+
   return (
-    <GoogleOAuthProvider clientId="163730135993-4a4kfcsq2qvjgqrn5iiosgj3r5ovh25r.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId="939982947137-jkggl2itogjo9neanp87ika3vnnva7a4.apps.googleusercontent.com">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LandingScreen />} />
@@ -18,6 +22,7 @@ function App() {
           <Route path="/hotels" element={<List />} />
           <Route path="/hotels/:id" element={<Hotel />} />
           <Route path="/form" element={<ApartmentForm />} />
+          <Route path="/form/:id" element={<ApartmentForm />} /> 
           <Route path="/admin" element={<RentalUnits />} />
         </Routes>
       </BrowserRouter>

@@ -535,3 +535,369 @@ Ovo..
 ```
     alert(id ? "Unit updated successfully!" : "Unit added successfully!");
 ```
+Datum završetka: 5.11.2025. Utrošeno vrijeme: ~8 sati
+# Fixovi
+## Admin profil
+
+Imali smo problem da svi ulogirani i registrirani profili automatski dobivaju admin privilegije. <br> 
+Nije bilo buttona za redirect na /admin page.
+
+### PersonController.java
+Promjenjen je kod kako bi se točnije spremale varijable kod dodavanja novog usera. <br>
+Zamijenili smo ovu liniju...
+```
+        Person person = new Person(email, true, false, false, name);
+```
+...ovim linijama.
+```
+
+        Person person = new Person();
+        person.setEmail(email);
+        person.setName(name);
+
+
+        boolean isFirstUser = repo.count() == 0;
+
+        person.setAdmin(isFirstUser);
+        person.setOwner(false);
+        person.setUser(true);
+```
+Na kraju funkcije sam promjenio response da vidim ako mi se admin uspješno stvorio.
+```
+        return ResponseEntity.ok("User added successfully" + (isFirstUser ? " (as admin)" : ""));
+```
+Nadodana je funkcija koja vraća trenutno ulogiranog korisnika /me. Potrebno za validaciju tokena i pristup funkcijama vezanih uz admina.
+```
+ @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
+        String email = jwt.getClaimAsString("email");
+        if (email == null) {
+            return ResponseEntity.badRequest().body("Invalid token");
+        }
+
+        Optional<Person> person = repo.findByEmail(email);
+        if (person.isEmpty()) {
+            return ResponseEntity.status(404).body("User not found");
+        }
+
+        return ResponseEntity.ok(person.get());
+  }
+```
+### Person.java
+Nadodane linije kako bi se osiguralo da kod povratka JSON-a iz baze sigurno dobijemo uloge profila.
+
+```
+    import com.fasterxml.jackson.annotation.JsonProperty; // kod importova nadodano
+
+    @JsonProperty("is_admin") // NADODANO
+    @Column(nullable = false)
+    private boolean isAdmin;
+
+    @JsonProperty("is_user") // NADODANO
+    @Column(nullable = false)
+    private boolean isUser;
+
+    @JsonProperty("is_owner") // NADODANO
+    @Column(nullable = false)
+    private boolean isOwner;
+```
+### App.js
+Client ID za OAuth2 je promjenjen na novi.
+
+### navbar.jsx
+U logoutu sa stranice je dodan refresh za stranicu kako bi se maknuo button za admine koji se odlogiraju.
+```
+    localStorage.removeItem("googleUser"); 
+    window.location.reload(); // NADODANO
+```
+Nadodana kopija dohvata podatka jer je postojao bug gdje postojeći user u bazi bi davao error i ne bi se dohvaćali njegovi podaci nit se ulogirao.
+
+```
+const { data: userFromDB } = await axios.get(
+                      `${process.env.REACT_APP_API_URL}/me`,
+                      { headers: { Authorization: `Bearer ${idToken}` } }
+                    );
+```
+Spremamo u browser kombinaciju tokena i podataka iz baze za kasniju obradu. Također refreshamo page ako je admin user da mu se pokaže admin button. <br>
+Zamijenjene ove linije koda...
+```
+  console.log("Decoded user:", decoded);
+  setUser(decoded);
+  localStorage.setItem("googleUser", JSON.stringify(decoded));
+```
+...s ovima.
+```
+const finalUser = { ...decoded, ...userFromDB };
+
+setUser(finalUser);
+localStorage.setItem("googleUser", JSON.stringify(finalUser));
+
+// Refresh da se prikaže admin gumb
+window.location.reload();
+```
+
+### Header.jsx
+Nadodane linije nakon importova kako bi se povukli trenutni podaci usera koji je ulogiran.
+```
+  const [user, setUser] = useState(() => {
+  const savedUser = localStorage.getItem("googleUser");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+```
+Promjenjen je button Sign in/Register...
+```
+<button className="headerBTN">Sign in/Register</button>
+```
+...u button za redirect na admin stranicu.
+```
+  {user?.is_admin && (
+    <button
+      className="headerBTN"
+      onClick={() => navigate("/admin")}
+    >
+      Admin Page
+    </button>
+  )}
+```
+## Uređivanje /admin pagea (sitni fixovi)
+Admin page nam nije imao button za povratak na main page.<br>
+Form page nam nije imao cancel button ako se predomisli kod unosa novih ili uređivanja postojećih jedinica.<br>
+Form nam nije imao neke atribute koji su u bazi podataka poput numRooms, capChild, capAdult.<br>
+Zabraniti gostima da uđu na admin i form page.
+### RentalUnits.jsx
+Provjeravamo ako je user admin tako što dodajemo ove linije u useEffect metodu.
+```
+const savedUser = localStorage.getItem("googleUser");
+const user = savedUser ? JSON.parse(savedUser) : null;
+
+// Ako nije admin redirectaj ga na main page
+if (!user || !user.is_admin) {
+  navigate("/main");
+  return;
+}
+```
+Dodan handler za povratak na main page.
+```
+const handleBackToMain = () => {
+    navigate("/main");
+  };
+```
+Zamijenjena ova linija...
+```
+<h1 className="title">Rental Units</h1>
+```
+...s ovima kako bismo dodali button.
+```
+<div className="header-row">
+  <h1 className="title">Rental Units</h1>
+  <button className="back-button" onClick={handleBackToMain}>
+    ⬅ Back to Main Page
+  </button>
+</div>
+```
+### RentalUnits.css
+Dodajemo dizajn dodanom buttonu.
+
+```
+.back-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s ease-in-out;
+  margin-left: 10px;
+}
+
+.back-button:hover {
+  background-color: #0056b3;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+```
+### form.jsx
+Treba nadodati Cancel button i opcije za unos kreveta, prostorija itd.<br>
+U formi za input podataka dodajemo.
+```
+capAdults: 2,
+capChildren: 0,
+numRooms: 1,
+numBeds: 1,
+```
+U useEffect dodajemo zabranu pristupa neadminima. Isto ko na /admin pageu.
+```
+    const savedUser = localStorage.getItem("googleUser");
+    const user = savedUser ? JSON.parse(savedUser) : null;
+
+    if (!user || !user.is_admin) {
+      navigate("/main");
+      return;
+    }
+```
+U fetchu podataka iz baze kojom se popunjavaju podaci kod edita jedinice dodajemo.
+```
+capAdults: data.capAdults || 2,
+capChildren: data.capChildren || 0,
+numRooms: data.numRooms || 1,
+numBeds: data.numBeds || 1,
+```
+
+U unitPayloadu mjenjamo...
+```
+      numRooms: 1,
+      capAdults: 2,
+      capChildren: 0,
+      numBeds: 1,
+```
+...s ovime. Također stavljamo zabranu slanja više od 1 sobe ako je type jedinice room.
+```
+      capAdults: parseInt(formData.capAdults),
+      capChildren: parseInt(formData.capChildren),
+      numRooms: formData.isApartment ? parseInt(formData.numRooms) : 1,
+      numBeds: parseInt(formData.numBeds),
+```
+Dodajemo handler za cancel u formi.
+```
+  const handleCancel = () => {
+    if (window.confirm("Are you sure you want to cancel? Changes will not be saved.")) {
+      navigate("/admin");
+    }
+  };
+```
+
+Mjenjana je struktura stranice. Nadodajemo da se numRooms input prikaže ako je apartment type izabran, stavljamo ga desno od odabira tipa jedinice kako se ne bi "shiftali" ostali inputi.
+```
+        <div className="radio-group with-rooms">
+          <div className="radio-options">
+            <label>
+              <input
+                type="radio"
+                name="isApartment"
+                checked={formData.isApartment === true}
+                onChange={() => setFormData({ ...formData, isApartment: true })}
+              />
+              Apartment
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="isApartment"
+                checked={formData.isApartment === false}
+                onChange={() => setFormData({ ...formData, isApartment: false })}
+              />
+              Room
+            </label>
+          </div>
+
+          {formData.isApartment && (
+            <div className="num-rooms-inline">
+              <label>Rooms:</label>
+              <input
+                type="number"
+                name="numRooms"
+                value={formData.numRooms}
+                onChange={handleChange}
+                min="1"
+              />
+            </div>
+          )}
+        </div>
+
+        <label>Capacity (Adults)</label>
+        <input
+          type="number"
+          name="capAdults"
+          value={formData.capAdults}
+          onChange={handleChange}
+          min="1"
+        />
+
+        <label>Capacity (Children)</label>
+        <input
+          type="number"
+          name="capChildren"
+          value={formData.capChildren}
+          onChange={handleChange}
+          min="0"
+        />
+
+        <label>Number of Beds</label>
+        <input
+          type="number"
+          name="numBeds"
+          value={formData.numBeds}
+          onChange={handleChange}
+          min="1"
+        />
+```
+Na kraj prije kraja, prije </form> nadodajemo linije za cancel button.
+```
+  <div className="button-row">
+    <button type="submit" className="submit-btn">
+      {id ? "Update" : "Submit"}
+    </button>
+    <button
+      type="button"
+      className="cancel-btn"
+      onClick={handleCancel}
+    >
+      Cancel
+    </button>
+  </div>
+```
+
+### ApartmentForm.css
+Mjenjamo dizajn form stranice kako bi imali usklađen dizajn novih buttona, inputa sa starima.<br>
+Mjenjamo neke stare dizajne i dodajemo nove.
+```
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.submit-btn,
+.cancel-btn {
+  flex: 1;
+  padding: 12px 0;
+  height: 46px; /* ✅ fiksna visina da budu identični */
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1; /* ✅ sprječava različitu vertikalnu visinu */
+}
+
+.submit-btn {
+  background-color: #4aa3ff;
+  color: white;
+}
+
+.submit-btn:hover {
+  background-color: #3a91e0;
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  background-color: #ff7f7f;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #e86a6a;
+  transform: translateY(-1px);
+}
+```
+Datum završetka: 8.11.2025. Utrošeno vrijeme: ~6 sati

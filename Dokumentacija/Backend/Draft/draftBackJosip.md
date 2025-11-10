@@ -535,7 +535,7 @@ Ovo..
 ```
     alert(id ? "Unit updated successfully!" : "Unit added successfully!");
 ```
-Datum završetka: 5.11.2025. Utrošeno vrijeme: ~8 sati
+**Datum završetka: 5.11.2025. Utrošeno vrijeme: ~8 sati**
 # Fixovi
 ## Admin profil
 
@@ -900,4 +900,530 @@ Mjenjamo neke stare dizajne i dodajemo nove.
   transform: translateY(-1px);
 }
 ```
-Datum završetka: 8.11.2025. Utrošeno vrijeme: ~6 sati
+**Datum završetka: 8.11.2025. Utrošeno vrijeme: ~6 sati**
+
+# User lista na admin pageu
+## Podijeliti admin page na unit i users tabove
+### RentalUnits.jsx
+Mjenjanje početka glavne metode RentalUnits u...
+```
+const AdminDashboard = () => {
+  const [activeTab, setActiveTab] = useState("units");
+  const [units, setUnits] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
+```
+Na kraj useEffect metode dodajemo. Ovime postavljamo trenutnog usera kako bismo kasnije mogli brisati druge korisnike i zabraniti useru da briše sam sebe. <br>
+Također povlačimo sve jedinice i usere.
+```
+    setCurrentUser(user);
+
+    fetchUnits();
+    fetchUsers();
+  }, [navigate]);
+```
+Dodana metoda fetchanja usera iz baze podataka kako bi se podaci prikazali u listi.
+```
+const fetchUsers = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/allPersons`);
+      if (!response.ok) throw new Error("Failed to fetch users");
+      const data = await response.json();
+      setUsers(
+        data.map((u) => {
+          let role = "User";
+          if (u.is_admin) role = "Admin";
+          else if (u.is_owner) role = "Owner";
+          return {
+            id: u.id, 
+            name: u.name,
+            email: u.email,
+            role,
+          };
+        })
+      );
+    } catch (err) {
+      console.error("Error fetching users:", err);
+    }
+```
+Dodana provjera i slanje tokena kod brisanja unita.
+```
+const token = localStorage.getItem("access_token"); 
+const response = await fetch(`${process.env.REACT_APP_API_URL}/deletePerson/${id}`, {
+  method: "DELETE",
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+```
+Dodajemo metodu brisanja korisnika. Pazimo da korisnik ne može obrisati sam sebe te šaljemo token usera da provjerimo je li admin kad pokuša obrisati neki profil.
+```
+  const handleDeleteUser = async (id, email) => {
+    if (email === currentUser?.email) {
+      alert("You cannot delete yourself!");
+      return;
+    }
+    if (window.confirm(`Are you sure you want to delete user ${email}?`)) {
+      try {
+        const token = localStorage.getItem("access_token"); 
+
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/deletePerson/${id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          },
+        });
+
+        if (response.ok) {
+          setUsers((prev) => prev.filter((user) => user.id !== id));
+        } else if (response.status === 403) {
+          alert("You are not allowed to delete this user!");
+        } else {
+          alert("Failed to delete user.");
+        }
+      } catch (err) {
+        console.error("Error deleting user:", err);
+      }
+    }
+  };
+```
+Na kraju mjenjamo return za admin dashboard jer smo morali mjenjati struktura zbog user taba. U kratko odvajamo user tab i unit tab, slažemo prijašnje buttone i na kraju mjenjamo export name jer više nisu samo rentalunits na tom pageu.
+```
+return (
+    <div className="admin-dashboard">
+      {/* Sidebar */}
+      <aside className="sidebar">
+        <h2>Admin Panel</h2>
+        <button
+          className={`tab-btn ${activeTab === "units" ? "active" : ""}`}
+          onClick={() => setActiveTab("units")}
+        >
+          🏠 Units
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "users" ? "active" : ""}`}
+          onClick={() => setActiveTab("users")}
+        >
+          👤 Users
+        </button>
+        <hr />
+        <button className="back-main-btn" onClick={handleBackToMain}>
+          ⬅ Back to Main
+        </button>
+      </aside>
+
+      {/* Main Content */}
+      <main className="dashboard-content">
+        {activeTab === "units" && (
+          <section className="section-block">
+            <h1>Rental Units</h1>
+            <ul className="units-list">
+              {units.map((unit) => (
+                <li key={unit.id} className="unit-item">
+                  <div className="unit-info">
+                    <span className="unit-name">{unit.name}</span>
+                    <span className="unit-type">({unit.type})</span>
+                  </div>
+                  <div className="unit-actions">
+                    <button className="edit-button" onClick={() => handleEdit(unit.id)}>
+                      Edit
+                    </button>
+                    <button className="delete-button" onClick={() => handleDeleteUnit(unit.id)}>
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <button className="create-button" onClick={handleCreate}>
+              + Create New Unit
+            </button>
+          </section>
+        )}
+
+        {activeTab === "users" && (
+          <section className="section-block">
+            <h1>Registered Users</h1>
+            <table className="users-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.name}</td>
+                    <td>{user.email}</td>
+                    <td className={`role-${user.role.toLowerCase()}`}>{user.role}</td>
+                    <td>
+                      <button
+                        className={`delete-button ${
+                          user.email === currentUser?.email ? "disabled-btn" : ""
+                        }`}
+                        onClick={() => handleDeleteUser(user.id, user.email)}
+                        disabled={user.email === currentUser?.email}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default AdminDashboard;
+```
+### RentalUnits.css
+Opet smo morali mjenjati stil stranice kako bi se posložilo sve ispravno.
+```
+/* ========== NOVO: LAYOUT ZA ADMIN DASHBOARD ========== */
+.admin-dashboard {
+  display: flex;
+  gap: 20px;
+  margin: 40px auto;
+  max-width: 1200px;
+  padding: 20px;
+}
+
+/* Sidebar lijevo */
+.sidebar {
+  width: 220px;
+  background: #e8f4fd;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 100, 200, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.sidebar h2 {
+  color: #025c9a;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #cfe7fc;
+  color: #03426a;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.tab-btn.active {
+  background-color: #4aa3ff;
+  color: white;
+}
+
+.tab-btn:hover {
+  background-color: #b5d5f5;
+}
+
+.back-main-btn {
+  margin-top: auto;
+  padding: 10px 15px;
+  background-color: #007bff;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.back-main-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Glavni sadržaj desno */
+.dashboard-content {
+  flex: 1;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 100, 200, 0.1);
+  padding: 25px;
+}
+
+/* Sekcije unutar dashboarda */
+.section-block {
+  background: #f9fcff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 100, 200, 0.05);
+  margin-bottom: 20px;
+}
+
+.section-block h1 {
+  color: #025c9a;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+/* ========== TABLICA KORISNIKA ========== */
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.users-table th,
+.users-table td {
+  padding: 10px;
+  border-bottom: 1px solid #cde4fa;
+  text-align: left;
+}
+
+.users-table th {
+  background-color: #e8f4fd;
+  font-weight: 600;
+  color: #025c9a;
+}
+
+.users-table tr:hover {
+  background-color: #f0faff;
+}
+
+/* Roli */
+.role-admin {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.role-owner {
+  color: #f39c12;
+  font-weight: 600;
+}
+
+.role-user {
+  color: #2e8b57;
+}
+
+/* Gumbi unutar tablice korisnika */
+.user-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.delete-user-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease-in-out;
+}
+
+.delete-user-btn:hover {
+  background-color: #b02a37;
+}
+/* ========== POPRAVLJEN STIL ZA RENTAL UNITS BLOK ========== */
+.rental-units-container {
+  background: #f9fcff;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0, 100, 200, 0.05);
+}
+
+.rental-units-container .title {
+  color: #03426a;
+  text-align: left;
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+.rental-units-container .units-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.unit-item {
+  flex: 1 1 calc(50% - 12px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background-color: #fff;
+  border: 1px solid #d5e6f8;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 100, 200, 0.05);
+  transition: transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.unit-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 100, 200, 0.1);
+}
+
+.unit-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.unit-name {
+  font-weight: 600;
+  color: #03426a;
+}
+
+.unit-type {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.unit-actions button {
+  margin-left: 8px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.edit-button {
+  background-color: #4aa3ff;
+  color: white;
+}
+
+.edit-button:hover {
+  background-color: #3a91e0;
+}
+
+.delete-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #b02a37;
+}
+
+.create-button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.create-button:hover {
+  background-color: #218838;
+}
+
+/* Header row with back button */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.back-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease-in-out;
+}
+
+.back-button:hover {
+  background-color: #0056b3;
+}
+/* ✅ Centriranje rental units unutar kontejnera */
+.rental-units-container .units-list {
+  justify-content: center; /* centrira sve jedinice */
+}
+
+.unit-item {
+  flex: 0 1 280px; /* fiksna širina — izgled ujednačen */
+  margin: 6px;
+}
+
+/* Lagano poravnanje gumba ispod liste */
+.create-button {
+  display: block;
+  margin: 25px auto 0 auto; /* centriran gumb */
+  width: 280px; /* isto kao jedinice */
+}
+
+/* Disable style for delete button */
+.disabled-btn {
+  background-color: #ccc !important;
+  color: #666 !important;
+  cursor: not-allowed !important;
+  border: none !important;
+  opacity: 0.5;
+}
+
+.users-table .delete-button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background-color: #dc3545;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.users-table .delete-button:hover:not(:disabled) {
+  background-color: #b92b38;
+}
+```
+## Funkcionalnost brisanja korisnika
+### navbar.jsx
+Moramo spremiti token kako bismo mogli identificirati admina i potvrditi da je to on. U logout treba dodati...
+```
+localStorage.removeItem("access_token"); 
+```
+...dok u signin treba dodati.
+```
+localStorage.setItem("access_token", idToken);
+```
+### PersonController.java
+Moramo promjeniti deletePerson funkciju kako bi pravilno provjeravala je li osoba admin ili nije u bazi.
+```
+public ResponseEntity<?> deletePerson(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+        String email = jwt.getClaimAsString("email");
+        Optional<Person> current = repo.findByEmail(email);
+
+        if (current.isEmpty()) return ResponseEntity.status(403).body("Unauthorized");
+
+        Person currentUser = current.get();
+        if (currentUser.getId().equals(id)) {
+            return ResponseEntity.status(403).body("You cannot delete yourself!");
+        }
+
+        repo.deleteById(id);
+        return ResponseEntity.ok("User deleted");
+    }
+```
+**Datum završetka: 8.11.2025. Utrošeno vrijeme: ~1 sat**

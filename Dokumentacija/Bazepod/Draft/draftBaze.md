@@ -5,3 +5,4 @@ Smještajne jedinice modelirane su klasom Unit, koja sadrži detalje poput broja
 Svaka jedinica može imati više rezervacija (unitReservations) i slika (images).
 Rezervacije smještajnih jedinica modelirane su klasom UnitReservation, koja sadrži startDate, endDate i status rezervacije.
 Kontroler UnitReservationController omogućuje dodavanje, dohvat i brisanje rezervacija, dok UnitReservationRepo služi za rad s bazom podataka.
+Slike smještajnih jedinica predstavljene su klasom UnitImg s poljem URL.

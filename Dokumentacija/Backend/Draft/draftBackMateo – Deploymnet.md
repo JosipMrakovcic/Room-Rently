@@ -73,13 +73,24 @@ FRONTEND_URL=http://localhost:3000
 
 Ove varijable se koriste prilikom pokretanja backenda i prilagodbe postavki za povezivanje na bazu i frontend.
 
+  ## Lokalno pokretanje na IntelliJ-u ##
+
+Za lokalno pokretanje backenda na IntelliJ-u potrebno je ručno proslijediti env varijable. Zato što Spring Boot ne učitava automatski .env datoteke.
+To se radi na sljedeći način:
+* Otvori Run/Debug Configurations zatim "Edit Configurations..."
+* Pored Environmental variables kliknuti na "Browse for .env files and scripts"
+* Nađi .env datoteku koja se nalazi u projektu
+* Kliknuti "Apply" pa zatim "Run"
+  
   ## Funkcija frontendUrl ##
 
 Varijabla `frontendUrl` služi za dinamičko dohvaćanje URL-a frontenda iz ili application.properties, tako da se CORS pravila automatski prilagode okruženju. Time backend dopušta zahtjeve samo s definirane frontend adrese.
 
 Koristi se u CORS konfiguraciji u funkciji `corsConfigurationSource` u klasi `SecurityConfig`:
 
-config.setAllowedOrigins(List.of(frontendUrl));
+```java
+config.setAllowedOrigins(List.of(frontendUrl));ž
+```
 
   ## application.properties ##
 

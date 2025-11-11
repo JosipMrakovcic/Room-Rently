@@ -4,3 +4,4 @@ Za pristup podacima o korisnicima koristi se PersonRepo, dok PersonController om
 Smještajne jedinice modelirane su klasom Unit, koja sadrži detalje poput broja soba (numRooms), kapaciteta odraslih i djece (capAdults, capChildren), cijene (price) te obilježja kao što su dostupnost WiFi-ja, parkinga, doručka i drugih pogodnosti.
 Svaka jedinica može imati više rezervacija (unitReservations) i slika (images).
 Rezervacije smještajnih jedinica modelirane su klasom UnitReservation, koja sadrži startDate, endDate i status rezervacije.
+Kontroler UnitReservationController omogućuje dodavanje, dohvat i brisanje rezervacija, dok UnitReservationRepo služi za rad s bazom podataka.

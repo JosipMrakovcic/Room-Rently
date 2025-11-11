@@ -220,8 +220,8 @@ Na Netlify dashboardu, idite na:
 
   Netlify će injicirati ovu varijablu u vašu frontend aplikaciju pri buildanju. Frontend će moći pristupiti ovoj varijabli kroz process.env.REACT_APP_API_URL. Ovo omogućava frontendu da dinamički prilagodi endpointove ovisno o okruženju.
 
-Dio dokumentacije i objašnjenja koda izrađen je uz pomoć **ChatGPT (OpenAI)** za potrebe strukturiranja i pojašnjavanja tijeka deploymenta projekta.
-**Datum pristupa:** 2025-11-8
+Dio dokumentacije i objašnjenja koda izrađen je uz pomoć **ChatGPT (OpenAI)** za potrebe strukturiranja i pojašnjavanja tijeka deploymenta projekta.<br>
+**Datum pristupa:** 2025-11-8<br>
 **Svrha:** Bolje formuliranje i jezično uređivanje teksta deploymenta projekta.
 
 Sav sadržaj dobiven uz pomoć ChatGPT-a je samostalno provjeren, analiziran i po potrebi izmijenjen od strane autora.<br>

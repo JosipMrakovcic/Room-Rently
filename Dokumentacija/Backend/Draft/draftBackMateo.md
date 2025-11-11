@@ -390,7 +390,7 @@ Ova postavka omogućuje Spring Securityju da automatski validira Google JWT toke
 
 Ovim backend dijelom projekta ostvarena je potpuna integracija između React frontenda i Spring Boot backenda putem Google OAuth2 prijave. Backend se brine za validaciju JWT tokena, kontrolu pristupa i pohranu korisnika u bazu podataka. Cjelokupna komunikacija osigurana je standardnim sigurnosnim mehanizmima, dok je frontend zadužen za vizualnu autentifikaciju i prikaz korisničkog sučelja.
 
-Dio dokumentacije i objašnjenja koda izrađen je uz pomoć **ChatGPT (OpenAI)** za potrebe strukturiranja i pojašnjavanja Spring Security konfiguracije.
+Dio dokumentacije i objašnjenja koda izrađen je uz pomoć **ChatGPT (OpenAI)** za potrebe strukturiranja i pojašnjavanja Spring Security konfiguracije.<br>
 **Datum pristupa:** 2025-11-3<br>
 **Svrha:** Bolje formuliranje i jezično uređivanje teksta te objašnjenje funkcionalnosti backend sustava te integracija s Google OAuth2 autentifikacijom.<br>
 

@@ -10,3 +10,4 @@ UnitImgController omogućuje dodavanje, dohvat i brisanje slika, dok UnitImgRepo
 Kontroleri sustava (UnitController, UnitReservationController, UnitImgController, PersonController) koriste pripadajuće repozitorije za dohvat i manipulaciju podacima.
 Svaki kontroler nudi metode za osnovne CRUD operacije, a repozitoriji nasljeđuju JpaRepository, što omogućuje jednostavan rad s bazom podataka.
 Ovim modelom osigurana je jasna povezanost između korisnika, smještajnih jedinica i rezervacija.
+Svaka klasa je modularno odvojena, a korištenje repozitorija omogućuje jednostavno proširenje sustava, primjerice dodavanje novih vrsta rezervacija, dodatnih informacija o korisnicima ili proširenih značajki smještajnih jedinica.

@@ -222,4 +222,8 @@ Na Netlify dashboardu, idite na:
 
 Dio dokumentacije i objašnjenja koda izrađen je uz pomoć **ChatGPT (OpenAI)** za potrebe strukturiranja i pojašnjavanja tijeka deploymenta projekta.
 **Datum pristupa:** 2025-11-8
-**Svrha:** Dokumentacija i objašnjenje deploymenta projekta.
+**Svrha:** Bolje formuliranje i jezično uređivanje teksta deploymenta projekta.
+
+Sav sadržaj dobiven uz pomoć ChatGPT-a je samostalno provjeren, analiziran i po potrebi izmijenjen od strane autora.<br>
+Alat nije korišten za generiranje cjelovitih dijelova rada bez nadzora, niti za donošenje zaključaka umjesto autora.<br>
+Ova uporaba je u skladu s Etičkim kodeksom i pravilnikom Fakulteta elektrotehnike i računarstva Sveučilišta u Zagrebu o korištenju alata temeljenih na umjetnoj inteligenciji.

@@ -392,4 +392,8 @@ Ovim backend dijelom projekta ostvarena je potpuna integracija između React fro
 
 Dio dokumentacije i objašnjenja koda izrađen je uz pomoć **ChatGPT (OpenAI)** za potrebe strukturiranja i pojašnjavanja Spring Security konfiguracije.
 **Datum pristupa:** 2025-11-3
-**Svrha:** Dokumentacija i objašnjenje funkcionalnosti backend sustava te integracija s Google OAuth2 autentifikacijom.
+**Svrha:** Bolje formuliranje i jezično uređivanje teksta te objašnjenje funkcionalnosti backend sustava te integracija s Google OAuth2 autentifikacijom.
+
+Sav sadržaj dobiven uz pomoć ChatGPT-a je samostalno provjeren, analiziran i po potrebi izmijenjen od strane autora.<br>
+Alat nije korišten za generiranje cjelovitih dijelova rada bez nadzora, niti za donošenje zaključaka umjesto autora.<br>
+Ova uporaba je u skladu s Etičkim kodeksom i pravilnikom Fakulteta elektrotehnike i računarstva Sveučilišta u Zagrebu o korištenju alata temeljenih na umjetnoj inteligenciji.

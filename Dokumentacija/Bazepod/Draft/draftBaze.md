@@ -9,3 +9,4 @@ Slike smještajnih jedinica predstavljene su klasom UnitImg s poljem URL.
 UnitImgController omogućuje dodavanje, dohvat i brisanje slika, dok UnitImgRepo komunicira s bazom podataka.
 Kontroleri sustava (UnitController, UnitReservationController, UnitImgController, PersonController) koriste pripadajuće repozitorije za dohvat i manipulaciju podacima.
 Svaki kontroler nudi metode za osnovne CRUD operacije, a repozitoriji nasljeđuju JpaRepository, što omogućuje jednostavan rad s bazom podataka.
+Ovim modelom osigurana je jasna povezanost između korisnika, smještajnih jedinica i rezervacija.

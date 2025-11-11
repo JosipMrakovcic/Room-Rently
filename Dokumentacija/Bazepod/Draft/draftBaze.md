@@ -1,0 +1,1 @@
+Dijagram prikazuje skup klasa koje čine osnovu sustava za upravljanje smještajem, rezervacijama i pripadajućim podacima o korisnicima i jedinicama smještaja.

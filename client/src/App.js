@@ -7,7 +7,8 @@ import Home from "./pages/home/Home";
 import List from "./pages/list/List";
 import Hotel from "./pages/hotel/Hotel";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-
+import UserReservations from "./components/userreservations/userreservations";
+import OwnerDashboard from "./components/ownerdashboard/OwnerDashboard";
 
 import { useEffect } from 'react';
 
@@ -24,6 +25,8 @@ function App() {
           <Route path="/form" element={<ApartmentForm />} />
           <Route path="/form/:id" element={<ApartmentForm />} /> 
           <Route path="/admin" element={<RentalUnits />} />
+          <Route path="/booked-reservations" element={<UserReservations />} />
+           <Route path="/owner-dashboard" element={<OwnerDashboard />} />
         </Routes>
       </BrowserRouter>
     </GoogleOAuthProvider>

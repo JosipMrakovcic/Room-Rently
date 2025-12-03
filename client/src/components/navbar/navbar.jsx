@@ -8,23 +8,26 @@ import axios from "axios";
 const Navbar = () => {
   const navigate = useNavigate();
 
-  // Učitavanje usera iz localStorage-a
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("googleUser");
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  // Logout handler
   const logout = () => {
     googleLogout();
     setUser(null);
     localStorage.removeItem("googleUser");
     localStorage.removeItem("access_token");
-    navigate(0); // ✅ umjesto reload-a — redirect na početnu
+    navigate(0);
   };
 
-  // Navigacija na početnu
   const navigatelandingscreen = () => navigate("/");
+
+  //Booked reservations
+  const navigateBookedReservations = () => navigate("/booked-reservations");
+
+  //Dashboard navigation
+  const navigateDashboard = () => navigate("/owner-dashboard");
 
   return (
     <div className="navbar">
@@ -49,9 +52,7 @@ const Navbar = () => {
                         { headers: { Authorization: `Bearer ${idToken}` } }
                       );
                     } catch (err) {
-                      if (err.response && err.response.status !== 409) {
-                        throw err;
-                      }
+                      if (err.response && err.response.status !== 409) throw err;
                     }
 
                     const { data: userFromDB } = await axios.get(
@@ -66,14 +67,12 @@ const Navbar = () => {
                     localStorage.setItem("googleUser", JSON.stringify(finalUser));
                     localStorage.setItem("access_token", idToken);
 
-                    navigate(0); // 🔁 elegantni "soft refresh" (refetch UI bez reload-a)
+                    navigate(0);
                   } catch (err) {
                     console.error("Error processing Google login:", err);
                   }
                 }}
-                onError={() => {
-                  console.log("Login Failed");
-                }}
+                onError={() => console.log("Login Failed")}
                 useOneTap
                 theme="filled_blue"
                 shape="rectangular"
@@ -96,7 +95,27 @@ const Navbar = () => {
                 }}
                 referrerPolicy="no-referrer"
               />
+
               <span>{user.name}</span>
+
+              {/* dashboard button */}
+              <button
+                className="navButton"
+                onClick={navigateDashboard}
+                style={{ marginLeft: "10px" }}
+              >
+                Dashboard
+              </button>
+
+              {/* Booked Reservations button */}
+              <button
+                className="navButton"
+                onClick={navigateBookedReservations}
+                style={{ marginLeft: "10px" }}
+              >
+                Booked Reservations
+              </button>
+
               <button className="navButton" onClick={logout}>
                 Logout
               </button>

@@ -1,0 +1,267 @@
+.reserveOverlay {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0,0,0,0.6);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 999;
+}
+
+.reserveBox {
+background: white;
+padding: 25px;
+border-radius: 10px;
+width: 450px;
+max-width: 90%;
+max-height: 90vh;
+overflow-y: auto;
+box-shadow: 0 0 20px rgba(0,0,0,0.2);
+position: relative;
+}
+
+.closeBtn {
+position: absolute;
+right: 15px;
+top: 15px;
+cursor: pointer;
+background: none;
+border: none;
+font-size: 22px;
+z-index: 10;
+}
+
+.picker {
+margin-top: 15px;
+}
+
+.guests {
+margin-top: 20px;
+}
+
+.guests div {
+display: flex;
+align-items: center;
+gap: 10px;
+margin-bottom: 10px;
+flex-wrap: wrap;
+}
+
+.guests button {
+padding: 5px 10px;
+border-radius: 6px;
+border: none;
+background: #0071c2;
+color: white;
+cursor: pointer;
+transition: all 0.2s ease;
+font-size: 14px;
+}
+
+.guests button:hover {
+background: #005a9c;
+}
+
+.unitOptions {
+margin-top: 20px;
+}
+
+.optionsContainer {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+gap: 10px;
+margin-top: 10px;
+}
+
+.optionCard {
+display: flex;
+align-items: flex-start;
+padding: 10px 8px;
+border: 1px solid #ddd;
+border-radius: 8px;
+cursor: pointer;
+background: #f9f9f9;
+transition: all 0.2s ease;
+min-height: 44px;
+}
+
+.optionCard:hover {
+background: #e6f0ff;
+border-color: #0071c2;
+}
+
+.optionCard input {
+margin-right: 8px;
+accent-color: #0071c2;
+flex-shrink: 0;
+margin-top: 2px;
+}
+
+.optionCard span {
+flex: 1;
+font-size: 0.95em;
+line-height: 1.4;
+word-break: break-word;
+overflow-wrap: break-word;
+word-wrap: break-word;
+padding-right: 2px;
+}
+
+.confirmBtn {
+margin-top: 20px;
+padding: 12px;
+width: 100%;
+background: #0071c2;
+color: white;
+border: none;
+border-radius: 8px;
+font-size: 16px;
+cursor: pointer;
+transition: all 0.2s ease;
+}
+
+.confirmBtn:hover {
+background: #005a9c;
+}
+
+.buttonGroup {
+display: flex;
+gap: 10px;
+width: 100%;
+margin-top: 20px;
+}
+
+.buttonGroup .confirmBtn,
+.buttonGroup .closeThanksBtn {
+flex: 1;
+margin-top: 0;
+}
+
+.thanksContainer {
+display: flex;
+flex-direction: column;
+align-items: center;
+text-align: center;
+gap: 15px;
+padding: 20px;
+}
+
+.thanksContainer h2 {
+color: #0071c2;
+margin-bottom: 10px;
+}
+
+.thanksContainer p {
+color: #333;
+margin: 5px 0;
+}
+
+.closeThanksBtn {
+padding: 12px;
+background: #555;
+color: white;
+border: none;
+border-radius: 8px;
+font-size: 16px;
+cursor: pointer;
+transition: all 0.2s ease;
+}
+
+.closeThanksBtn:hover {
+background: #333;
+}
+
+@media (max-width: 480px) {
+.reserveBox {
+width: 95%;
+padding: 20px;
+}
+
+.guests div {
+flex-direction: row;
+align-items: center;
+gap: 10px;
+flex-wrap: wrap;
+}
+
+.guests button {
+margin-left: 0;
+padding: 5px 10px;
+}
+
+.optionsContainer {
+grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.optionCard {
+justify-content: flex-start;
+min-height: 44px;
+padding: 8px 6px;
+}
+
+.optionCard span {
+font-size: 0.9em;
+line-height: 1.3;
+word-break: break-word;
+overflow-wrap: anywhere;
+}
+
+.confirmBtn {
+font-size: 15px;
+padding: 12px;
+}
+
+.buttonGroup {
+flex-direction: column;
+}
+}
+
+@media (max-width: 400px) {
+.optionsContainer {
+grid-template-columns: repeat(2, 1fr);
+}
+
+.optionCard span {
+font-size: 0.85em;
+}
+}
+
+@media (max-width: 360px) {
+.reserveBox {
+padding: 15px;
+}
+
+.optionsContainer {
+grid-template-columns: 1fr;
+}
+
+.guests button {
+padding: 4px 8px;
+font-size: 13px;
+}
+
+.confirmBtn {
+font-size: 14px;
+padding: 10px;
+}
+
+.optionCard {
+padding: 10px;
+}
+
+.optionCard span {
+font-size: 0.95em;
+word-break: normal;
+overflow-wrap: normal;
+}
+}
+
+@media (max-width: 340px) {
+.optionCard span {
+font-size: 0.82em;
+line-height: 1.2;
+}
+}

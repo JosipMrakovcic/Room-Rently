@@ -4,10 +4,13 @@ import Footer from "../../components/footer/footer";
 import Navbar from "../../components/navbar/navbar";
 import { useState } from "react";
 import "./hotel.css";
-
+import { useParams } from "react-router-dom";
+import ReserveModal from "../../components/reservations/ReserveModal";
 const Hotel = () => {
   const [slidenumber, setslidenumber] = useState(0);
   const [open, setopen] = useState(false);
+  const { id } = useParams();
+const [openReserve, setOpenReserve] = useState(false);
   const photos = [
     {
       src: "/20210710_084619.jpg",
@@ -45,6 +48,9 @@ const Hotel = () => {
     <div>
       <Navbar></Navbar>
       <Header type="list"></Header>
+      {openReserve && (
+  <ReserveModal setOpenReserve={setOpenReserve} unitId={id} />
+)}
       <div className="hotelcontainer">
         {open && (
           <div className="slider">
@@ -63,7 +69,9 @@ const Hotel = () => {
           </div>
         )}
         <div className="hotelwrapper">
-          <button className="booknow">Reserve or book now</button>
+          <button className="booknow" onClick={() => setOpenReserve(true)}>
+              Reserve Now
+          </button>
           <h1 className="hoteltitle">Apartments Ani</h1>
           <div className="hoteladress">
             {/* logo */}
@@ -114,7 +122,7 @@ const Hotel = () => {
                 <h2>
                   <b>$945</b>(9 nights)
                 </h2>
-                <button>Reserve or Book Now !</button>
+                <button onClick={() => setOpenReserve(true)}>Reserve or Book Now !</button>
               </div>
             </div>
           </div>

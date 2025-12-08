@@ -40,7 +40,7 @@ export default function OwnerDashboard() {
 
   const [popup, setPopup] = useState({ visible: false, action: "", reservationId: null });
 
-  // Charts
+
   const occupancyData = { labels: ["Room 101", "Room 102", "Suite 201"], datasets: [{ label: "Occupancy (%)", data: [70, 85, 60], backgroundColor: "rgba(75, 192, 192, 0.6)" }] };
   const guestsByCountryData = { labels: ["Croatia", "Germany", "USA", "Italy"], datasets: [{ label: "Guests by Country", data: [40, 30, 20, 10], backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"] }] };
   const popularServicesData = { labels: ["Breakfast", "WiFi", "Parking"], datasets: [{ label: "Popular Services", data: [50, 80, 30], backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"] }] };

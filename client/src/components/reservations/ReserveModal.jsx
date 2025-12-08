@@ -78,8 +78,6 @@ const ReserveModal = ({ setOpenReserve, unitId }) => {
     };
 
     console.log("DATA TO SEND TO BACKEND:", reservationData);
-
-    // Prikaži Thank You ekran
     setShowThanks(true);
   };
 

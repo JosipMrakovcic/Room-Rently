@@ -50,4 +50,40 @@ public class UnitController {
             return ResponseEntity.ok("Unit updated successfully");
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+
+    @Autowired
+    private UnitService unitService;
+
+    @GetMapping("/filter")
+    public List<Unit> filterUnits(
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) Integer adults,
+            @RequestParam(required = false) Integer children,
+            @RequestParam(required = false) Integer minRating,
+            @RequestParam(required = false) Boolean isApartment,
+            @RequestParam(required = false) Boolean hasParking,
+            @RequestParam(required = false) Boolean hasWifi,
+            @RequestParam(required = false) Boolean hasBreakfast,
+            @RequestParam(required = false) Boolean hasAirConditioning,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    ) {
+        return unitService.filterUnits(
+                location,
+                adults,
+                children,
+                minRating,
+                isApartment,
+                hasParking,
+                hasWifi,
+                hasBreakfast,
+                hasAirConditioning,
+                startDate,
+                endDate
+        );
+    }
+
+
+
 }

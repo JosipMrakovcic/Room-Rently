@@ -49,7 +49,9 @@ const Navbar = () => {
                       await axios.post(
                         `${process.env.REACT_APP_API_URL}/addPerson`,
                         {},
-                        { headers: { Authorization: `Bearer ${idToken}` } }
+                        { headers: { Authorization: `Bearer ${idToken}` }, 
+                        withCredentials: true // <--- dodaj ovo
+                        }
                       );
                     } catch (err) {
                       if (err.response && err.response.status !== 409) throw err;
@@ -57,7 +59,9 @@ const Navbar = () => {
 
                     const { data: userFromDB } = await axios.get(
                       `${process.env.REACT_APP_API_URL}/me`,
-                      { headers: { Authorization: `Bearer ${idToken}` } }
+                      { headers: { Authorization: `Bearer ${idToken}` }, 
+                        withCredentials: true // <--- dodaj ovo
+                        }
                     );
 
                     const decoded = jwtDecode(idToken);

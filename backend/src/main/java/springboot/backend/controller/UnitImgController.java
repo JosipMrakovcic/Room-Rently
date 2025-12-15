@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = "${FRONTEND_URL}")
+@CrossOrigin(origins = "${frontend.url}")
 @RequestMapping("/unitImg")
 public class UnitImgController {
 

@@ -16,7 +16,7 @@ import java.util.Optional;
 
 
 @RestController
-@CrossOrigin(origins = "${FRONTEND_URL}")
+@CrossOrigin(origins = "${frontend.url}")
 public class PersonController {
 
     @Autowired

@@ -5,13 +5,11 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "unit_reservation")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "unitReservation")
-@Getter // automatski generira sve gettere
-@Setter // automatski generira sve settere
 public class UnitReservation {
 
     @Id
@@ -24,16 +22,14 @@ public class UnitReservation {
     @Column(nullable = false)
     private LocalDate endDate;
 
-    @Column(columnDefinition = "text", nullable = false)
+    @Column(nullable = false)
     private String status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", nullable = false)
     private Person person;
 
-    @ManyToOne
-    @JoinColumn(name = "idUnit", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_unit", nullable = false)
     private Unit unit;
-
-
 }

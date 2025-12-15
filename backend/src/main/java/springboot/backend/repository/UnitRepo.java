@@ -1,15 +1,21 @@
 package springboot.backend.repository;
 
-
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import springboot.backend.model.Unit;
 
+import springboot.backend.model.Unit;
+import springboot.backend.model.UnitReservation;
+
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
-@RepositoryRestResource(path = "unit")
 public interface UnitRepo extends JpaRepository<Unit, Long> {
+
     Optional<Unit> findByUnitName(String unitName);
+
     @Query("""
         SELECT u FROM Unit u
         WHERE 

@@ -1,22 +1,27 @@
 package springboot.backend.controller;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import springboot.backend.model.Unit;
 import springboot.backend.repository.UnitRepo;
+import springboot.backend.service.UnitService;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = "${FRONTEND_URL}")
 @RequestMapping("/unit")
 public class UnitController {
 
     @Autowired
     private UnitRepo repo;
+
+    @Autowired
+    private UnitService unitService;
 
     @GetMapping("/all")
     public List<Unit> getAllUnits() {
@@ -26,9 +31,7 @@ public class UnitController {
     @PostMapping("/add")
     public ResponseEntity<?> addUnit(@RequestBody Unit unit) {
         if (repo.findByUnitName(unit.getUnitName()).isPresent()) {
-            return ResponseEntity
-                    .status(409)
-                    .body("Unit already exists");
+            return ResponseEntity.status(409).body("Unit already exists");
         }
         repo.save(unit);
         return ResponseEntity.ok("Unit added successfully");
@@ -43,18 +46,18 @@ public class UnitController {
     public void deleteUnit(@PathVariable Long id) {
         repo.deleteById(id);
     }
+
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateUnit(@PathVariable Long id, @RequestBody Unit updatedUnit) {
+    public ResponseEntity<?> updateUnit(
+            @PathVariable Long id,
+            @RequestBody Unit updatedUnit
+    ) {
         return repo.findById(id).map(existingUnit -> {
             updatedUnit.setIdUnit(id);
             repo.save(updatedUnit);
             return ResponseEntity.ok("Unit updated successfully");
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
-
-
-    @Autowired
-    private UnitService unitService;
 
     @GetMapping("/filter")
     public List<Unit> filterUnits(
@@ -67,8 +70,10 @@ public class UnitController {
             @RequestParam(required = false) Boolean hasWifi,
             @RequestParam(required = false) Boolean hasBreakfast,
             @RequestParam(required = false) Boolean hasAirConditioning,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         return unitService.filterUnits(
                 location,
@@ -84,7 +89,4 @@ public class UnitController {
                 endDate
         );
     }
-
-
-
 }

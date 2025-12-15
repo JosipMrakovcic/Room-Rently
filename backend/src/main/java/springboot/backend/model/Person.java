@@ -11,8 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "person")
-@Getter
-@Setter
 public class Person {
 
     @Id

@@ -1,1 +1,3 @@
 /springboot/backend/.idea
+client/.env
+client/package-lock.json

@@ -11,12 +11,11 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "unit")
-@Getter // automatski generira sve gettere
-@Setter // automatski generira sve settere
 public class Unit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_unit")
     private Long idUnit;
 
     @Column(nullable = false)
@@ -34,7 +33,7 @@ public class Unit {
     @Column(nullable = false)
     private Integer numBeds;
 
-    @Column(nullable = true)
+    @Column
     private Integer rating;
 
     @Column(nullable = false)
@@ -65,11 +64,10 @@ public class Unit {
     @JsonProperty("isApartment")
     private boolean apartment;
 
-
     @Column(columnDefinition = "text", nullable = false)
     private String unitName;
 
-    @Column(columnDefinition = "text", nullable = true)
+    @Column(columnDefinition = "text")
     private String location;
 
     @Column(columnDefinition = "text", nullable = false)
@@ -89,21 +87,4 @@ public class Unit {
 
     @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UnitReservation> unitReservations;
-
-    public Long getIdUnit() {
-        return idUnit;
-    }
-
-    public void setIdUnit(Long idUnit) {
-        this.idUnit = idUnit;
-    }
-
-    public String getUnitName() {
-        return unitName;
-    }
-
-    public void setUnitName(String unitName) {
-        this.unitName = unitName;
-    }
-
 }

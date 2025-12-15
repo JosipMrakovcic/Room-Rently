@@ -247,3 +247,60 @@ html,
 body {
   overflow-x: hidden;
 }
+.amenitiesToggle {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: clamp(13px, 1.5vw, 14px);
+    font-weight: 500;
+    color: #222;
+    padding-bottom: 5px; 
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.arrow {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 10px;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #333; /* Početno stanje: Strelica dolje */
+    transition: transform 0.3s ease;
+}
+
+.arrow.open {
+    transform: rotate(180deg); /* Stanje 'otvoreno': Strelica gore */
+    border-top: none; 
+    border-bottom: 5px solid #333;
+}
+
+.amenitiesDropdown {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    
+    /* Postavka za desktop/tablet: 3 stupca */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 10px 5px; 
+    font-size: clamp(12px, 1.4vw, 13px);
+}
+
+/* Osigurava da su checkbox i labela u jednom redu */
+.amenityItem {
+    display: flex; 
+    align-items: center;
+    /* white-space: nowrap; - ne treba ovdje, ali pomaže */
+}
+
+/* MEDIA QUERY: Na manjim ekranima smanjimo na 2 stupca kako bi dulje labele stale */
+@media (max-width: 600px) {
+    .amenitiesDropdown {
+        /* Prelazak na 2 stupca na mobitelima */
+        grid-template-columns: repeat(2, 1fr); 
+    }
+}

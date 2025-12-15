@@ -28,7 +28,7 @@ const Header = ({ type }) => {
   });
   const navigate = useNavigate();
   const handleSearch = () => {
-    navigate("/hotels", { state: { destination, date, options } });
+    navigate("/hotels", { state: { destination, options } });
   };
   const handleoption = (name, operation) => {
     setoptions((prev) => {
@@ -45,17 +45,6 @@ const Header = ({ type }) => {
           type === "list" ? "headerContainer listmode" : "headerContainer"
         }
       >
-        <div className="headerList">
-          <div className="headerListItem active">
-            {/* ikona*/}
-            <span>Apartments</span>
-          </div>
-
-          <div className="headerListItem">
-            {/* ikona*/}
-            <span>Rooms</span>
-          </div>
-        </div>
 
         {type !== "list" && (
           <>

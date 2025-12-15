@@ -2,9 +2,11 @@ package springboot.backend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import springboot.backend.model.Unit;
 import springboot.backend.repository.UnitRepo;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -15,30 +17,40 @@ public class UnitService {
     private UnitRepo unitRepo;
 
     public List<Unit> filterUnits(
-            String location,
+            String name,
             Integer adults,
             Integer children,
-            Integer minRating,
+            Integer rooms,
             Boolean isApartment,
             Boolean hasParking,
             Boolean hasWifi,
             Boolean hasBreakfast,
+            Boolean hasTowels,
+            Boolean hasShampoo,
+            Boolean hasHairDryer,
+            Boolean hasHeater,
             Boolean hasAirConditioning,
-            LocalDate startDate,
-            LocalDate endDate
+            BigDecimal minPrice, // <-- NOVO
+            BigDecimal maxPrice  // <-- NOVO
     ) {
+
+        String searchName = StringUtils.hasText(name) ? name : null;
         return unitRepo.filterUnits(
-                location,
+                searchName,
                 adults,
                 children,
-                minRating,
+                rooms,
                 isApartment,
                 hasParking,
                 hasWifi,
                 hasBreakfast,
+                hasTowels,
+                hasShampoo,
+                hasHairDryer,
+                hasHeater,
                 hasAirConditioning,
-                startDate,
-                endDate
+                minPrice, // <-- PROSLIJEĐENO
+                maxPrice  // <-- PROSLIJEĐENO
         );
     }
 }

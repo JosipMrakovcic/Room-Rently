@@ -1,7 +1,9 @@
 package springboot.backend.controller;
 
+// springboot.backend.controller.UnitController
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
+// Uklonjeni import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,7 +11,8 @@ import springboot.backend.model.Unit;
 import springboot.backend.repository.UnitRepo;
 import springboot.backend.service.UnitService;
 
-import java.time.LocalDate;
+// Uklonjeni import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,32 +64,41 @@ public class UnitController {
 
     @GetMapping("/filter")
     public List<Unit> filterUnits(
-            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String name,
             @RequestParam(required = false) Integer adults,
             @RequestParam(required = false) Integer children,
-            @RequestParam(required = false) Integer minRating,
+            @RequestParam(required = false) Integer rooms,
             @RequestParam(required = false) Boolean isApartment,
             @RequestParam(required = false) Boolean hasParking,
             @RequestParam(required = false) Boolean hasWifi,
             @RequestParam(required = false) Boolean hasBreakfast,
+            @RequestParam(required = false) Boolean hasTowels,
+            @RequestParam(required = false) Boolean hasShampoo,
+            @RequestParam(required = false) Boolean hasHairDryer,
+            @RequestParam(required = false) Boolean hasHeater,
             @RequestParam(required = false) Boolean hasAirConditioning,
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice
     ) {
+
+        BigDecimal bdMinPrice = minPrice != null ? BigDecimal.valueOf(minPrice) : null;
+        BigDecimal bdMaxPrice = maxPrice != null ? BigDecimal.valueOf(maxPrice) : null;
         return unitService.filterUnits(
-                location,
+                name,
                 adults,
                 children,
-                minRating,
+                rooms,
                 isApartment,
                 hasParking,
                 hasWifi,
                 hasBreakfast,
+                hasTowels, // <-- DODANO
+                hasShampoo, // <-- DODANO
+                hasHairDryer, // <-- DODANO
+                hasHeater, // <-- DODANO
                 hasAirConditioning,
-                startDate,
-                endDate
+                bdMinPrice, // <-- PROSLIJEĐENO
+                bdMaxPrice
         );
     }
 }

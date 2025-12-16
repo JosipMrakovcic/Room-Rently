@@ -11,14 +11,7 @@
   cursor: pointer;
   margin: 0 10px;
 }
-.hotelwrapper {
-  width: 100%;
-  max-width: 1024px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  position: relative;
-}
+
 
 .hoteltitle {
   font-size: 28px;
@@ -46,24 +39,7 @@
   font-size: 14px;
 }
 
-.booknow {
-  position: absolute;
-  top: 10px;
-  right: 0;
-  border: none;
-  padding: 12px 24px;
-  background: linear-gradient(135deg, rgb(0, 115, 255), rgb(0, 90, 200));
-  color: #ffffff;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
 
-.booknow:hover {
-  background: linear-gradient(135deg, rgb(0, 100, 220), rgb(0, 70, 180));
-  transform: translateY(-2px);
-}
 
 .hotelimages {
   display: flex;
@@ -236,4 +212,122 @@
 .sliderimg {
   width: 80%;
   height: 80vh;
+}
+.unitInfoList {
+  margin-top: 20px;
+}
+
+.unitInfoList ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.unitInfoList li {
+  background-color: #f0f0f0;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.amenitiesHighlight {
+  margin-top: 25px;
+  padding: 15px;
+  background-color: #ebf3ff; /* Svijetlo plava/zelena pozadina */
+  border-radius: 8px;
+  border-left: 5px solid #008009; /* Zeleni rub */
+}
+
+.amenitiesHighlight h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #008009;
+}
+
+.amenityTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.amenityTag {
+  background-color: white;
+  color: #008009;
+  border: 1px solid #008009;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+
+.noAmenitiesText {
+  color: #555;
+  font-style: italic;
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 5px;
+  border: 1px dashed #ccc;
+}
+/* --- Zadržavamo tvoj originalni kontejner, ali osiguravamo prostor za gumbe --- */
+.hotelwrapper {
+  width: 100%;
+  max-width: 1024px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: relative;
+  padding-top: 10px; /* Dodano da gumbi ne udaraju u vrh */
+}
+
+/* NOVO: Ovaj kontejner drži Back gumb, a Book Now ostaje apsolutan unutar njega */
+.hotelButtonsTop {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  position: relative; /* Ovo omogućuje da .booknow bude desno unutar ovog reda */
+  margin-bottom: 10px;
+}
+
+/* Tvoj originalni stil za Book Now koji si tražio */
+.booknow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border: none;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, rgb(0, 115, 255), rgb(0, 90, 200));
+  color: #ffffff;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.booknow:hover {
+  background: linear-gradient(135deg, rgb(0, 100, 220), rgb(0, 70, 180));
+  transform: translateY(-2px);
+}
+
+/* Stil za Back to Search - manji i lijevo */
+.backToList {
+  background-color: transparent;
+  border: 1px solid #0071c2;
+  color: #0071c2;
+  padding: 8px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.backToList:hover {
+  background-color: #0071c2;
+  color: white;
 }

@@ -6,7 +6,11 @@ import Featured from "../../components/featured/featured";
 import Propertylist from "../../components/propertylist/propertylist";
 import Featuredproperties from "../../components/featuredproperties/featuredproperties";
 import Maillist from "../../components/maillist/maillist";
+import { useEffect } from "react";
 const Home = () => {
+  useEffect(() => {
+    sessionStorage.removeItem("lastSearch");
+  }, []);
   return (
     <div>
       <Navbar></Navbar>

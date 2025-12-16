@@ -28,6 +28,10 @@ const Header = ({ type }) => {
   });
   const navigate = useNavigate();
   const handleSearch = () => {
+    // Spremamo u sessionStorage prije navigacije
+    const searchData = { destination, options };
+    sessionStorage.setItem("lastSearch", JSON.stringify(searchData));
+    
     navigate("/hotels", { state: { destination, options } });
   };
   const handleoption = (name, operation) => {

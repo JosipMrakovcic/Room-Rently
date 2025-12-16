@@ -26,7 +26,8 @@ function App() {
           <Route path="/form/:id" element={<ApartmentForm />} /> 
           <Route path="/admin" element={<RentalUnits />} />
           <Route path="/booked-reservations" element={<UserReservations />} />
-           <Route path="/owner-dashboard" element={<OwnerDashboard />} />
+          <Route path="/owner-dashboard" element={<OwnerDashboard />} />
+          
         </Routes>
       </BrowserRouter>
     </GoogleOAuthProvider>

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import { Bar, Pie } from "react-chartjs-2";
 import jsPDF from "jspdf";
 import * as XLSX from "xlsx";
@@ -24,10 +24,10 @@ export default function OwnerDashboard() {
   const [reservations, setReservations] = useState([]);
   const [popup, setPopup] = useState({ visible: false, action: "", reservationId: null });
 
-  // Refs za grafikone
   const occupancyRef = useRef(null);
   const countryRef = useRef(null);
   const servicesRef = useRef(null);
+  const amenitiesRef = useRef(null);
 
   // --- 1. SIGURNOSNA PROVJERA I DOHVAĆANJE PODATAKA ---
   useEffect(() => {
@@ -45,7 +45,6 @@ export default function OwnerDashboard() {
   const fetchReservations = async () => {
     try {
       const token = localStorage.getItem("access_token");
-      // Putanja iz tvog Spring Boot controllera: @RequestMapping("/unitReservation") + @GetMapping("/all")
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/unitReservation/all`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -55,13 +54,85 @@ export default function OwnerDashboard() {
     }
   };
 
-  // --- 2. LOGIKA ZA PROMJENU STATUSA ---
+  // --- 2. DINAMIČKA OBRADA PODATAKA ZA GRAFIKONE ---
+
+  const monthlyStats = useMemo(() => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const guestCounts = new Array(12).fill(0);
+    reservations.forEach(res => {
+      const date = new Date(res.startDate);
+      if (date.getFullYear() === 2025 && res.status !== "Rejected") {
+        guestCounts[date.getMonth()] += (res.adults + (res.children || 0));
+      }
+    });
+    return { labels: months, data: guestCounts };
+  }, [reservations]);
+
+  const amenitiesStats = useMemo(() => {
+    const counts = {};
+    reservations.forEach(res => {
+      let amenityList = [];
+      // Koristimo selectedAmenities jer si to koristio u UserReservations
+      const rawAmenities = res.selectedAmenities || res.amenities;
+      
+      if (Array.isArray(rawAmenities)) {
+        amenityList = rawAmenities;
+      } else if (typeof rawAmenities === "string" && rawAmenities.trim() !== "") {
+        amenityList = rawAmenities.split(",").map(item => item.trim());
+      }
+
+      amenityList.forEach(amenity => {
+        const formattedName = amenity.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
+        if (formattedName) {
+          counts[formattedName] = (counts[formattedName] || 0) + 1;
+        }
+      });
+    });
+    const sortedLabels = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+    return { labels: sortedLabels, data: sortedLabels.map(l => counts[l]) };
+  }, [reservations]);
+
+  const unitStats = useMemo(() => {
+    const counts = {};
+    reservations.forEach(res => {
+      const name = res.unit?.unitName || "Unknown";
+      counts[name] = (counts[name] || 0) + 1;
+    });
+    return { labels: Object.keys(counts), data: Object.values(counts) };
+  }, [reservations]);
+
+  const countryStats = useMemo(() => {
+    const counts = {};
+    reservations.forEach(res => {
+      const c = res.country || "Other";
+      counts[c] = (counts[c] || 0) + 1;
+    });
+    return { labels: Object.keys(counts), data: Object.values(counts) };
+  }, [reservations]);
+
+  const monthlyGuestsData = {
+    labels: monthlyStats.labels,
+    datasets: [{ label: "Total Guests", data: monthlyStats.data, backgroundColor: "#004080" }]
+  };
+
+  const amenitiesData = { 
+    labels: amenitiesStats.labels, 
+    datasets: [{ label: "Number of Requests", data: amenitiesStats.data, backgroundColor: "rgba(75, 192, 192, 0.6)" }] 
+  };
+
+  const guestsByCountryData = { 
+    labels: countryStats.labels, 
+    datasets: [{ label: "Guests", data: countryStats.data, backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"] }] 
+  };
+
+  const popularServicesData = { 
+    labels: unitStats.labels, 
+    datasets: [{ label: "Reservations", data: unitStats.data, backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"] }] 
+  };
+
   const handleUpdateStatus = async (id, newStatus) => {
     try {
       const token = localStorage.getItem("access_token");
-      
-      // Koristimo axios za PUT zahtjev prema novom endpointu koji trebate dodati u backend
-      // Ako tvoj backend koristi @PutMapping("/update-status/{id}")
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/unitReservation/update-status/${id}`,
         { status: newStatus },
@@ -85,21 +156,6 @@ export default function OwnerDashboard() {
     setPopup({ visible: false, action: "", reservationId: null });
   };
 
-  // --- 3. PODACI ZA GRAFIKONE ---
-  const occupancyData = { 
-    labels: ["Room 101", "Room 102", "Suite 201"], 
-    datasets: [{ label: "Occupancy (%)", data: [70, 85, 60], backgroundColor: "rgba(75, 192, 192, 0.6)" }] 
-  };
-  const guestsByCountryData = { 
-    labels: ["Croatia", "Germany", "USA", "Italy"], 
-    datasets: [{ label: "Guests", data: [40, 30, 20, 10], backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"] }] 
-  };
-  const popularServicesData = { 
-    labels: ["Breakfast", "WiFi", "Parking"], 
-    datasets: [{ label: "Usage", data: [50, 80, 30], backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"] }] 
-  };
-
-  // --- 4. EXPORT FUNKCIJE ---
   const addChartToPDF = (doc, chartRef, x, y, width = 140, height = 90) => {
     const chart = chartRef.current;
     if (!chart) return;
@@ -109,15 +165,42 @@ export default function OwnerDashboard() {
 
   const exportStatsPDF = () => {
     const doc = new jsPDF();
-    doc.setFontSize(18);
-    doc.text("Hotel Statistics Report", 20, 20);
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    doc.setFontSize(20);
+    doc.setTextColor(0, 64, 128); // Tamno plava boja kao u dashboardu
+    doc.text("Hotel Statistics Report - 2025", pageWidth / 2, 20, { align: "center" });
+
     doc.setFontSize(12);
-    doc.text("Occupancy Rates:", 20, 32);
-    addChartToPDF(doc, occupancyRef, 20, 35);
+    doc.setTextColor(0, 0, 0);
+
+    // --- STRANICA 1 ---
+    // 1. Grafikon: Mjesečni gosti
+    doc.text("1. Monthly Guest Count:", 20, 35);
+    addChartToPDF(doc, occupancyRef, 20, 40, 170, 80);
+
+    // 2. Grafikon: Pogodnosti (Amenities)
+    doc.text("2. Most Requested Amenities:", 20, 135);
+    addChartToPDF(doc, amenitiesRef, 20, 140, 170, 80);
+
+    // --- STRANICA 2 ---
     doc.addPage();
-    doc.text("Guests by Country:", 20, 20);
-    addChartToPDF(doc, countryRef, 20, 25);
-    doc.save("owner_statistics.pdf");
+    doc.setFontSize(20);
+    doc.setTextColor(0, 64, 128);
+    doc.text("Geographic & Unit Analytics", pageWidth / 2, 20, { align: "center" });
+
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+
+    // 3. Grafikon: Gosti po državama
+    doc.text("3. Guests by Country:", 20, 35);
+    addChartToPDF(doc, countryRef, 40, 40, 120, 90); // Pie chart je bolji u manjem kvadratnom formatu
+
+    // 4. Grafikon: Popularnost jedinica
+    doc.text("4. Unit Popularity:", 20, 145);
+    addChartToPDF(doc, servicesRef, 40, 150, 120, 90);
+
+    doc.save("hotel_detailed_statistics.pdf");
   };
 
   const exportReservationsXLSX = () => {
@@ -129,7 +212,8 @@ export default function OwnerDashboard() {
         To: r.endDate,
         Status: r.status,
         Adults: r.adults,
-        Children: r.children
+        Children: r.children,
+        Amenities: r.selectedAmenities || (Array.isArray(r.amenities) ? r.amenities.join(", ") : r.amenities)
       }))
     );
     const wb = XLSX.utils.book_new();
@@ -137,6 +221,48 @@ export default function OwnerDashboard() {
     XLSX.writeFile(wb, "hotel_reservations.xlsx");
   };
 
+  const exportStatsXLSX = () => {
+    const wb = XLSX.utils.book_new();
+
+    // 1. Podaci za Mjesečnu statistiku
+    const monthlyWS = XLSX.utils.json_to_sheet(
+      monthlyStats.labels.map((label, index) => ({
+        Month: label,
+        Total_Guests: monthlyStats.data[index]
+      }))
+    );
+    XLSX.utils.book_append_sheet(wb, monthlyWS, "Monthly Stats");
+
+    // 2. Podaci za Amenities (Pogodnosti)
+    const amenitiesWS = XLSX.utils.json_to_sheet(
+      amenitiesStats.labels.map((label, index) => ({
+        Amenity: label,
+        Requests: amenitiesStats.data[index]
+      }))
+    );
+    XLSX.utils.book_append_sheet(wb, amenitiesWS, "Amenities Stats");
+
+    // 3. Podaci za Države
+    const countryWS = XLSX.utils.json_to_sheet(
+      countryStats.labels.map((label, index) => ({
+        Country: label,
+        Count: countryStats.data[index]
+      }))
+    );
+    XLSX.utils.book_append_sheet(wb, countryWS, "Country Stats");
+
+    // 4. Podaci za Popularnost Jedinica
+    const unitWS = XLSX.utils.json_to_sheet(
+      unitStats.labels.map((label, index) => ({
+        Unit_Name: label,
+        Reservations: unitStats.data[index]
+      }))
+    );
+    XLSX.utils.book_append_sheet(wb, unitWS, "Unit Stats");
+
+    // Spremamo datoteku
+    XLSX.writeFile(wb, "hotel_business_analytics.xlsx");
+  };
   return (
     <div className="owner-dashboard">
       <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -145,29 +271,14 @@ export default function OwnerDashboard() {
           <button 
             className={`tab-btn ${activeTab === "stats" ? "active" : ""}`}
             onClick={() => setActiveTab("stats")}
-            style={{ 
-              marginRight: '10px', 
-              padding: '10px 20px',
-              cursor: 'pointer',
-              borderRadius: '5px',
-              border: 'none',
-              background: activeTab === 'stats' ? '#004080' : '#4a6fa5', 
-              color: 'white' 
-            }}
+            style={{ marginRight: '10px', padding: '10px 20px', cursor: 'pointer', borderRadius: '5px', border: 'none', background: activeTab === 'stats' ? '#004080' : '#4a6fa5', color: 'white' }}
           >
             📊 Statistics
           </button>
           <button 
             className={`tab-btn ${activeTab === "reservations" ? "active" : ""}`}
             onClick={() => setActiveTab("reservations")}
-            style={{ 
-              padding: '10px 20px',
-              cursor: 'pointer',
-              borderRadius: '5px',
-              border: 'none',
-              background: activeTab === 'reservations' ? '#004080' : '#4a6fa5', 
-              color: 'white' 
-            }}
+            style={{ padding: '10px 20px', cursor: 'pointer', borderRadius: '5px', border: 'none', background: activeTab === 'reservations' ? '#004080' : '#4a6fa5', color: 'white' }}
           >
             📅 Reservations
           </button>
@@ -176,22 +287,52 @@ export default function OwnerDashboard() {
 
       <h1>Owner Dashboard</h1>
 
-      {/* --- TAB 1: STATISTIKA --- */}
       {activeTab === "stats" && (
         <section className="statistics">
           <h2>Business Overview</h2>
           <div className="charts">
-            <div className="chart-container"><Bar ref={occupancyRef} data={occupancyData} /></div>
-            <div className="chart-container"><Pie ref={countryRef} data={guestsByCountryData} /></div>
-            <div className="chart-container"><Pie ref={servicesRef} data={popularServicesData} /></div>
+            <div className="chart-container">
+                <h3>Guests per Month (2025)</h3>
+                <Bar ref={occupancyRef} data={monthlyGuestsData} />
+            </div>
+            <div className="chart-container">
+                <h3>Most Requested Amenities</h3>
+                <Bar 
+                    ref={amenitiesRef} 
+                    data={amenitiesData} 
+                    options={{ 
+                        indexAxis: 'y', 
+                        plugins: { legend: { display: false } },
+                        scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                    }} 
+                />
+            </div>
+            <div className="chart-container">
+                <h3>Guests by Country</h3>
+                <Pie ref={countryRef} data={guestsByCountryData} />
+            </div>
+            <div className="chart-container">
+                <h3>Unit Popularity</h3>
+                <Pie ref={servicesRef} data={popularServicesData} />
+            </div>
           </div>
-          <div className="export-buttons">
-            <button onClick={exportStatsPDF}>Export Stats PDF</button>
+          <div className="export-buttons" style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+            <button 
+              onClick={exportStatsPDF} 
+              style={{ background: '#dc3545', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}
+            >
+              Export Stats PDF
+            </button>
+            <button 
+              onClick={exportStatsXLSX} 
+              style={{ background: '#28a745', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}
+            >
+              Export Stats Excel
+            </button>
           </div>
         </section>
       )}
 
-      {/* --- TAB 2: REZERVACIJE --- */}
       {activeTab === "reservations" && (
         <section className="reservations">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -207,6 +348,7 @@ export default function OwnerDashboard() {
                 <th>Guest</th>
                 <th>Unit</th>
                 <th>Dates</th>
+                <th>Amenities</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -218,6 +360,17 @@ export default function OwnerDashboard() {
                     <td>{r.person?.name}</td>
                     <td>{r.unit?.unitName}</td>
                     <td>{r.startDate} to {r.endDate}</td>
+                    <td style={{ maxWidth: '250px' }}>
+                      <div className="amenitiesTags">
+                        {(r.selectedAmenities || r.amenities) ? (
+                          (r.selectedAmenities || (Array.isArray(r.amenities) ? r.amenities.join(", ") : r.amenities))
+                            .split(", ")
+                            .map((am, i) => (
+                              <span key={i} className="amenityTag">{am}</span>
+                            ))
+                        ) : <span className="detailValue">None</span>}
+                      </div>
+                    </td>
                     <td><span className={`status-badge ${r.status.toLowerCase()}`}>{r.status}</span></td>
                     <td>
                       {r.status === "Pending" && (
@@ -233,7 +386,7 @@ export default function OwnerDashboard() {
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan="5" style={{ textAlign: 'center' }}>No reservations found.</td></tr>
+                <tr><td colSpan="6" style={{ textAlign: 'center' }}>No reservations found.</td></tr>
               )}
             </tbody>
           </table>
@@ -244,13 +397,28 @@ export default function OwnerDashboard() {
                 <p><strong>Guest:</strong> {r.person?.name}</p>
                 <p><strong>Unit:</strong> {r.unit?.unitName}</p>
                 <p><strong>Dates:</strong> {r.startDate} - {r.endDate}</p>
-                <p><strong>Status:</strong> {r.status}</p>
+                <div className="detailItem">
+                  <strong>Amenities:</strong>
+                  <div className="amenitiesTags">
+                    {(r.selectedAmenities || r.amenities) ? (
+                      (r.selectedAmenities || (Array.isArray(r.amenities) ? r.amenities.join(", ") : r.amenities))
+                        .split(", ")
+                        .map((am, i) => (
+                          <span key={i} className="amenityTag">{am}</span>
+                        ))
+                    ) : <span className="detailValue">None</span>}
+                  </div>
+                </div>
+                <p style={{ marginTop: '10px' }}><strong>Status:</strong> {r.status}</p>
                 <div className="card-buttons">
                   {r.status === "Pending" && (
                     <>
                       <button className="confirm-btn" onClick={() => setPopup({ visible: true, action: "Confirm", reservationId: r.idUnitReservation })}>Confirm</button>
                       <button className="reject-btn" onClick={() => setPopup({ visible: true, action: "Reject", reservationId: r.idUnitReservation })}>Reject</button>
                     </>
+                  )}
+                  {r.status === "Confirmed" && (
+                    <button className="reject-btn" onClick={() => handleUpdateStatus(r.idUnitReservation, "Cancelled")}>Cancel</button>
                   )}
                 </div>
               </div>
@@ -259,7 +427,6 @@ export default function OwnerDashboard() {
         </section>
       )}
 
-      {/* --- POPUP OVERLAY --- */}
       {popup.visible && (
         <div className="popup-overlay">
           <div className="popup">

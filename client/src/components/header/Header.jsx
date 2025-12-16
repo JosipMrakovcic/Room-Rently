@@ -60,14 +60,6 @@ const Header = ({ type }) => {
               locations. Easy booking and the best prices, only with
               Room-Rently.
             </p>
-            {user?.is_admin && (
-              <button
-                className="headerBTN"
-                onClick={() => navigate("/admin")}
-              >
-                Admin Page
-              </button>
-            )}
 
             <div className="headerSearch">
               <div className="headerSearchItem">

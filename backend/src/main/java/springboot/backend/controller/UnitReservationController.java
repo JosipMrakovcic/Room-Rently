@@ -2,6 +2,8 @@ package springboot.backend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import springboot.backend.dto.ReservationRequest;
 import springboot.backend.model.Person;
@@ -10,7 +12,8 @@ import springboot.backend.model.UnitReservation;
 import springboot.backend.repository.PersonRepo;
 import springboot.backend.repository.UnitRepo;
 import springboot.backend.repository.UnitReservationRepo;
-
+import org.springframework.security.core.Authentication; // PAZI NA IMPORT!
+import org.springframework.http.HttpStatus;
 import java.util.List;
 
 @RestController
@@ -23,30 +26,49 @@ public class UnitReservationController {
     @Autowired private UnitRepo unitRepo;
 
     @PostMapping("/add")
-    public ResponseEntity<?> addReservation(@RequestBody ReservationRequest req) {
+    public ResponseEntity<?> addReservation(@RequestBody ReservationRequest req, @AuthenticationPrincipal Jwt jwt) {
         try {
+            // 1. Provjera je li korisnik uopće ulogiran
+            if (jwt == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Morate biti prijavljeni.");
+            }
+
+            // 2. Izvlačenje emaila iz tokena radi dodatne sigurnosti
+            String email = jwt.getClaimAsString("email");
+
+            // 3. Pronalaženje osobe (i provjera postoji li u bazi)
+            Person person = personRepo.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Korisnik nije pronađen u sustavu."));
+
+            // 4. KLJUČNA PROVJERA: Smije li ovaj korisnik rezervirati?
+            if (!person.isUser()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Samo registrirani korisnici s ulogom 'User' mogu raditi rezervacije.");
+            }
+
+            // 5. Kreiranje rezervacije
             UnitReservation res = new UnitReservation();
             res.setStartDate(req.getStartDate());
             res.setEndDate(req.getEndDate());
             res.setAdults(req.getAdults());
             res.setChildren(req.getChildren());
-            res.setStatus("Pending"); // Inicijalni status
+            res.setStatus("Pending");
 
-            // Pronalaženje osobe preko id-a
-            Person person = personRepo.findById(req.getPersonId())
-                    .orElseThrow(() -> new RuntimeException("Korisnik nije pronađen"));
+            // Vežemo provjerenu osobu iz baze (ne samo id iz requesta)
             res.setPerson(person);
 
-            // Pronalaženje jedinice preko idUnit
+            // Pronalaženje jedinice
             Unit unit = unitRepo.findById(req.getUnitId())
                     .orElseThrow(() -> new RuntimeException("Smještaj nije pronađen"));
             res.setUnit(unit);
+
             if (req.getAmenities() != null && !req.getAmenities().isEmpty()) {
                 res.setSelectedAmenities(String.join(", ", req.getAmenities()));
             }
 
             repo.save(res);
             return ResponseEntity.ok("Rezervacija uspješno poslana na čekanje!");
+
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Greška: " + e.getMessage());
         }
@@ -57,5 +79,40 @@ public class UnitReservationController {
     @GetMapping("/all")
     public List<UnitReservation> getAll() {
         return repo.findAll();
+    }
+    @GetMapping("/my-reservations")
+    public ResponseEntity<List<UnitReservation>> getMyReservations(@AuthenticationPrincipal Jwt jwt) {
+        if (jwt == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Google token sadrži email u claimu "email"
+        String email = jwt.getClaimAsString("email");
+
+        List<UnitReservation> userReservations = repo.findByPersonEmail(email);
+        return ResponseEntity.ok(userReservations);
+    }
+
+    // 2. Sigurno otkazivanje rezervacije
+    @PutMapping("/cancel/{id}")
+    public ResponseEntity<?> cancelReservation(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+        if (jwt == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Izvlačimo email iz JWT claim-a
+        String email = jwt.getClaimAsString("email");
+
+        return repo.findById(id).map(res -> {
+            // Provjera: Pripada li rezervacija osobi s tim emailom?
+            if (!res.getPerson().getEmail().equals(email)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Ne možete otkazati tuđu rezervaciju!");
+            }
+
+            res.setStatus("Cancelled");
+            repo.save(res);
+            return ResponseEntity.ok("Rezervacija #" + id + " je uspješno otkazana.");
+        }).orElse(ResponseEntity.notFound().build());
     }
 }

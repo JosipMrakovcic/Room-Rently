@@ -23,7 +23,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/addPerson", "/deletePerson/**").authenticated()
+                        // Dopuštamo ove tri rute ulogiranim korisnicima bez obzira na ulogu
+                        .requestMatchers("/addPerson", "/me", "/unitReservation/add").authenticated()
+                        // Sve ostalo (poput dohvaćanja apartmana) neka bude javno
                         .anyRequest().permitAll()
                 )
                 .oauth2ResourceServer(oauth2 ->

@@ -220,3 +220,32 @@ padding: 20px;
   background-color: #f8d7da; 
   color: #721c24;
 }
+.userReservationsPage .amenitiesTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 5px;
+}
+
+.userReservationsPage .amenityTag {
+  background-color: #f0f7ff;
+  color: #00509e;
+  border: 1px solid #b3d9ff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.loading {
+  text-align: center;
+  margin-top: 100px;
+  font-size: 1.2rem;
+  color: #003366;
+  font-weight: bold;
+}
+
+/* Osiguranje da se status badge ne zalijepi za ID */
+.userReservationsPage .reservationStatus {
+  display: inline-block;
+}

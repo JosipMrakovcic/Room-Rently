@@ -1,38 +1,55 @@
 import "./navbar.css";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { googleLogout, GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 
 const Navbar = () => {
   const navigate = useNavigate();
-
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("googleUser");
     return savedUser ? JSON.parse(savedUser) : null;
   });
+
+  // Provjera tokena pri svakom učitavanju za maksimalnu sigurnost
+  useEffect(() => {
+    const verifyUser = async () => {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        try {
+          const { data: verifiedUser } = await axios.get(
+            `${process.env.REACT_APP_API_URL}/me`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          
+          const decoded = jwtDecode(token);
+          const finalUser = { ...decoded, ...verifiedUser };
+          
+          setUser(finalUser);
+          localStorage.setItem("googleUser", JSON.stringify(finalUser));
+        } catch (err) {
+          console.error("Session expired or invalid");
+          logout(); 
+        }
+      }
+    };
+    verifyUser();
+  }, []);
 
   const logout = () => {
     googleLogout();
     setUser(null);
     localStorage.removeItem("googleUser");
     localStorage.removeItem("access_token");
-    navigate(0);
+    // Maknuto navigate("/") kako bi ostali na istoj stranici
+    window.location.reload(); 
   };
-
-  const navigatelandingscreen = () => navigate("/");
-
-  //Booked reservations
-  const navigateBookedReservations = () => navigate("/booked-reservations");
-
-  //Dashboard navigation
-  const navigateDashboard = () => navigate("/owner-dashboard");
 
   return (
     <div className="navbar">
       <div className="navContainer">
-        <span className="logo" onClick={navigatelandingscreen}>
+        <span className="logo" onClick={() => navigate("/")}>
           Room-Rently
         </span>
 
@@ -49,19 +66,15 @@ const Navbar = () => {
                       await axios.post(
                         `${process.env.REACT_APP_API_URL}/addPerson`,
                         {},
-                        { headers: { Authorization: `Bearer ${idToken}` }, 
-                        withCredentials: true // <--- dodaj ovo
-                        }
+                        { headers: { Authorization: `Bearer ${idToken}` } }
                       );
                     } catch (err) {
-                      if (err.response && err.response.status !== 409) throw err;
+                      if (err.response?.status !== 409) throw err;
                     }
 
                     const { data: userFromDB } = await axios.get(
                       `${process.env.REACT_APP_API_URL}/me`,
-                      { headers: { Authorization: `Bearer ${idToken}` }, 
-                        withCredentials: true // <--- dodaj ovo
-                        }
+                      { headers: { Authorization: `Bearer ${idToken}` } }
                     );
 
                     const decoded = jwtDecode(idToken);
@@ -70,60 +83,52 @@ const Navbar = () => {
                     setUser(finalUser);
                     localStorage.setItem("googleUser", JSON.stringify(finalUser));
                     localStorage.setItem("access_token", idToken);
-
-                    navigate(0);
+                    
+                    window.location.reload(); 
                   } catch (err) {
-                    console.error("Error processing Google login:", err);
+                    console.error("Login Error:", err.message);
                   }
                 }}
-                onError={() => console.log("Login Failed")}
-                useOneTap
                 theme="filled_blue"
-                shape="rectangular"
-                text="signin_with"
+                shape="pill"
                 size="medium"
-                width="200"
-                locale="en"
               />
             </div>
           ) : (
-            <>
+            <div className="navUserActions">
               <img
                 src={user.picture}
                 alt="profile"
-                style={{
-                  width: "35px",
-                  height: "35px",
-                  borderRadius: "50%",
-                  marginRight: "10px",
-                }}
+                className="navProfileImg"
                 referrerPolicy="no-referrer"
               />
+              <span className="userName">{user.name}</span>
 
-              <span>{user.name}</span>
+              {/* Admin vidi samo Admin Panel */}
+              {user.is_admin && (
+                <button className="navButton adminBtn" onClick={() => navigate("/admin")}>
+                  Admin Panel
+                </button>
+              )}
 
-              {/* dashboard button */}
-              <button
-                className="navButton"
-                onClick={navigateDashboard}
-                style={{ marginLeft: "10px" }}
-              >
-                Dashboard
-              </button>
+              {/* Owner vidi samo Dashboard */}
+              {user.is_owner && (
+                <button className="navButton" onClick={() => navigate("/owner-dashboard")}>
+                  Dashboard
+                </button>
+              )}
 
-              {/* Booked Reservations button */}
-              <button
-                className="navButton"
-                onClick={navigateBookedReservations}
-                style={{ marginLeft: "10px" }}
-              >
-                Booked Reservations
-              </button>
+              {/* Samo obični korisnici (koji nisu admin/owner) vide Booked Reservations */}
+              {!user.is_admin && !user.is_owner && (
+                <button className="navButton" onClick={() => navigate("/booked-reservations")}>
+                  Booked Reservations
+                </button>
+              )}
 
-              <button className="navButton" onClick={logout}>
+              <button className="navButton logoutBtn" onClick={logout}>
                 Logout
               </button>
-            </>
+            </div>
           )}
         </div>
       </div>

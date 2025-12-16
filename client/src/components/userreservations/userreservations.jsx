@@ -1,48 +1,61 @@
 import "./userReservations.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const UserReservations = () => {
   const navigate = useNavigate();
-
-  const [reservations, setReservations] = useState([
-    {
-      id: 101,
-      startDate: new Date("2025-12-10"),
-      endDate: new Date("2025-12-15"),
-      adults: 2,
-      children: 1,
-      options: { wifi: true, breakfast: false, parking: true },
-      status: "Confirmed",
-    },
-    {
-      id: 102,
-      startDate: new Date("2025-12-20"),
-      endDate: new Date("2025-12-25"),
-      adults: 1,
-      children: 0,
-      options: { wifi: true, breakfast: true, parking: false },
-      status: "Pending",
-    },
-  ]);
-
+  const [reservations, setReservations] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [cancelModal, setCancelModal] = useState(null);
   const [confirmedCancel, setConfirmedCancel] = useState(null);
 
-  const handleCancelClick = (resId) => {
-    setCancelModal(resId);
+  useEffect(() => {
+    const fetchReservations = async () => {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        navigate("/main"); // Ako nije ulogiran, šalji na main
+        return;
+      }
+
+      try {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/unitReservation/my-reservations`, 
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setReservations(response.data);
+      } catch (err) {
+        console.error("Greška pri dohvaćanju:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReservations();
+  }, [navigate]);
+
+  const confirmCancel = async () => {
+    const token = localStorage.getItem("access_token");
+    try {
+      await axios.put(
+        `${process.env.REACT_APP_API_URL}/unitReservation/cancel/${cancelModal}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setReservations((prev) =>
+        prev.map((r) => 
+          r.idUnitReservation === cancelModal ? { ...r, status: "Cancelled" } : r
+        )
+      );
+      setConfirmedCancel(cancelModal);
+      setCancelModal(null);
+    } catch (err) {
+      alert("Greška pri otkazivanju rezervacije.");
+    }
   };
 
-  const confirmCancel = () => {
-    setReservations((prev) =>
-      prev.map((r) =>
-        r.id === cancelModal ? { ...r, status: "Cancelled" } : r
-      )
-    );
-    setConfirmedCancel(cancelModal);
-    setCancelModal(null);
-  };
+  if (loading) return <div className="loading">Učitavanje...</div>;
 
   return (
     <div className="userReservationsPage">
@@ -57,88 +70,87 @@ const UserReservations = () => {
         <p className="reservationsCount">{reservations.length} reservation(s)</p>
       </div>
 
-      {reservations.length === 0 && (
+      {reservations.length === 0 ? (
         <div className="emptyState">
           <p>No reservations found.</p>
           <button className="primaryButton" onClick={() => navigate("/main")}>
             Book Now
           </button>
         </div>
-      )}
-
-      <div className="reservationsList">
-        {reservations.map((res) => (
-          <div key={res.id} className="reservationCard">
-            <div className="reservationHeader">
-              <span className="reservationId">Reservation #{res.id}</span>
-              <span className={`reservationStatus ${res.status.toLowerCase()}`}>
-                {res.status}
-              </span>
-            </div>
-
-            <div className="reservationDetails">
-              <div className="detailItem">
-                <span className="detailLabel">Dates:</span>
-                <span className="detailValue">
-                  {format(res.startDate, "MMM dd, yyyy")} - {format(res.endDate, "MMM dd, yyyy")}
+      ) : (
+        <div className="reservationsList">
+          {reservations.map((res) => (
+            <div key={res.idUnitReservation} className="reservationCard">
+              <div className="reservationHeader">
+                <span className="reservationId">Reservation #{res.idUnitReservation}</span>
+                <span className={`reservationStatus ${res.status?.toLowerCase()}`}>
+                  {res.status}
                 </span>
               </div>
 
-              <div className="detailItem">
-                <span className="detailLabel">Guests:</span>
-                <span className="detailValue">
-                  {res.adults} Adult{res.adults !== 1 ? "s" : ""}
-                  {res.children > 0 && `, ${res.children} Child${res.children !== 1 ? "ren" : ""}`}
-                </span>
+              <div className="reservationDetails">
+                <div className="detailItem">
+                  <span className="detailLabel">Dates:</span>
+                  <span className="detailValue">
+                    {format(new Date(res.startDate), "MMM dd, yyyy")} - {format(new Date(res.endDate), "MMM dd, yyyy")}
+                  </span>
+                </div>
+                
+                {/* LOGIKA ZA GOSTE: Adult/Adults i Child/Children */}
+                <div className="detailItem">
+                  <span className="detailLabel">Guests:</span>
+                  <span className="detailValue">
+                    {res.adults} {res.adults === 1 ? "Adult" : "Adults"}
+                    {res.children > 0 && (
+                      <> i {res.children} {res.children === 1 ? "Child" : "Children"}</>
+                    )}
+                  </span>
+                </div>
+
+                <div className="detailItem">
+                  <span className="detailLabel">Amenities:</span>
+                  <div className="amenitiesTags">
+                    {res.selectedAmenities ? (
+                      res.selectedAmenities.split(", ").map((am, i) => (
+                        <span key={i} className="amenityTag">{am}</span>
+                      ))
+                    ) : <span className="detailValue">None</span>}
+                  </div>
+                </div>
               </div>
 
-              <div className="detailItem">
-                <span className="detailLabel">Amenities:</span>
-                <span className="detailValue">
-                  {res.options.wifi && "Wi-Fi "}
-                  {res.options.breakfast && "Breakfast "}
-                  {res.options.parking && "Parking"}
-                  {!res.options.wifi && !res.options.breakfast && !res.options.parking && "None selected"}
-                </span>
-              </div>
-            </div>
-
-            <div className="reservationActions">
               {res.status !== "Cancelled" && (
-                <button className="cancelButton" onClick={() => handleCancelClick(res.id)}>
-                  Cancel
-                </button>
+                <div className="reservationActions">
+                  <button className="cancelButton" onClick={() => setCancelModal(res.idUnitReservation)}>
+                    Cancel Reservation
+                  </button>
+                </div>
               )}
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
+      {/* Modal za potvrdu otkazivanja */}
       {cancelModal && (
         <div className="reserveOverlay">
           <div className="reserveBox">
             <h2>Are you sure you want to cancel this reservation?</h2>
             <div className="confirmationActions">
-              <button className="primaryButton" onClick={confirmCancel}>
-                Yes, Cancel
-              </button>
-              <button className="secondaryButton" onClick={() => setCancelModal(null)}>
-                No, Go Back
-              </button>
+              <button className="primaryButton" onClick={confirmCancel}>Yes, Cancel</button>
+              <button className="secondaryButton" onClick={() => setCancelModal(null)}>No, Go Back</button>
             </div>
           </div>
         </div>
       )}
 
+      {/* Modal nakon uspješnog otkazivanja */}
       {confirmedCancel && (
         <div className="reserveOverlay">
           <div className="reserveBox">
             <div className="successIcon">✓</div>
             <h2>Reservation #{confirmedCancel} Cancelled!</h2>
-            <p>The reservation has been successfully cancelled.</p>
-            <button className="primaryButton" onClick={() => setConfirmedCancel(null)}>
-              Back to Reservations
-            </button>
+            <button className="primaryButton" onClick={() => setConfirmedCancel(null)}>Close</button>
           </div>
         </div>
       )}

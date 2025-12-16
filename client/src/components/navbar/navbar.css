@@ -35,63 +35,60 @@
 .navItems {
   display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.navUserActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navProfileImg {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  object-fit: cover;
+}
+
+.userName {
+  font-weight: 500;
+  margin-right: 5px;
 }
 
 .navButton {
-  margin-left: 15px;
   border: none;
-  padding: 8px 18px;
+  padding: 8px 16px;
   border-radius: 25px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
   color: #0077ff;
   background-color: #ffffff;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  font-size: 14px;
 }
 
 .navButton:hover {
   background-color: #e0f7ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 119, 255, 0.3);
+  transform: translateY(-1px);
 }
 
-.navButton:active {
-  transform: scale(0.97);
-  box-shadow: 0 2px 6px rgba(0, 119, 255, 0.2);
+.logoutBtn {
+  background-color: #ff4757;
+  color: white;
 }
-/* Dodano novo s fixom nakon backenda */
+
+.logoutBtn:hover {
+  background-color: #ff6b81;
+}
+
 .custom-google-login {
   display: flex;
   align-items: center;
-  transform: translateY(-7px); 
 }
 
-
-.custom-google-login iframe {
-  margin: 0 !important;
-  border-radius: 4px !important; 
+/* Fix za poravnanje Google login gumba */
+.custom-google-login > div {
+  transform: scale(0.9);
 }
-
-
-.navItems {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.navButton {
-  padding: 8px 16px;
-  background-color: #0071c2;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.navButton:hover {
-  background-color: #005a9e;
-}
-
-

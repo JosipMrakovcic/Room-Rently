@@ -1,5 +1,6 @@
 package springboot.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
@@ -33,6 +34,7 @@ public class UnitReservation {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_person", referencedColumnName = "id", nullable = false)
+    @JsonIgnoreProperties("unitReservations")
     private Person person;
 
     @ManyToOne(fetch = FetchType.EAGER)

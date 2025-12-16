@@ -1,5 +1,6 @@
 package springboot.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
@@ -44,5 +45,6 @@ public class Person {
     }
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<UnitReservation> unitReservations;
 }

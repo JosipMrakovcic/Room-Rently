@@ -7,8 +7,15 @@ const AdminDashboard = () => {
   const [units, setUnits] = useState([]);
   const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+
+  // Lokacija State
+  const [address, setAddress] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showMap, setShowMap] = useState(true);
+
   const navigate = useNavigate();
 
+  // 1. Inicijalno učitavanje korisnika, jedinica i LOKACIJE IZ BAZE
   useEffect(() => {
     const savedUser = localStorage.getItem("googleUser");
     const user = savedUser ? JSON.parse(savedUser) : null;
@@ -21,7 +28,52 @@ const AdminDashboard = () => {
     setCurrentUser(user);
     fetchUnits();
     fetchUsers();
+    fetchSavedLocation(); // Dohvati adresu čim se admin panel otvori
   }, [navigate]);
+
+  const fetchSavedLocation = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/location`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.address) {
+          setAddress(data.address);
+        }
+      }
+    } catch (err) {
+      console.error("Greška pri dohvaćanju lokacije iz baze:", err);
+    }
+  };
+
+  // 2. Funkcija za ažuriranje adrese (Popravljen 401 Unauthorized)
+  const handleSaveLocation = async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("access_token"); 
+      
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/location`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`, // Slanje tokena backendu
+        },
+        body: JSON.stringify({ address }),
+      });
+
+      if (response.ok) {
+        alert("Adresa uspješno ažurirana u bazi!");
+      } else if (response.status === 401) {
+        alert("Greška 401: Niste autorizirani. Ponovno se prijavite.");
+      } else {
+        alert("Neuspješno spremanje adrese.");
+      }
+    } catch (err) {
+      console.error("Error saving location:", err);
+      alert("Greška na serveru.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const fetchUnits = async () => {
     try {
@@ -147,6 +199,69 @@ const AdminDashboard = () => {
       <main className="dashboard-content">
         {activeTab === "units" && (
           <section className="section-block">
+            {/* GOOGLE MAPS SECTION */}
+            <div className="location-config-container" style={{
+              marginBottom: '30px', 
+              padding: '20px', 
+              backgroundColor: '#f9f9f9', 
+              borderRadius: '8px',
+              border: '1px solid #ddd'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ margin: 0 }}>📍 Globalna Lokacija Objekta</h3>
+                <button 
+                   onClick={() => setShowMap(!showMap)}
+                   style={{ background: '#eee', border: '1px solid #ccc', cursor: 'pointer', padding: '5px 10px', borderRadius: '4px' }}
+                >
+                  {showMap ? "Sakrij mapu" : "Prikaži mapu"}
+                </button>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                <input
+                  type="text"
+                  placeholder="Unesite adresu (npr. Ilica 1, Zagreb)"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    borderRadius: '4px',
+                    border: '1px solid #ccc'
+                  }}
+                />
+                <button 
+                  onClick={handleSaveLocation} 
+                  disabled={isLoading}
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#4CAF50',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {isLoading ? "Spremanje..." : "Ažuriraj Adresu"}
+                </button>
+              </div>
+
+              {showMap && address && (
+                <div style={{ marginTop: '15px' }}>
+                  <iframe
+                    width="100%"
+                    height="200"
+                    style={{ border: 0, borderRadius: '4px' }}
+                    loading="lazy"
+                    allowFullScreen
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                  ></iframe>
+                </div>
+              )}
+            </div>
+
+            <hr style={{ marginBottom: '30px' }} />
+            
             <h1>Rental Units</h1>
             <ul className="units-list">
               {units.map((unit) => (

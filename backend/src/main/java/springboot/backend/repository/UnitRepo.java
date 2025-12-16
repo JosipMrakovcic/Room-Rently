@@ -33,6 +33,14 @@ WHERE
     AND (:hasAirConditioning IS NULL OR u.hasAirConditioning = :hasAirConditioning)
     AND (:minPrice IS NULL OR u.price >= :minPrice)
     AND (:maxPrice IS NULL OR u.price <= :maxPrice)
+    AND NOT EXISTS (
+        SELECT r FROM UnitReservation r
+        WHERE r.unit = u
+        AND r.status IN ('Confirmed', 'Pending')
+        AND (
+            CAST(:startDate AS date) IS NULL OR
+            CAST(:endDate AS date) IS NULL OR
+            (r.startDate < :endDate AND r.endDate > :startDate)))
 """)
     List<Unit> filterUnits(
             @Param("name") String name,
@@ -49,6 +57,8 @@ WHERE
             @Param("hasHeater") Boolean hasHeater,
             @Param("hasAirConditioning") Boolean hasAirConditioning,
             @Param("minPrice") BigDecimal minPrice,
-            @Param("maxPrice") BigDecimal maxPrice
+            @Param("maxPrice") BigDecimal maxPrice,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
     );
 }

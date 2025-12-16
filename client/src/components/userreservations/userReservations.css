@@ -249,3 +249,43 @@ padding: 20px;
 .userReservationsPage .reservationStatus {
   display: inline-block;
 }
+/* Novi stilovi za naziv jedinice unutar kartice */
+.userReservationsPage .unitInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.userReservationsPage .unitNameTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #003366;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.userReservationsPage .reservationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* Poravnanje statusa s vrhom naslova */
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+/* Osiguranje da status badge ima fiksnu visinu i lijep padding */
+.userReservationsPage .reservationStatus {
+  white-space: nowrap;
+  height: fit-content;
+}
+
+@media (max-width: 600px) {
+  .userReservationsPage .reservationHeader {
+    flex-direction: row; /* Zadržavamo vodoravno na mobitelu ako ima mjesta */
+    justify-content: space-between;
+  }
+  
+  .userReservationsPage .unitNameTitle {
+    font-size: 1.1rem;
+  }
+}

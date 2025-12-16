@@ -30,11 +30,15 @@ public class UnitService {
             Boolean hasHairDryer,
             Boolean hasHeater,
             Boolean hasAirConditioning,
-            BigDecimal minPrice, // <-- NOVO
-            BigDecimal maxPrice  // <-- NOVO
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            LocalDate startDate, // <-- DODANO
+            LocalDate endDate    // <-- DODANO
     ) {
 
         String searchName = StringUtils.hasText(name) ? name : null;
+
+        // Proslijeđuješ sve parametre, uključujući nove datume, u UnitRepo
         return unitRepo.filterUnits(
                 searchName,
                 adults,
@@ -49,8 +53,10 @@ public class UnitService {
                 hasHairDryer,
                 hasHeater,
                 hasAirConditioning,
-                minPrice, // <-- PROSLIJEĐENO
-                maxPrice  // <-- PROSLIJEĐENO
+                minPrice,
+                maxPrice,
+                startDate, // <-- PROSLIJEĐENO
+                endDate    // <-- PROSLIJEĐENO
         );
     }
 }

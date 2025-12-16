@@ -3,13 +3,16 @@ import { useState } from "react";
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css"; // main css file
 import "react-date-range/dist/theme/default.css"; // theme css file
-import { format } from "date-fns"; // string format
+import { format, differenceInCalendarDays } from "date-fns"; 
 import { useNavigate } from "react-router-dom";
+
 const Header = ({ type }) => {
   const [opendate, setOpendate] = useState(false);
   const [destination, setdestination] = useState("");
+  
+  // Dohvaćanje korisnika iz localStorage ako zatreba
   const [user, setUser] = useState(() => {
-  const savedUser = localStorage.getItem("googleUser");
+    const savedUser = localStorage.getItem("googleUser");
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
@@ -20,20 +23,32 @@ const Header = ({ type }) => {
       key: "selection",
     },
   ]);
+
   const [openOptions, setopenOptions] = useState(false);
   const [options, setoptions] = useState({
     adult: 1,
     children: 0,
     room: 1,
   });
+
   const navigate = useNavigate();
+
   const handleSearch = () => {
+    // --- DODANA VALIDACIJA ZA BAREM JEDNU NOĆ ---
+    const nightCount = differenceInCalendarDays(date[0].endDate, date[0].startDate);
+    
+    if (nightCount <= 0) {
+      alert("Please select at least one night. Your departure date must be at least one day after arrival.");
+      return;
+    }
+
     // Spremamo u sessionStorage prije navigacije
-    const searchData = { destination, options };
+    const searchData = { destination, options, dates: date };
     sessionStorage.setItem("lastSearch", JSON.stringify(searchData));
     
-    navigate("/hotels", { state: { destination, options } });
+    navigate("/hotels", { state: { destination, options, date } });
   };
+
   const handleoption = (name, operation) => {
     setoptions((prev) => {
       return {
@@ -42,6 +57,7 @@ const Header = ({ type }) => {
       };
     });
   };
+
   return (
     <div className="header">
       <div
@@ -49,7 +65,6 @@ const Header = ({ type }) => {
           type === "list" ? "headerContainer listmode" : "headerContainer"
         }
       >
-
         {type !== "list" && (
           <>
             <h1 className="headerTitle">
@@ -62,24 +77,27 @@ const Header = ({ type }) => {
             </p>
 
             <div className="headerSearch">
+              {/* Pretraga po nazivu */}
               <div className="headerSearchItem">
-                {/* ikona*/}
                 <input
                   type="text"
                   placeholder="Search by apartment name"
                   className="headerSearchInput"
                   onChange={(e) => setdestination(e.target.value)}
-                ></input>
+                />
               </div>
+
+              {/* Kalendar */}
               <div className="headerSearchItem">
-                {/* ikona*/}
                 <span
                   onClick={() => setOpendate(!opendate)}
                   className="headerSearchText"
-                >{`${format(date[0].startDate, "dd/MM/yyyy")} to ${format(
-                  date[0].endDate,
-                  "dd/MM/yyyy"
-                )}`}</span>
+                >
+                  {`${format(date[0].startDate, "dd/MM/yyyy")} to ${format(
+                    date[0].endDate,
+                    "dd/MM/yyyy"
+                  )}`}
+                </span>
                 {opendate && (
                   <DateRange
                     editableDateInputs={true}
@@ -91,24 +109,23 @@ const Header = ({ type }) => {
                   />
                 )}
               </div>
+
+              {/* Opcije (Gosti/Sobe) */}
               <div className="headerSearchItem">
-                {/* ikona*/}
                 <span
                   onClick={() => setopenOptions(!openOptions)}
                   className="headerSearchText"
                 >{`${options.adult} adult - ${options.children} children - ${options.room} room`}</span>
                 {openOptions && (
                   <div className="options">
+                    {/* Odrasli */}
                     <div className="optionitem">
                       <span className="optiontext">Adult</span>
-
                       <div className="optioncounter">
                         <button
                           disabled={options.adult <= 1}
                           className="optioncounterbutton"
-                          onClick={() => {
-                            handleoption("adult", "d");
-                          }}
+                          onClick={() => handleoption("adult", "d")}
                         >
                           -
                         </button>
@@ -117,23 +134,21 @@ const Header = ({ type }) => {
                         </span>
                         <button
                           className="optioncounterbutton"
-                          onClick={() => {
-                            handleoption("adult", "i");
-                          }}
+                          onClick={() => handleoption("adult", "i")}
                         >
                           +
                         </button>
                       </div>
                     </div>
+
+                    {/* Djeca */}
                     <div className="optionitem">
                       <span className="optiontext">Children</span>
                       <div className="optioncounter">
                         <button
                           disabled={options.children <= 0}
                           className="optioncounterbutton"
-                          onClick={() => {
-                            handleoption("children", "d");
-                          }}
+                          onClick={() => handleoption("children", "d")}
                         >
                           -
                         </button>
@@ -142,23 +157,21 @@ const Header = ({ type }) => {
                         </span>
                         <button
                           className="optioncounterbutton"
-                          onClick={() => {
-                            handleoption("children", "i");
-                          }}
+                          onClick={() => handleoption("children", "i")}
                         >
                           +
                         </button>
                       </div>
                     </div>
+
+                    {/* Sobe */}
                     <div className="optionitem">
                       <span className="optiontext">Room</span>
                       <div className="optioncounter">
                         <button
                           disabled={options.room <= 1}
                           className="optioncounterbutton"
-                          onClick={() => {
-                            handleoption("room", "d");
-                          }}
+                          onClick={() => handleoption("room", "d")}
                         >
                           -
                         </button>
@@ -167,9 +180,7 @@ const Header = ({ type }) => {
                         </span>
                         <button
                           className="optioncounterbutton"
-                          onClick={() => {
-                            handleoption("room", "i");
-                          }}
+                          onClick={() => handleoption("room", "i")}
                         >
                           +
                         </button>
@@ -178,8 +189,9 @@ const Header = ({ type }) => {
                   </div>
                 )}
               </div>
+
+              {/* Search Gumb */}
               <div className="headerSearchItem">
-                {/* ikona*/}
                 <button className="headerBTN" onClick={handleSearch}>
                   Search
                 </button>
@@ -191,4 +203,5 @@ const Header = ({ type }) => {
     </div>
   );
 };
+
 export default Header;

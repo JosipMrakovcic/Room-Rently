@@ -15,7 +15,7 @@ const UserReservations = () => {
     const fetchReservations = async () => {
       const token = localStorage.getItem("access_token");
       if (!token) {
-        navigate("/main"); // Ako nije ulogiran, šalji na main
+        navigate("/main");
         return;
       }
 
@@ -82,7 +82,11 @@ const UserReservations = () => {
           {reservations.map((res) => (
             <div key={res.idUnitReservation} className="reservationCard">
               <div className="reservationHeader">
-                <span className="reservationId">Reservation #{res.idUnitReservation}</span>
+                <div className="unitInfo">
+                  {/* PRIKAZ NAZIVA SOBE/APARTMANA */}
+                  <h3 className="unitNameTitle">{res.unit?.unitName || "Accommodation"}</h3>
+                  <span className="reservationId">Reservation #{res.idUnitReservation}</span>
+                </div>
                 <span className={`reservationStatus ${res.status?.toLowerCase()}`}>
                   {res.status}
                 </span>
@@ -96,13 +100,12 @@ const UserReservations = () => {
                   </span>
                 </div>
                 
-                {/* LOGIKA ZA GOSTE: Adult/Adults i Child/Children */}
                 <div className="detailItem">
                   <span className="detailLabel">Guests:</span>
                   <span className="detailValue">
                     {res.adults} {res.adults === 1 ? "Adult" : "Adults"}
                     {res.children > 0 && (
-                      <> i {res.children} {res.children === 1 ? "Child" : "Children"}</>
+                      <> & {res.children} {res.children === 1 ? "Child" : "Children"}</>
                     )}
                   </span>
                 </div>
@@ -131,7 +134,7 @@ const UserReservations = () => {
         </div>
       )}
 
-      {/* Modal za potvrdu otkazivanja */}
+      {/* Modali ostaju isti... */}
       {cancelModal && (
         <div className="reserveOverlay">
           <div className="reserveBox">
@@ -144,7 +147,6 @@ const UserReservations = () => {
         </div>
       )}
 
-      {/* Modal nakon uspješnog otkazivanja */}
       {confirmedCancel && (
         <div className="reserveOverlay">
           <div className="reserveBox">

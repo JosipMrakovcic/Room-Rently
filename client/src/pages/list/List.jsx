@@ -5,16 +5,20 @@ import Header from "../../components/header/Header";
 import { useLocation, useNavigate } from "react-router-dom";
 import Searchitem from "../../components/searchitem/searchitem";
 import axios from "axios";
+import { format, differenceInCalendarDays } from "date-fns"; 
+import { DateRange } from "react-date-range"; 
+import "react-date-range/dist/styles.css"; 
+import "react-date-range/dist/theme/default.css";
 
 const List = () => {
   const API_URL = process.env.REACT_APP_API_URL;
   const location = useLocation();
   const navigate = useNavigate();
 
-  // 1. DOHVAĆANJE SPREMLJENIH PODATAKA (ako postoje)
+  // 1. DOHVAĆANJE SPREMLJENIH PODATAKA
   const savedSearch = JSON.parse(sessionStorage.getItem("lastSearch"));
 
-  // 2. INICIJALIZACIJA STANJA (Prioritet: SessionStorage -> Location State -> Default)
+  // 2. INICIJALIZACIJA STANJA
   const [destination, setDestination] = useState(
     savedSearch?.destination ?? location.state?.destination ?? ""
   );
@@ -30,6 +34,7 @@ const List = () => {
 
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [openDate, setOpenDate] = useState(false);
 
   // Dodatni filteri
   const [isApartment, setIsApartment] = useState(savedSearch?.isApartment ?? null);
@@ -46,7 +51,14 @@ const List = () => {
   const [minPrice, setMinPrice] = useState(savedSearch?.minPrice ?? null);
   const [maxPrice, setMaxPrice] = useState(savedSearch?.maxPrice ?? null);
 
-  // 3. SPREMANJE U SESSION STORAGE čim se bilo koji filter promijeni
+  const [dates, setDates] = useState(
+    location.state?.date || savedSearch?.dates || [{ startDate: new Date(), endDate: new Date(), key: "selection" }]
+  );
+
+  // --- LOGIKA ZA IZRAČUN NOĆENJA ---
+  const nightCount = differenceInCalendarDays(dates[0].endDate, dates[0].startDate);
+
+  // 3. SPREMANJE U SESSION STORAGE
   useEffect(() => {
     const searchData = {
       destination,
@@ -61,13 +73,14 @@ const List = () => {
       hasHairDryer,
       hasHeater,
       minPrice,
-      maxPrice
+      maxPrice,
+      dates 
     };
     sessionStorage.setItem("lastSearch", JSON.stringify(searchData));
-  }, [destination, adults, children, room, isApartment, hasParking, hasWifi, hasBreakfast, hasAirConditioning, hasTowels, hasShampoo, hasHairDryer, hasHeater, minPrice, maxPrice]);
+  }, [destination, adults, children, room, isApartment, hasParking, hasWifi, hasBreakfast, hasAirConditioning, hasTowels, hasShampoo, hasHairDryer, hasHeater, minPrice, maxPrice, dates]);
 
   const handleBack = () => {
-    navigate("/main"); // Home.jsx će obrisati sessionStorage u svom useEffectu
+    navigate("/main");
   };
 
   const handleAccommodationChange = (value) => {
@@ -80,10 +93,19 @@ const List = () => {
   };
 
   const handleSearch = async () => {
+    // --- VALIDACIJA: Sprječavanje pretrage ako je 0 noćenja ---
+    if (nightCount <= 0) {
+      alert("Please select at least one night. Departure date must be after arrival date.");
+      return;
+    }
+
     setLoading(true);
     try {
+      const startDateStr = format(dates[0].startDate, "yyyy-MM-dd");
+      const endDateStr = format(dates[0].endDate, "yyyy-MM-dd");
       const parsedMinPrice = minPrice ? parseFloat(minPrice) : null;
       const parsedMaxPrice = maxPrice ? parseFloat(maxPrice) : null;
+      
       const res = await axios.get(`${API_URL}/unit/filter`, {
         params: {
           name: destination.trim() === '' ? null : destination,
@@ -101,6 +123,8 @@ const List = () => {
           hasHeater: hasHeater || null,
           minPrice: parsedMinPrice,
           maxPrice: parsedMaxPrice,
+          startDate: startDateStr,
+          endDate: endDateStr,
         },
       });
       setUnits(res.data);
@@ -111,9 +135,11 @@ const List = () => {
     }
   };
 
-  // Pokreni pretragu odmah pri učitavanju (koristeći spremljene ili nove podatke)
   useEffect(() => {
-    handleSearch();
+    // Pokreni pretragu samo ako imamo barem jednu noć
+    if (nightCount > 0) {
+      handleSearch();
+    }
   }, []);
 
   return (
@@ -127,19 +153,10 @@ const List = () => {
             <button 
               onClick={handleBack}
               style={{
-                width: "100%",
-                padding: "10px",
-                marginBottom: "20px",
-                backgroundColor: "#fff",
-                color: "#0071c2",
-                border: "1px solid #0071c2",
-                borderRadius: "5px",
-                cursor: "pointer",
-                fontWeight: "bold",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "10px"
+                width: "100%", padding: "10px", marginBottom: "20px", backgroundColor: "#fff",
+                color: "#0071c2", border: "1px solid #0071c2", borderRadius: "5px",
+                cursor: "pointer", fontWeight: "bold", display: "flex",
+                alignItems: "center", justifyContent: "center", gap: "10px"
               }}
             >
               ⬅ Back to Home
@@ -155,6 +172,28 @@ const List = () => {
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
               />
+            </div>
+
+            <div className="lsitem">
+              <label>Check-in Date</label>
+              <span onClick={() => setOpenDate(!openDate)} className="lsDateDisplay" style={{backgroundColor:"white", padding:"8px", cursor:"pointer", borderRadius:"3px"}}>
+                {`${format(dates[0].startDate, "dd/MM/yyyy")} to ${format(dates[0].endDate, "dd/MM/yyyy")}`}
+              </span>
+              
+              {/* Vizualni indikator broja noćenja */}
+              <div style={{ textAlign: "center", fontSize: "12px", marginTop: "5px", color: nightCount <= 0 ? "red" : "#0071c2", fontWeight: "bold" }}>
+                 {nightCount > 0 
+                   ? `Selected: ${nightCount} night(s)` 
+                   : "Departure must be at least 1 day after arrival"}
+              </div>
+
+              {openDate && (
+                <DateRange
+                  onChange={(item) => setDates([item.selection])}
+                  minDate={new Date()}
+                  ranges={dates}
+                />
+              )}
             </div>
 
             <div className="lsitem">
@@ -271,7 +310,13 @@ const List = () => {
                 )}
             </div>
 
-            <button onClick={handleSearch}>Search</button>
+            <button 
+              onClick={handleSearch}
+              disabled={nightCount <= 0}
+              style={{ opacity: nightCount <= 0 ? 0.6 : 1, cursor: nightCount <= 0 ? "not-allowed" : "pointer" }}
+            >
+              Search
+            </button>
           </div>
 
           <div className="listresult">

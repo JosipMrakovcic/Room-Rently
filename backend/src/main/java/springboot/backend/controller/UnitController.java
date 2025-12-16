@@ -4,6 +4,7 @@ package springboot.backend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 // Uklonjeni import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import springboot.backend.service.UnitService;
 
 // Uklonjeni import java.time.LocalDate;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,11 +80,14 @@ public class UnitController {
             @RequestParam(required = false) Boolean hasHeater,
             @RequestParam(required = false) Boolean hasAirConditioning,
             @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
-
         BigDecimal bdMinPrice = minPrice != null ? BigDecimal.valueOf(minPrice) : null;
         BigDecimal bdMaxPrice = maxPrice != null ? BigDecimal.valueOf(maxPrice) : null;
+
+        // POZIV MORA PRATITI REDOSLIJED IZ UnitService.java
         return unitService.filterUnits(
                 name,
                 adults,
@@ -92,13 +97,15 @@ public class UnitController {
                 hasParking,
                 hasWifi,
                 hasBreakfast,
-                hasTowels, // <-- DODANO
-                hasShampoo, // <-- DODANO
-                hasHairDryer, // <-- DODANO
-                hasHeater, // <-- DODANO
+                hasTowels,
+                hasShampoo,
+                hasHairDryer,
+                hasHeater,
                 hasAirConditioning,
-                bdMinPrice, // <-- PROSLIJEĐENO
-                bdMaxPrice
+                bdMinPrice,
+                bdMaxPrice,
+                startDate,
+                endDate
         );
     }
 }

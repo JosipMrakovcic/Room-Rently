@@ -69,7 +69,6 @@ const Hotel = () => {
 
   const totalGuests = unit.capAdults + unit.capChildren;
 
-  // Provjera ima li ikakvih amenities
   const hasAnyAmenity = 
     unit.hasWifi || unit.hasParking || unit.hasAirConditioning || 
     unit.hasBreakfast || unit.hasTowels || unit.hasShampoo || 
@@ -81,7 +80,10 @@ const Hotel = () => {
       <Header type="list" />
       
       {openReserve && (
-        <ReserveModal setOpenReserve={setOpenReserve} unitId={id} />
+        <ReserveModal 
+          setOpenReserve={setOpenReserve} 
+          unit={unit} // Ovdje je bila greška, mora biti 'unit={unit}'
+        />
       )}
 
       <div className="hotelcontainer">
@@ -101,9 +103,7 @@ const Hotel = () => {
             <button className="backToList" onClick={() => navigate(-1)}>
               ⬅ Back to Search
             </button>
-            <button className="booknow" onClick={() => setOpenReserve(true)}>
-              Reserve Now
-            </button>
+            {/* Gornji gumb je uklonjen odavde */}
           </div>
           
           <h1 className="hoteltitle">{unit.unitName}</h1>
@@ -134,16 +134,10 @@ const Hotel = () => {
           </div>
 
           <div className="hoteldetails">
+            {/* LIJEVA STRANA - MAIN DESCRIPTION */}
             <div className="hoteldetailstexts">
               <h1 className="hoteltitle">{unit.mainDescName}</h1>
               <p className="hoteldesc">{unit.mainDescContent}</p>
-              
-              {unit.secDescName && (
-                <>
-                  <h2 className="hoteltitle" style={{fontSize: "20px", marginTop: "20px"}}>{unit.secDescName}</h2>
-                  <p className="hoteldesc">{unit.secDescContent}</p>
-                </>
-              )}
 
               <div className="unitInfoList">
                 <h3>Unit Details:</h3>
@@ -173,9 +167,17 @@ const Hotel = () => {
               </div>
             </div>
             
+            {/* DESNA STRANA - SECONDARY DESCRIPTION U HIGHLIGHTSU */}
             <div className="hoteldetailsprice">
               <div className="hotelDetailsPrice">
-                <h1>Property Highlights</h1>
+                <h1>{unit.secDescName || "Property Highlights"}</h1>
+                
+                {unit.secDescContent && (
+                  <p className="hoteldesc" style={{marginTop: "0", fontSize: "14px"}}>
+                    {unit.secDescContent}
+                  </p>
+                )}
+
                 <span>
                   Perfect for <b>{totalGuests} {totalGuests === 1 ? "guest" : "guests"}</b>!
                   <br />

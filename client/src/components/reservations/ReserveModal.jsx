@@ -4,11 +4,9 @@ import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { format } from "date-fns";
+import axios from "axios";
 
-const ReserveModal = ({ setOpenReserve, unitId }) => {
-  // Fake ID iz URL ili za sada random
-  const fakeId = unitId || Math.floor(Math.random() * 10000);
-
+const ReserveModal = ({ setOpenReserve, unit }) => {
   const [options, setOptions] = useState({
     parking: false,
     wifi: false,
@@ -35,71 +33,114 @@ const ReserveModal = ({ setOpenReserve, unitId }) => {
 
   const [showThanks, setShowThanks] = useState(false);
 
+  // --- 1. PROVJERA AUTENTIKACIJE NA POČETKU ---
+  const token = localStorage.getItem("access_token");
+
+  // Ako korisnik nije ulogiran, odmah prikazujemo "Access Denied" umjesto forme
+  if (!token) {
+    return (
+      <div className="reserveOverlay">
+        <div className="reserveBox" style={{ textAlign: "center", padding: "40px" }}>
+          <button className="closeBtn" onClick={() => setOpenReserve(false)}>✕</button>
+          <h2>Access Denied</h2>
+          <p>You must be logged in with Google to make a reservation.</p>
+          <button
+            className="confirmBtn"
+            onClick={() => {
+              setOpenReserve(false);
+              window.scrollTo({ top: 0, behavior: 'smooth' }); // Vodi ga na Navbar
+            }}
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!unit) return null;
+
+  const maxAdults = unit.capAdults || 1;
+  const maxChildren = unit.capChildren || 0;
+  const totalMaxCapacity = maxAdults + maxChildren;
+
+  const availableAmenities = [
+    { key: "hasParking", label: "Parking", stateKey: "parking" },
+    { key: "hasWifi", label: "WiFi", stateKey: "wifi" },
+    { key: "hasBreakfast", label: "Breakfast", stateKey: "breakfast" },
+    { key: "hasTowels", label: "Towels", stateKey: "towels" },
+    { key: "hasShampoo", label: "Shampoo", stateKey: "shampoo" },
+    { key: "hasHairDryer", label: "Hair Dryer", stateKey: "hairDryer" },
+    { key: "hasHeater", label: "Heater", stateKey: "heater" },
+    { key: "hasAirConditioning", label: "Air Conditioning", stateKey: "airConditioning" },
+  ].filter(amenity => unit[amenity.key] === true);
+
   const modifyGuests = (type, op) => {
     setGuests((prev) => {
-      let newValue;
+      const currentTotal = prev.adults + prev.children;
       if (op === "inc") {
-        newValue = prev[type] + 1;
+        if (currentTotal >= totalMaxCapacity) return prev;
+        if (type === "adults" && prev.adults >= maxAdults) return prev;
+        if (type === "children" && prev.children >= maxChildren) return prev;
+        return { ...prev, [type]: prev[type] + 1 };
       } else {
-        if (type === "adults") {
-          newValue = Math.max(1, prev[type] - 1);
-        } else {
-          newValue = Math.max(0, prev[type] - 1);
-        }
+        const minVal = type === "adults" ? 1 : 0;
+        return { ...prev, [type]: Math.max(minVal, prev[type] - 1) };
       }
-      return { ...prev, [type]: newValue };
     });
   };
 
-  const validate = () => {
-    if (dates[0].startDate > dates[0].endDate) {
-      alert("Start date cannot be after end date");
-      return false;
+  const handleConfirm = async () => {
+    try {
+      const savedUser = localStorage.getItem("googleUser");
+      if (!savedUser) return;
+
+      const currentUser = JSON.parse(savedUser);
+
+      if (!currentUser.id) {
+        alert("Greška u podacima korisnika. Molimo osvježite stranicu.");
+        return;
+      }
+
+      const selectedAmenitiesList = Object.keys(options).filter(key => options[key] === true);
+
+      const reservationData = {
+        startDate: format(dates[0].startDate, "yyyy-MM-dd"),
+        endDate: format(dates[0].endDate, "yyyy-MM-dd"),
+        personId: currentUser.id,
+        unitId: unit.idUnit,
+        adults: guests.adults,
+        children: guests.children,
+        amenities: selectedAmenitiesList
+      };
+
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/unitReservation/add`,
+        reservationData,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      if (response.status === 200 || response.status === 201) {
+        setShowThanks(true);
+      }
+    } catch (err) {
+      console.error("Greška pri rezervaciji:", err);
+      const errorMessage = err.response?.data || "Došlo je do pogreške.";
+      alert(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage);
     }
-    if (guests.adults < 1) {
-      alert("At least 1 adult required");
-      return false;
-    }
-    return true;
-  };
-
-  const handleConfirm = () => {
-    if (!validate()) return;
-
-    const reservationData = {
-      startDate: format(dates[0].startDate, "yyyy-MM-dd"),
-      endDate: format(dates[0].endDate, "yyyy-MM-dd"),
-      status: "Pending",
-      unit: { idUnit: Number(unitId) },
-      adults: guests.adults,
-      children: guests.children,
-      options: options,
-      fakeId: fakeId,
-    };
-
-    console.log("DATA TO SEND TO BACKEND:", reservationData);
-    setShowThanks(true);
   };
 
   if (showThanks) {
     return (
       <div className="reserveOverlay">
         <div className="reserveBox">
-          <button className="closeBtn" onClick={() => setOpenReserve(false)}>
-            ✕
-          </button>
+          <button className="closeBtn" onClick={() => setOpenReserve(false)}>✕</button>
           <div className="thanksContainer">
             <h2>Reservation Confirmed!</h2>
-            <p>Reserve Apartment ID: {fakeId}</p>
-            <p>We sent you a confirmation via email.</p>
-            <div className="buttonGroup">
-              <button className="confirmBtn" onClick={() => alert("Resent!")}>
-                Resend Email
-              </button>
-              <button className="closeThanksBtn" onClick={() => setOpenReserve(false)}>
-                Close
-              </button>
-            </div>
+            <p>Unit: {unit.unitName}</p>
+            <button className="closeThanksBtn" onClick={() => setOpenReserve(false)}>Close</button>
           </div>
         </div>
       </div>
@@ -109,12 +150,8 @@ const ReserveModal = ({ setOpenReserve, unitId }) => {
   return (
     <div className="reserveOverlay">
       <div className="reserveBox">
-        <button className="closeBtn" onClick={() => setOpenReserve(false)}>
-          ✕
-        </button>
-
-        <h2>Reserve Apartment ID: {fakeId}</h2>
-
+        <button className="closeBtn" onClick={() => setOpenReserve(false)}>✕</button>
+        <h2>Reserve: {unit.unitName}</h2>
         <div className="picker">
           <DateRange
             ranges={dates}
@@ -122,40 +159,40 @@ const ReserveModal = ({ setOpenReserve, unitId }) => {
             minDate={new Date()}
           />
         </div>
-
         <div className="guests">
-          <div>
-            Adults: {guests.adults}
-            <button onClick={() => modifyGuests("adults", "inc")}>+</button>
-            <button onClick={() => modifyGuests("adults", "dec")}>-</button>
+          <div className="guestItem">
+            <span>Adults (Max: {maxAdults}):</span>
+            <div className="counter">
+              <button onClick={() => modifyGuests("adults", "dec")} disabled={guests.adults <= 1}>-</button>
+              <span>{guests.adults}</span>
+              <button onClick={() => modifyGuests("adults", "inc")} disabled={(guests.adults + guests.children) >= totalMaxCapacity || guests.adults >= maxAdults}>+</button>
+            </div>
           </div>
-
-          <div>
-            Children: {guests.children}
-            <button onClick={() => modifyGuests("children", "inc")}>+</button>
-            <button onClick={() => modifyGuests("children", "dec")}>-</button>
+          <div className="guestItem">
+            <span>Children (Max: {maxChildren}):</span>
+            <div className="counter">
+              <button onClick={() => modifyGuests("children", "dec")} disabled={guests.children <= 0}>-</button>
+              <span>{guests.children}</span>
+              <button onClick={() => modifyGuests("children", "inc")} disabled={(guests.adults + guests.children) >= totalMaxCapacity || guests.children >= maxChildren}>+</button>
+            </div>
           </div>
         </div>
-
         <div className="unitOptions">
-          <h3>Available Options</h3>
+          <h3>Available Amenities</h3>
           <div className="optionsContainer">
-            {Object.entries(options).map(([key, value]) => (
-              <label className="optionCard" key={key}>
+            {availableAmenities.map((amenity) => (
+              <label className="optionCard" key={amenity.stateKey}>
                 <input
                   type="checkbox"
-                  checked={value}
-                  onChange={() => setOptions({ ...options, [key]: !value })}
+                  checked={options[amenity.stateKey]}
+                  onChange={() => setOptions({ ...options, [amenity.stateKey]: !options[amenity.stateKey] })}
                 />
-                <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                <span>{amenity.label}</span>
               </label>
             ))}
           </div>
         </div>
-
-        <button className="confirmBtn" onClick={handleConfirm}>
-          Confirm Reservation
-        </button>
+        <button className="confirmBtn" onClick={handleConfirm}>Confirm Reservation</button>
       </div>
     </div>
   );

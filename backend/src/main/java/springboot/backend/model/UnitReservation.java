@@ -2,7 +2,6 @@ package springboot.backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDate;
 
 @Entity
@@ -14,6 +13,7 @@ public class UnitReservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id") // <--- PRISILNO MAPIRANJE: Ovo rješava "null value in column id"
     private Long idUnitReservation;
 
     @Column(nullable = false)
@@ -23,13 +23,22 @@ public class UnitReservation {
     private LocalDate endDate;
 
     @Column(nullable = false)
-    private String status;
+    private String status = "Pending";
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", nullable = false)
+    @Column
+    private int adults;
+
+    @Column
+    private int children;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_person", referencedColumnName = "id", nullable = false)
     private Person person;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_unit", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_unit", referencedColumnName = "id_unit", nullable = false)
     private Unit unit;
+
+    @Column(columnDefinition = "text") // Koristimo text da možemo spremiti duži popis
+    private String selectedAmenities;
 }

@@ -170,3 +170,6 @@ gap: 10px;
 flex-direction: column;
 }
 }
+.status-confirmed { color: green; font-weight: bold; }
+.status-pending { color: orange; font-weight: bold; }
+.status-rejected { color: red; font-weight: bold; }

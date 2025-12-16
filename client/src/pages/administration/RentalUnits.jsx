@@ -15,6 +15,40 @@ const AdminDashboard = () => {
 
   const navigate = useNavigate();
 
+  const handleRoleChange = async (userId, newRole) => {
+    try {
+      const token = localStorage.getItem("access_token");
+      
+      // Priprema booleana na temelju odabrane uloge
+      const roleData = {
+        is_admin: newRole === "Admin",
+        is_owner: newRole === "Owner",
+        is_user: true 
+      };
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/updateRole/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(roleData),
+      });
+
+      if (response.ok) {
+        // Osvježi lokalni state korisnika da se odmah vidi promjena
+        setUsers((prevUsers) =>
+          prevUsers.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
+        );
+      } else {
+        const errorMsg = await response.text();
+        alert("Failed to update role: " + errorMsg);
+      }
+    } catch (err) {
+      console.error("Error updating role:", err);
+    }
+  };
+
   // 1. Inicijalno učitavanje korisnika, jedinica i LOKACIJE IZ BAZE
   useEffect(() => {
     const savedUser = localStorage.getItem("googleUser");
@@ -28,7 +62,7 @@ const AdminDashboard = () => {
     setCurrentUser(user);
     fetchUnits();
     fetchUsers();
-    fetchSavedLocation(); // Dohvati adresu čim se admin panel otvori
+    fetchSavedLocation(); 
   }, [navigate]);
 
   const fetchSavedLocation = async () => {
@@ -45,7 +79,6 @@ const AdminDashboard = () => {
     }
   };
 
-  // 2. Funkcija za ažuriranje adrese (Popravljen 401 Unauthorized)
   const handleSaveLocation = async () => {
     setIsLoading(true);
     try {
@@ -55,7 +88,7 @@ const AdminDashboard = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`, // Slanje tokena backendu
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify({ address }),
       });
@@ -174,7 +207,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-      {/* Sidebar */}
       <aside className="sidebar">
         <h2>Admin Panel</h2>
         <button
@@ -195,11 +227,10 @@ const AdminDashboard = () => {
         </button>
       </aside>
 
-      {/* Main Content */}
       <main className="dashboard-content">
         {activeTab === "units" && (
           <section className="section-block">
-            {/* GOOGLE MAPS SECTION */}
+            {/* GOOGLE MAPS SECTION - TVOJ ORIGINALNI STIL */}
             <div className="location-config-container" style={{
               marginBottom: '30px', 
               padding: '20px', 
@@ -304,7 +335,19 @@ const AdminDashboard = () => {
                   <tr key={user.id}>
                     <td>{user.name}</td>
                     <td>{user.email}</td>
-                    <td className={`role-${user.role.toLowerCase()}`}>{user.role}</td>
+                    <td>
+                      {/* MODIFIKACIJA: Ovdje je sada select da bi handleRoleChange radio */}
+                      <select 
+                        style={{ padding: '5px', borderRadius: '4px' }}
+                        value={user.role} 
+                        onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                        disabled={user.email === currentUser?.email}
+                      >
+                        <option value="User">User</option>
+                        <option value="Owner">Owner</option>
+                        <option value="Admin">Admin</option>
+                      </select>
+                    </td>
                     <td>
                       <button
                         className={`delete-button ${

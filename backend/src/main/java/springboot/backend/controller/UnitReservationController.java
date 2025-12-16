@@ -115,4 +115,24 @@ public class UnitReservationController {
             return ResponseEntity.ok("Rezervacija #" + id + " je uspješno otkazana.");
         }).orElse(ResponseEntity.notFound().build());
     }
+    @PutMapping("/update-status/{id}")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> body, @AuthenticationPrincipal Jwt jwt) {
+        if (jwt == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Dodatna provjera: je li osoba koja šalje zahtjev Owner?
+        String email = jwt.getClaimAsString("email");
+        Person p = personRepo.findByEmail(email).orElse(null);
+        if (p == null || !p.isOwner()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Samo vlasnici mogu mijenjati status rezervacije.");
+        }
+
+        return repo.findById(id).map(res -> {
+            String newStatus = body.get("status");
+            res.setStatus(newStatus);
+            repo.save(res);
+            return ResponseEntity.ok("Status ažuriran na: " + newStatus);
+        }).orElse(ResponseEntity.notFound().build());
+    }
 }

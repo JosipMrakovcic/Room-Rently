@@ -3,7 +3,7 @@ import { useState } from "react";
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { format } from "date-fns";
+import { format, differenceInCalendarDays } from "date-fns";
 import axios from "axios";
 
 const ReserveModal = ({ setOpenReserve, unit }) => {
@@ -36,7 +36,6 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
   // --- 1. PROVJERA AUTENTIKACIJE NA POČETKU ---
   const token = localStorage.getItem("access_token");
 
-  // Ako korisnik nije ulogiran, odmah prikazujemo "Access Denied" umjesto forme
   if (!token) {
     return (
       <div className="reserveOverlay">
@@ -48,7 +47,7 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
             className="confirmBtn"
             onClick={() => {
               setOpenReserve(false);
-              window.scrollTo({ top: 0, behavior: 'smooth' }); // Vodi ga na Navbar
+              window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
           >
             Go to Login
@@ -90,7 +89,16 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
     });
   };
 
+  // --- LOGIKA ZA IZRAČUN NOĆENJA ---
+  const nightCount = differenceInCalendarDays(dates[0].endDate, dates[0].startDate);
+
   const handleConfirm = async () => {
+    // KLJUČNA VALIDACIJA: Sprječavanje rezervacije od 0 dana (npr. 16. do 16.)
+    if (nightCount <= 0) {
+      alert("Please select at least one night. Your departure date must be at least one day after arrival.");
+      return;
+    }
+
     try {
       const savedUser = localStorage.getItem("googleUser");
       if (!savedUser) return;
@@ -98,7 +106,7 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
       const currentUser = JSON.parse(savedUser);
 
       if (!currentUser.id) {
-        alert("Greška u podacima korisnika. Molimo osvježite stranicu.");
+        alert("User data error. Please refresh the page.");
         return;
       }
 
@@ -126,8 +134,8 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
         setShowThanks(true);
       }
     } catch (err) {
-      console.error("Greška pri rezervaciji:", err);
-      const errorMessage = err.response?.data || "Došlo je do pogreške.";
+      console.error("Reservation error:", err);
+      const errorMessage = err.response?.data || "An error occurred.";
       alert(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage);
     }
   };
@@ -140,6 +148,8 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
           <div className="thanksContainer">
             <h2>Reservation Confirmed!</h2>
             <p>Unit: {unit.unitName}</p>
+            <p>Stay: {format(dates[0].startDate, "MMM dd")} - {format(dates[0].endDate, "MMM dd, yyyy")}</p>
+            <p>Total: {nightCount} night(s)</p>
             <button className="closeThanksBtn" onClick={() => setOpenReserve(false)}>Close</button>
           </div>
         </div>
@@ -152,13 +162,22 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
       <div className="reserveBox">
         <button className="closeBtn" onClick={() => setOpenReserve(false)}>✕</button>
         <h2>Reserve: {unit.unitName}</h2>
+        
         <div className="picker">
           <DateRange
             ranges={dates}
             onChange={(item) => setDates([item.selection])}
             minDate={new Date()}
+            rangeColors={["#0071c2"]}
           />
+          {/* Prikaz broja noćenja za bolji UX */}
+          <div style={{ textAlign: "center", marginTop: "10px", fontWeight: "bold" }}>
+             {nightCount > 0 
+               ? `Selected: ${nightCount} night(s)` 
+               : "Select departure date (min. 1 night)"}
+          </div>
         </div>
+
         <div className="guests">
           <div className="guestItem">
             <span>Adults (Max: {maxAdults}):</span>
@@ -177,6 +196,7 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
             </div>
           </div>
         </div>
+
         <div className="unitOptions">
           <h3>Available Amenities</h3>
           <div className="optionsContainer">
@@ -192,7 +212,14 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
             ))}
           </div>
         </div>
-        <button className="confirmBtn" onClick={handleConfirm}>Confirm Reservation</button>
+
+        <button 
+          className="confirmBtn" 
+          onClick={handleConfirm}
+          style={{ opacity: nightCount <= 0 ? 0.6 : 1 }}
+        >
+          Confirm Reservation
+        </button>
       </div>
     </div>
   );

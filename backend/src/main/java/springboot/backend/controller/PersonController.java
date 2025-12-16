@@ -91,5 +91,44 @@ public class PersonController {
         repo.deleteById(id);
         return ResponseEntity.ok("User deleted");
     }
+    @PutMapping("/updateRole/{id}")
+    public ResponseEntity<?> updateRole(@PathVariable Long id,
+                                        @RequestBody Person roleUpdate,
+                                        @AuthenticationPrincipal Jwt jwt) {
+        // 1. Provjera je li trenutni korisnik admin
+        String adminEmail = jwt.getClaimAsString("email");
+        Person admin = repo.findByEmail(adminEmail)
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
+
+        if (!admin.isAdmin()) {
+            return ResponseEntity.status(403).body("Only admins can change roles!");
+        }
+
+        // 2. Pronalaženje korisnika kojeg mijenjamo
+        return repo.findById(id).map(person -> {
+            // Spriječimo admina da sam sebi makne admin prava
+            if (person.getEmail().equals(adminEmail) && !roleUpdate.isAdmin()) {
+                return ResponseEntity.badRequest().body("You cannot remove your own admin rights!");
+            }
+
+            // KLJUČNA IZMJENA: Prvo sve uloge stavljamo na false
+            person.setAdmin(false);
+            person.setOwner(false);
+            person.setUser(false);
+
+            // Zatim postavljamo samo onu ulogu koja je došla kao true u request body-ju
+            // Na ovaj način korisnik ne može biti Owner i User u isto vrijeme
+            if (roleUpdate.isAdmin()) {
+                person.setAdmin(true);
+            } else if (roleUpdate.isOwner()) {
+                person.setOwner(true);
+            } else {
+                person.setUser(true); // Default ako ništa nije odabrano
+            }
+
+            repo.save(person);
+            return ResponseEntity.ok("Role updated successfully for " + person.getEmail());
+        }).orElse(ResponseEntity.notFound().build());
+    }
 
 }

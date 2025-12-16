@@ -404,3 +404,30 @@
     padding: 6px;
   }
 }
+/* Stil za padajući izbornik uloga */
+.role-select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #cde4fa;
+  background-color: #fff;
+  color: #03426a;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.role-select:hover:not(:disabled) {
+  border-color: #4aa3ff;
+}
+
+.role-select:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  color: #999;
+}
+
+/* Opcionalno: boje za opcije */
+.role-select option[value="Admin"] { color: #dc3545; font-weight: bold; }
+.role-select option[value="Owner"] { color: #f39c12; font-weight: bold; }
+.role-select option[value="User"] { color: #28a745; }

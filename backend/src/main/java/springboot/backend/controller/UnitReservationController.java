@@ -30,36 +30,41 @@ public class UnitReservationController {
     @PostMapping("/add")
     public ResponseEntity<?> addReservation(@RequestBody ReservationRequest req, @AuthenticationPrincipal Jwt jwt) {
         try {
-            // 1. Provjera je li korisnik uopće ulogiran
             if (jwt == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Morate biti prijavljeni.");
             }
 
-            // 2. Izvlačenje emaila iz tokena radi dodatne sigurnosti
             String email = jwt.getClaimAsString("email");
-
-            // 3. Pronalaženje osobe (i provjera postoji li u bazi)
             Person person = personRepo.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("Korisnik nije pronađen u sustavu."));
 
-            // 4. KLJUČNA PROVJERA: Smije li ovaj korisnik rezervirati?
             if (!person.isUser()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Samo registrirani korisnici s ulogom 'User' mogu raditi rezervacije.");
+                        .body("Samo registrirani korisnici mogu raditi rezervacije.");
             }
 
-            // 5. Kreiranje rezervacije
+            if (req.getStartDate().isBefore(LocalDate.now())) {
+                return ResponseEntity.badRequest().body("Datum početka ne može biti u prošlosti.");
+            }
+            if (!req.getEndDate().isAfter(req.getStartDate())) {
+                return ResponseEntity.badRequest().body("Datum odlaska mora biti barem jedan dan nakon dolaska.");
+            }
+            // --- KLJUČNA SIGURNOSNA PROVJERA (ANTI-BURP) ---
+            boolean isTaken = repo.existsOverlapping(req.getUnitId(), req.getStartDate(), req.getEndDate());
+            if (isTaken) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("Ovi datumi su već zauzeti. Molimo odaberite drugi termin.");
+            }
+            // ----------------------------------------------
+
             UnitReservation res = new UnitReservation();
             res.setStartDate(req.getStartDate());
             res.setEndDate(req.getEndDate());
             res.setAdults(req.getAdults());
             res.setChildren(req.getChildren());
             res.setStatus("Pending");
-
-            // Vežemo provjerenu osobu iz baze (ne samo id iz requesta)
             res.setPerson(person);
 
-            // Pronalaženje jedinice
             Unit unit = unitRepo.findById(req.getUnitId())
                     .orElseThrow(() -> new RuntimeException("Smještaj nije pronađen"));
             res.setUnit(unit);
@@ -123,7 +128,6 @@ public class UnitReservationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        // Dodatna provjera: je li osoba koja šalje zahtjev Owner?
         String email = jwt.getClaimAsString("email");
         Person p = personRepo.findByEmail(email).orElse(null);
         if (p == null || !p.isOwner()) {
@@ -133,8 +137,14 @@ public class UnitReservationController {
         return repo.findById(id).map(res -> {
             String newStatus = body.get("status");
             res.setStatus(newStatus);
+
+            // --- NOVO: Ako je status Completed, postavi endDate na danas ---
+            if ("Completed".equalsIgnoreCase(newStatus)) {
+                res.setEndDate(LocalDate.now());
+            }
+
             repo.save(res);
-            return ResponseEntity.ok("Status ažuriran na: " + newStatus);
+            return ResponseEntity.ok(res); // Vraćamo cijeli objekt da frontend vidi novi datum
         }).orElse(ResponseEntity.notFound().build());
     }
     @PutMapping("/rate/{id}")

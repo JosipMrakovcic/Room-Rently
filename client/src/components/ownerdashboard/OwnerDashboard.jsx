@@ -171,7 +171,7 @@ export default function OwnerDashboard() {
     datasets: [{ label: "Reservations", data: unitStats.data, backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"] }] 
   };
 
-  const handleUpdateStatus = async (id, newStatus) => {
+ const handleUpdateStatus = async (id, newStatus) => {
     try {
       const token = localStorage.getItem("access_token");
       const response = await axios.put(
@@ -179,9 +179,20 @@ export default function OwnerDashboard() {
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      
       if (response.status === 200) {
         setReservations((prev) =>
-          prev.map((r) => (r.idUnitReservation === id ? { ...r, status: newStatus } : r))
+          prev.map((r) => {
+            if (r.idUnitReservation === id) {
+              // Ako je novo stanje Completed, ažuriramo i status i endDate u UI-ju
+              return { 
+                ...r, 
+                status: newStatus,
+                endDate: newStatus === "Completed" ? new Date().toISOString().split('T')[0] : r.endDate 
+              };
+            }
+            return r;
+          })
         );
       }
     } catch (err) {

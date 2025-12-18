@@ -1,9 +1,9 @@
 import "./reserveModal.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { format, differenceInCalendarDays } from "date-fns";
+import { format, differenceInCalendarDays, eachDayOfInterval } from "date-fns";
 import axios from "axios";
 
 const ReserveModal = ({ setOpenReserve, unit }) => {
@@ -32,9 +32,53 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
   });
 
   const [showThanks, setShowThanks] = useState(false);
+  const [disabledDates, setDisabledDates] = useState([]);
 
-  // --- 1. PROVJERA AUTENTIKACIJE NA POČETKU ---
   const token = localStorage.getItem("access_token");
+
+  // --- DOHVAĆANJE I FILTRIRANJE ZAUZETIH DATUMA ---
+  useEffect(() => {
+    const getDisabledDates = async () => {
+      try {
+        // Dohvaćamo sve rezervacije za ovaj specifični unit
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/unitReservation/all`
+        );
+        
+        const allReservations = response.data;
+        let datesToDisable = [];
+
+        // Filtriramo: samo za ovaj unit i samo statusi koji znače "zauzeto"
+        const occupiedStatuses = ["Pending", "Confirmed", "Completed"];
+
+        allReservations.forEach((res) => {
+          if (res.unit?.idUnit === unit.idUnit && occupiedStatuses.includes(res.status)) {
+            // Kreiramo Date objekte (dodajemo sate da izbjegnemo timezone probleme)
+            const start = new Date(res.startDate);
+            const end = new Date(res.endDate);
+
+            if (start && end) {
+              const interval = eachDayOfInterval({ start, end });
+              
+              // Logika: Zadnji dan (Check-out) mora biti slobodan za novi Check-in
+              // Ako je boravak samo 1 noćenje, slice će ostaviti samo start datum
+              const daysToBlock = interval.length > 1 ? interval.slice(0, -1) : interval;
+              
+              datesToDisable = [...datesToDisable, ...daysToBlock];
+            }
+          }
+        });
+
+        setDisabledDates(datesToDisable);
+      } catch (err) {
+        console.error("Error fetching occupied dates:", err);
+      }
+    };
+
+    if (unit?.idUnit) {
+      getDisabledDates();
+    }
+  }, [unit]);
 
   if (!token) {
     return (
@@ -89,26 +133,18 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
     });
   };
 
-  // --- LOGIKA ZA IZRAČUN NOĆENJA ---
   const nightCount = differenceInCalendarDays(dates[0].endDate, dates[0].startDate);
 
   const handleConfirm = async () => {
-    // KLJUČNA VALIDACIJA: Sprječavanje rezervacije od 0 dana (npr. 16. do 16.)
     if (nightCount <= 0) {
-      alert("Please select at least one night. Your departure date must be at least one day after arrival.");
+      alert("Please select at least one night.");
       return;
     }
 
     try {
       const savedUser = localStorage.getItem("googleUser");
       if (!savedUser) return;
-
       const currentUser = JSON.parse(savedUser);
-
-      if (!currentUser.id) {
-        alert("User data error. Please refresh the page.");
-        return;
-      }
 
       const selectedAmenitiesList = Object.keys(options).filter(key => options[key] === true);
 
@@ -125,9 +161,7 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/unitReservation/add`,
         reservationData,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.status === 200 || response.status === 201) {
@@ -135,8 +169,7 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
       }
     } catch (err) {
       console.error("Reservation error:", err);
-      const errorMessage = err.response?.data || "An error occurred.";
-      alert(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage);
+      alert(err.response?.data || "Date is already taken.");
     }
   };
 
@@ -168,9 +201,9 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
             ranges={dates}
             onChange={(item) => setDates([item.selection])}
             minDate={new Date()}
+            disabledDates={disabledDates}
             rangeColors={["#0071c2"]}
           />
-          {/* Prikaz broja noćenja za bolji UX */}
           <div style={{ textAlign: "center", marginTop: "10px", fontWeight: "bold" }}>
              {nightCount > 0 
                ? `Selected: ${nightCount} night(s)` 

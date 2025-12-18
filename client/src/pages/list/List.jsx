@@ -113,6 +113,7 @@ const List = () => {
           children,
           rooms: isApartment === false ? 1 : room,
           isApartment: isApartment,
+          rooms: isApartment === true ? room : (isApartment === false ? null : null),
           hasParking: hasParking || null,
           hasWifi: hasWifi || null,
           hasBreakfast: hasBreakfast || null,
@@ -127,7 +128,8 @@ const List = () => {
           endDate: endDateStr,
         },
       });
-      setUnits(res.data);
+      const finalUnits = res.data.filter(unit => unit.parentUnit === null);
+      setUnits(finalUnits);
     } catch (err) {
       console.error("Search failed:", err);
     } finally {

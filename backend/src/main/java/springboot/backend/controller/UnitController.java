@@ -2,6 +2,8 @@ package springboot.backend.controller;
 
 // springboot.backend.controller.UnitController
 
+import jakarta.transaction.Transactional;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 // Uklonjeni import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -38,6 +40,27 @@ public class UnitController {
         if (repo.findByUnitName(unit.getUnitName()).isPresent()) {
             return ResponseEntity.status(409).body("Unit already exists");
         }
+
+        // Ako nije apartman, generiramo sobe
+        if (!unit.isApartment() && unit.getNumSameRooms() != null && unit.getNumSameRooms() > 0) {
+            String originalName = unit.getUnitName();
+
+            for (int i = 1; i <= unit.getNumSameRooms(); i++) {
+                Unit room = new Unit();
+
+                // Kopiramo sve osim ID-a i povezanih listi
+                BeanUtils.copyProperties(unit, room, "idUnit", "listOfRooms", "parentUnit", "images", "unitReservations");
+
+                // Postavljamo specifične vrijednosti za pod-sobu
+                room.setUnitName(originalName + " - " + i);
+                room.setApartment(false);
+                room.setNumSameRooms(0);
+
+                // Povezujemo sobu s glavnim unitom
+                unit.addRoom(room);
+            }
+        }
+
         repo.save(unit);
         return ResponseEntity.ok("Unit added successfully");
     }
@@ -47,20 +70,64 @@ public class UnitController {
         return repo.findById(id);
     }
 
+
     @DeleteMapping("/delete/{id}")
-    public void deleteUnit(@PathVariable Long id) {
-        repo.deleteById(id);
+    @Transactional // Osigurava da se cijela operacija brisanja (roditelj + djeca) izvrši u komadu
+    public ResponseEntity<?> deleteUnit(@PathVariable Long id) {
+        return repo.findById(id).map(unit -> {
+            // Zahvaljujući cascade = CascadeType.ALL u klasi Unit,
+            // brisanjem roditelja automatski se brišu sve sobe iz listOfRooms
+            repo.delete(unit);
+            return ResponseEntity.ok("Unit and all its sub-rooms deleted successfully");
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/update/{id}")
+    @Transactional
     public ResponseEntity<?> updateUnit(
             @PathVariable Long id,
             @RequestBody Unit updatedUnit
     ) {
         return repo.findById(id).map(existingUnit -> {
-            updatedUnit.setIdUnit(id);
-            repo.save(updatedUnit);
-            return ResponseEntity.ok("Unit updated successfully");
+            // Polja koja ne diramo kod kopiranja
+            String[] ignoreProperties = {
+                    "idUnit", "listOfRooms", "parentUnit", "images", "unitReservations"
+            };
+
+            // 1. Ažuriramo osnovna polja glavnog unita
+            BeanUtils.copyProperties(updatedUnit, existingUnit, ignoreProperties);
+
+            // 2. LOGIKA ZA GENERIRANJE SOBA
+            // Provjeravamo: ako NIJE apartman i ako je zadan broj soba > 0
+            if (!existingUnit.isApartment() && existingUnit.getNumSameRooms() != null && existingUnit.getNumSameRooms() > 0) {
+
+                // Prvo očistimo stare sobe
+                existingUnit.getListOfRooms().clear();
+
+                String baseName = existingUnit.getUnitName();
+
+                for (int i = 1; i <= existingUnit.getNumSameRooms(); i++) {
+                    Unit room = new Unit();
+
+                    // Kopiramo sve postavke (cijena, parking, wifi...) s roditelja na svaku sobu
+                    BeanUtils.copyProperties(existingUnit, room, ignoreProperties);
+
+                    // Specifični podaci za sobu
+                    room.setUnitName(baseName + " - Soba " + i);
+                    room.setApartment(false);
+                    room.setNumSameRooms(0); // Pod-soba nema svoje pod-sobe
+
+                    // Povezujemo sobu s glavnim unitom
+                    existingUnit.addRoom(room);
+                }
+            } else if (existingUnit.isApartment()) {
+                // Ako je korisnik prebacio natrag na "Apartman", brišemo sve pod-sobe
+                existingUnit.getListOfRooms().clear();
+                existingUnit.setNumSameRooms(0);
+            }
+
+            repo.save(existingUnit);
+            return ResponseEntity.ok("Unit updated and rooms regenerated successfully");
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 

@@ -114,11 +114,13 @@ const AdminDashboard = () => {
       if (!response.ok) throw new Error("Failed to fetch units");
       const data = await response.json();
 
+      const mainUnits = data.filter(u => u.parentUnit === null);
+
       setUnits(
-        data.map((u) => ({
+        mainUnits.map((u) => ({
           id: u.idUnit,
           name: u.unitName,
-          type: u.isApartment ? "Apartment" : "Room",
+          type: u.isApartment ? "Apartment" : `Room (${u.numSameRooms || 0} units)`,
         }))
       );
     } catch (err) {
@@ -164,6 +166,7 @@ const AdminDashboard = () => {
         });
         if (response.ok) {
           setUnits((prev) => prev.filter((unit) => unit.id !== id));
+          fetchUnits();
         } else {
           alert("Failed to delete unit.");
         }

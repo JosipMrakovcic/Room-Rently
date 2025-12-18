@@ -16,6 +16,7 @@ const ApartmentForm = () => {
     capAdults: 2,
     capChildren: 0,
     numRooms: 1,
+    numSameRooms: 1,
     numBeds: 1,
     isApartment: true, 
     amenities: {
@@ -55,6 +56,7 @@ const ApartmentForm = () => {
             capAdults: data.capAdults || 2,
             capChildren: data.capChildren || 0,
             numRooms: data.numRooms || 1,
+            numSameRooms: data.numSameRooms || 1,
             numBeds: data.numBeds || 1,
             isApartment: data.isApartment ?? true,
             amenities: {
@@ -111,6 +113,7 @@ const ApartmentForm = () => {
       capAdults: parseInt(formData.capAdults),
       capChildren: parseInt(formData.capChildren),
       numRooms: formData.isApartment ? parseInt(formData.numRooms) : 1,
+      numSameRooms: !formData.isApartment ? parseInt(formData.numSameRooms) : 1,
       numBeds: parseInt(formData.numBeds),
       hasParking: formData.amenities.parking,
       hasWifi: formData.amenities.wifi,
@@ -199,6 +202,18 @@ const ApartmentForm = () => {
                 type="number"
                 name="numRooms"
                 value={formData.numRooms}
+                onChange={handleChange}
+                min="1"
+              />
+            </div>
+          )}
+          {!formData.isApartment && (
+            <div className="num-rooms-inline">
+              <label>Number of rooms:</label>
+              <input
+                type="number"
+                name="numSameRooms"
+                value={formData.numSameRooms}
                 onChange={handleChange}
                 min="1"
               />

@@ -14,6 +14,8 @@ import springboot.backend.repository.UnitRepo;
 import springboot.backend.repository.UnitReservationRepo;
 import org.springframework.security.core.Authentication; // PAZI NA IMPORT!
 import org.springframework.http.HttpStatus;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -28,46 +30,61 @@ public class UnitReservationController {
     @PostMapping("/add")
     public ResponseEntity<?> addReservation(@RequestBody ReservationRequest req, @AuthenticationPrincipal Jwt jwt) {
         try {
-            // 1. Provjera je li korisnik uopće ulogiran
-            if (jwt == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Morate biti prijavljeni.");
-            }
+            if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Morate biti prijavljeni.");
 
-            // 2. Izvlačenje emaila iz tokena radi dodatne sigurnosti
             String email = jwt.getClaimAsString("email");
-
-            // 3. Pronalaženje osobe (i provjera postoji li u bazi)
             Person person = personRepo.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("Korisnik nije pronađen u sustavu."));
+                    .orElseThrow(() -> new RuntimeException("Korisnik nije pronađen."));
 
-            // 4. KLJUČNA PROVJERA: Smije li ovaj korisnik rezervirati?
             if (!person.isUser()) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Samo registrirani korisnici s ulogom 'User' mogu raditi rezervacije.");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Samo korisnici mogu rezervirati.");
             }
 
-            // 5. Kreiranje rezervacije
+            // 1. Dohvati jedinicu koju je korisnik odabrao (Roditelj, npr. "Double Room")
+            Unit selectedUnit = unitRepo.findById(req.getUnitId())
+                    .orElseThrow(() -> new RuntimeException("Smještaj nije pronađen"));
+
+            Unit unitToReserve = null;
+
+            // 2. LOGIKA ZA REZERVACIJU DJECE
+            // Provjeravamo 'listOfRooms'
+            if (selectedUnit.getListOfRooms() != null && !selectedUnit.getListOfRooms().isEmpty()) {
+
+                List<Unit> children = new ArrayList<>(selectedUnit.getListOfRooms());
+                children.sort(java.util.Comparator.comparing(Unit::getIdUnit));
+
+                for (Unit child : children) {
+                    boolean isOccupied = repo.existsByUnitAndDatesOverlap(child, req.getStartDate(), req.getEndDate());
+
+                    if (!isOccupied) {
+                        unitToReserve = child;
+                        break;
+                    }
+                }
+            } else {
+                unitToReserve = selectedUnit;
+            }
+
+            if (unitToReserve == null) {
+                return ResponseEntity.badRequest().body("Nažalost, nema slobodnih soba ovog tipa u odabranom terminu.");
+            }
+
+
             UnitReservation res = new UnitReservation();
             res.setStartDate(req.getStartDate());
             res.setEndDate(req.getEndDate());
             res.setAdults(req.getAdults());
             res.setChildren(req.getChildren());
             res.setStatus("Pending");
-
-            // Vežemo provjerenu osobu iz baze (ne samo id iz requesta)
             res.setPerson(person);
-
-            // Pronalaženje jedinice
-            Unit unit = unitRepo.findById(req.getUnitId())
-                    .orElseThrow(() -> new RuntimeException("Smještaj nije pronađen"));
-            res.setUnit(unit);
+            res.setUnit(unitToReserve);
 
             if (req.getAmenities() != null && !req.getAmenities().isEmpty()) {
                 res.setSelectedAmenities(String.join(", ", req.getAmenities()));
             }
 
             repo.save(res);
-            return ResponseEntity.ok("Rezervacija uspješno poslana na čekanje!");
+            return ResponseEntity.ok("Rezervacija uspješno kreirana za: " + unitToReserve.getUnitName());
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Greška: " + e.getMessage());

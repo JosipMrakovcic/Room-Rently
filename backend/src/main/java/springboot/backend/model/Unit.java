@@ -1,10 +1,12 @@
 package springboot.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -24,6 +26,19 @@ public class Unit {
 
     @Column
     private Integer numRooms;
+
+    @Column
+    private Integer numSameRooms;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_unit_id")
+    @JsonIgnoreProperties("listOfRooms")
+    private Unit parentUnit;
+
+    @OneToMany(mappedBy = "parentUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore // Ovo sprječava da glavni unit povlači sve svoje sobe u JSON-u pri pretrazi
+    private List<Unit> listOfRooms = new ArrayList<>();
+
 
     @Column(nullable = false)
     private Integer capAdults;
@@ -85,9 +100,19 @@ public class Unit {
 
     @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<UnitImg> images;
+    private List<UnitImg> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<UnitReservation> unitReservations;
+    private List<UnitReservation> unitReservations = new ArrayList<>();
+
+    public void addRoom(Unit room) {
+        this.listOfRooms.add(room);
+        room.setParentUnit(this);
+    }
+
+    @JsonProperty("isChild")
+    public boolean isChild() {
+        return parentUnit != null;
+    }
 }

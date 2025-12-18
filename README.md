@@ -31,15 +31,25 @@ Kroz projekt smo naučili timski rad u okruženju s realnim zahtjevima i moderni
 
 ## Funkcijski zahtjevi
 
-### Frontend
+| ID zahtjeva | Opis | Prioritet | Kriteriji prihvaćanja |
+|--------------|------|------------|------------------------|
+| F-001 | Sustav omogućuje autentifikaciju korisnika putem OAuth2 protokola (Google Sign-In). | Visok | Korisnik se može prijaviti i registrirati putem Google računa te uspješno pristupiti sustavu. |
+| F-002 | Sustav razlikuje tri uloge korisnika: Gost, Voditelj hotela i Administrator. | Visok | Nakon prijave, korisniku se dodjeljuje odgovarajuća uloga i prikazuju funkcionalnosti prema ovlastima. |
+| F-003 | Middleware sloj provjerava korisničku ulogu i pristup API rutama. | Visok | Neovlašteni korisnici nemaju pristup zaštićenim funkcijama. |
+| F-004 | Sustav omogućuje unos, izmjenu, dohvat i brisanje smještajnih jedinica (CRUD operacije). | Visok | Voditelj hotela može uspješno unositi i uređivati smještajne jedinice. |
+| F-005 | Svaka smještajna jedinica sadrži atribute: naziv, opis, broj kreveta, cijenu, tip, dostupnost i dodatne usluge. | Visok | Podaci se ispravno prikazuju i spremaju u bazu. |
+| F-006 | Sustav validira unos podataka (npr. cijena > 0, broj kreveta ≥ 1). | Visok | Pogrešni podaci ne mogu biti spremljeni. |
+| F-007 | API omogućuje filtriranje smještajnih jedinica prema cijeni, tipu i dostupnosti. | Srednji | Rezultati pretrage odgovaraju odabranim filtrima. |
+| F-008 | Sustav omogućuje stvaranje, pregled, izmjenu i otkazivanje rezervacija (CRUD operacije). | Visok | Gost može uspješno rezervirati i otkazati smještaj. |
+| F-009 | Sustav provjerava dostupnost smještaja i sprječava preklapanje termina. | Visok | Nije moguće izvršiti rezervaciju za već zauzet termin. |
+| F-010 | Sustav generira potvrdu rezervacije u PDF formatu i šalje e-mail korisniku. | Visok | Nakon potvrde rezervacije, korisnik prima e-mail s PDF dokumentom. |
+| F-011 | Sustav omogućuje pregled i izvoz statistike o zauzeću, gostima i popularnosti usluga. | Srednji | Administrator i voditelj hotela mogu generirati izvještaje u PDF, XLSX ili XML formatu. |
+| F-012 | Sustav omogućuje prikaz smještaja na interaktivnoj karti putem Google Maps integracije. | Srednji | Lokacija smještaja ispravno se prikazuje na mapi. |
+| F-013 | Sustav prikazuje dinamičnu naslovnu stranicu s tražilicom, kategorijama i istaknutim smještajima. | Srednji | Glavna stranica prikazuje ažurirane podatke i omogućuje pretragu. |
+| F-014 | Gost može putem tražilice filtrirati ponudu po lokaciji, datumu, cijeni i broju osoba. | Visok | Pretraga prikazuje relevantne rezultate. |
+| F-015 | Sustav šalje e-mail obavijesti o novim rezervacijama i promjenama statusa. | Visok | Korisnici dobivaju pravovremene obavijesti putem e-maila. |
 
-
-
-### Backend
-
-
-
-### Baza podataka
+---
 
 
 

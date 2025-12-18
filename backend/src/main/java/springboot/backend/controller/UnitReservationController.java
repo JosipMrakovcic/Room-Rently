@@ -14,6 +14,8 @@ import springboot.backend.repository.UnitRepo;
 import springboot.backend.repository.UnitReservationRepo;
 import org.springframework.security.core.Authentication; // PAZI NA IMPORT!
 import org.springframework.http.HttpStatus;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -133,6 +135,41 @@ public class UnitReservationController {
             res.setStatus(newStatus);
             repo.save(res);
             return ResponseEntity.ok("Status ažuriran na: " + newStatus);
+        }).orElse(ResponseEntity.notFound().build());
+    }
+    @PutMapping("/rate/{id}")
+    public ResponseEntity<?> rateReservation(@PathVariable Long id, @RequestBody java.util.Map<String, Integer> body, @AuthenticationPrincipal Jwt jwt) {
+        if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        String email = jwt.getClaimAsString("email");
+        int ratingValue = body.get("rating");
+
+        if (ratingValue < 1 || ratingValue > 10) {
+            return ResponseEntity.badRequest().body("Ocjena mora biti između 1 i 10.");
+        }
+
+        return repo.findById(id).map(res -> {
+            // 1. Provjera vlasništva
+            if (!res.getPerson().getEmail().equals(email)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Ne možete ocijeniti tuđu rezervaciju!");
+            }
+            // 2. Provjera statusa
+            if (!"Completed".equalsIgnoreCase(res.getStatus())) {
+                return ResponseEntity.badRequest().body("Možete ocijeniti samo završene rezervacije.");
+            }
+            // 3. Provjera roka (3 dana od endDate)
+            if (LocalDate.now().isAfter(res.getEndDate().plusDays(3))) {
+                return ResponseEntity.badRequest().body("Rok za ocjenjivanje (3 dana) je prošao.");
+            }
+            // 4. Provjera je li već ocijenjeno
+            if (res.getRating() != null) {
+                return ResponseEntity.badRequest().body("Već ste ocijenili ovu rezervaciju.");
+            }
+
+            res.setRating(ratingValue);
+            res.setRatingDate(LocalDate.now());
+            repo.save(res);
+            return ResponseEntity.ok("Hvala na ocjeni!");
         }).orElse(ResponseEntity.notFound().build());
     }
 }

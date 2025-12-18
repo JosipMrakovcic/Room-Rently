@@ -24,9 +24,19 @@ const Searchitem = ({ unit }) => {
     fetchLocation();
   }, [API_URL]);
 
+  // Pomoćna funkcija za dinamički tekst ocjene na temelju tvog izračunatog prosjeka
+  const getRatingLabel = (rating) => {
+    if (!rating) return "No reviews yet";
+    if (rating >= 9.5) return "Exceptional";
+    if (rating >= 9.0) return "Superb";
+    if (rating >= 8.5) return "Excellent";
+    if (rating >= 8.0) return "Very Good";
+    return "Good";
+  };
+
   return (
     <div className="searchitem" onClick={() => navigate(`/hotels/${unit.idUnit}`)}>
-      {/* 1. SLIKA (Dodano jer je falilo u tvom JSX-u) */}
+      {/* 1. SLIKA */}
       <img 
         src={unit.photos?.[0] || "/default_room.jpg"} 
         alt="" 
@@ -42,9 +52,9 @@ const Searchitem = ({ unit }) => {
           {unit.isApartment ? "Entire Apartment" : "Private Room"} • {unit.numRooms} {unit.numRooms === 1 ? "Bedroom" : "Bedrooms"}
         </span>
         
-    <span className="siFeaturesText">
-      {unit.capAdults} {unit.capAdults === 1 ? "adult" : "adults"} · {unit.capChildren} {unit.capChildren === 1 ? "child" : "children"}
-    </span>
+        <span className="siFeaturesText">
+          {unit.capAdults} {unit.capAdults === 1 ? "adult" : "adults"} · {unit.capChildren} {unit.capChildren === 1 ? "child" : "children"}
+        </span>
 
         <div className="siFeatures">
            {unit.hasWifi && <span className="siFeatureTag">Free WiFi</span>}
@@ -59,8 +69,10 @@ const Searchitem = ({ unit }) => {
       {/* 3. DETALJI (Desno) */}
       <div className="sidetails">
         <div className="sirating">
-          <span>Excellent</span>
-          <button>{unit.rating || "8.9"}</button>
+          {/* Koristimo getRatingLabel da automatski ispiše kategoriju */}
+          <span>{getRatingLabel(unit.rating)}</span>
+          {/* Ako unit.rating postoji (nije null), prikazujemo ga zaokruženog, inače stavljamo n/a ili tvoj default */}
+          <button>{unit.rating ? unit.rating.toFixed(1) : "n/a"}</button>
         </div>
         <div className="sidetailtexts">
           <span className="siprice">€{unit.price}</span>

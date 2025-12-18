@@ -43,4 +43,11 @@ public class UnitReservation {
 
     @Column(columnDefinition = "text") // Koristimo text da možemo spremiti duži popis
     private String selectedAmenities;
+
+    // Dodaj u UnitReservation.java unutar klase
+    @Column
+    private Integer rating; // Rating 1-10
+
+    @Column
+    private LocalDate ratingDate; // Datum kada je ocjenjeno (za praćenje roka)
 }

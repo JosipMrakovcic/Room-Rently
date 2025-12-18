@@ -144,6 +144,33 @@ justify-content: center;
 gap: 15px;
 }
 
+/* Stil za kontejner tagova unutar ćelije tablice */
+.owner-dashboard .amenitiesTags {
+    display: flex;
+    flex-wrap: wrap;       /* Ključno: omogućuje prelazak u novi red */
+    gap: 6px;              /* Razmak između tagova */
+    padding: 5px 0;
+    max-width: 250px;      /* Ograničavamo širinu da potaknemo prelamanje */
+}
+
+/* Stil za pojedinačni tag */
+.owner-dashboard .amenityTag {
+    background-color: #e2e8f0;
+    color: #4a5568;
+    padding: 3px 10px;
+    border-radius: 15px;    /* Zaobljen izgled pilule */
+    font-size: 12px;
+    border: 1px solid #cbd5e0;
+    white-space: nowrap;    /* Sprječava da se jedna riječ prepolovi */
+    display: inline-block;
+}
+
+/* Osiguraj da ćelije tablice ne limitiraju visinu */
+.owner-dashboard .reservation-table td {
+    vertical-align: middle;
+    height: auto;           /* Dozvoljava rast retka */
+}
+
 /* Responsiveness */
 @media (max-width: 768px) {
 .owner-dashboard .reservation-table {
@@ -170,6 +197,47 @@ gap: 10px;
 flex-direction: column;
 }
 }
-.status-confirmed { color: green; font-weight: bold; }
-.status-pending { color: orange; font-weight: bold; }
-.status-rejected { color: red; font-weight: bold; }
+
+/* Dodaj ovo na kraj CSS-a */
+
+/* Osnovni stil za badge (ako ga već nemaš definiranog pod tim imenom) */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    display: inline-block;
+    text-align: center;
+}
+
+/* Specifične boje za statuse */
+.status-badge.pending { 
+    background-color: #fff3cd; 
+    color: #856404; 
+    border: 1px solid #ffeeba;
+}
+
+.status-badge.confirmed { 
+    background-color: #d4edda; 
+    color: #155724; 
+    border: 1px solid #c3e6cb;
+}
+
+.status-badge.rejected, 
+.status-badge.cancelled { 
+    background-color: #f8d7da; 
+    color: #721c24; 
+    border: 1px solid #f5c6cb;
+}
+
+/* NOVO: Stil za Completed status */
+.status-badge.completed { 
+    background-color: #e2e3e5; 
+    color: #383d41; 
+    border: 1px solid #d6d8db;
+    font-weight: bold;
+}
+
+/* Ako želiš ikonicu kvačice uz Completed (opcionalno) */
+.status-badge.completed::before {
+    content: "✔️ ";
+}

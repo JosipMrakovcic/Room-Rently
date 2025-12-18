@@ -1,6 +1,6 @@
 import "./userReservations.css";
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
+import { format, addDays, isAfter } from "date-fns"; // Dodani addDays i isAfter za logiku roka
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -10,6 +10,9 @@ const UserReservations = () => {
   const [loading, setLoading] = useState(true);
   const [cancelModal, setCancelModal] = useState(null);
   const [confirmedCancel, setConfirmedCancel] = useState(null);
+  
+  // State za praćenje slanja ocjene
+  const [ratingLoading, setRatingLoading] = useState(null);
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -55,6 +58,42 @@ const UserReservations = () => {
     }
   };
 
+  // FUNKCIJA ZA RATING
+  const handleRate = async (reservationId, ratingValue) => {
+    const token = localStorage.getItem("access_token");
+    setRatingLoading(reservationId);
+    try {
+      await axios.put(
+        `${process.env.REACT_APP_API_URL}/unitReservation/rate/${reservationId}`,
+        { rating: ratingValue },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Ažuriramo lokalni state da se odmah vidi ocjena
+      setReservations((prev) =>
+        prev.map((r) =>
+          r.idUnitReservation === reservationId ? { ...r, rating: ratingValue } : r
+        )
+      );
+      alert("Thank you for your rating!");
+    } catch (err) {
+      alert(err.response?.data || "Error submitting rating.");
+    } finally {
+      setRatingLoading(null);
+    }
+  };
+
+  // Pomalo komplicirana provjera: je li status Completed, nije ocijenjeno i je li unutar 3 dana od endDate
+  const canUserRate = (res) => {
+    if (res.status !== "Completed" || res.rating) return false;
+    
+    const endDate = new Date(res.endDate);
+    const deadline = addDays(endDate, 3); // Datum završetka + 3 dana
+    const now = new Date();
+    
+    return !isAfter(now, deadline); // Vraća true ako "sada" nije nakon "deadlinea"
+  };
+
   if (loading) return <div className="loading">Učitavanje...</div>;
 
   return (
@@ -83,7 +122,6 @@ const UserReservations = () => {
             <div key={res.idUnitReservation} className="reservationCard">
               <div className="reservationHeader">
                 <div className="unitInfo">
-                  {/* PRIKAZ NAZIVA SOBE/APARTMANA */}
                   <h3 className="unitNameTitle">{res.unit?.unitName || "Accommodation"}</h3>
                   <span className="reservationId">Reservation #{res.idUnitReservation}</span>
                 </div>
@@ -122,19 +160,56 @@ const UserReservations = () => {
                 </div>
               </div>
 
-              {res.status !== "Cancelled" && (
-                <div className="reservationActions">
+              {/* ACTIONS SEKCIJA */}
+              <div className="reservationActions">
+                {/* CANCEL GUMB */}
+                {(res.status === "Pending" || res.status === "Confirmed") && (
                   <button className="cancelButton" onClick={() => setCancelModal(res.idUnitReservation)}>
                     Cancel Reservation
                   </button>
-                </div>
-              )}
+                )}
+
+                {/* PORUKA ZA COMPLETED */}
+                {res.status === "Completed" && !res.rating && (
+                   <span className="detailValue" style={{ fontSize: '13px', fontStyle: 'italic', color: '#6c757d', display: 'block', width: '100%', marginBottom: '10px' }}>
+                    This stay has been completed.
+                  </span>
+                )}
+
+                {/* PRIKAZ VEĆ DANE OCJENE */}
+                {res.rating && (
+                  <div className="ratingDisplay">
+                    <span className="detailLabel">Your Rating:</span>
+                    <span className="ratingValue">{res.rating}/10 ⭐</span>
+                  </div>
+                )}
+
+                {/* RATING KOMPONENTA (prikazuje se samo unutar 3 dana) */}
+                {canUserRate(res) && (
+                  <div className="ratingSection">
+                    <p style={{fontSize: '13px', fontWeight: '600', marginBottom: '8px'}}>How was your stay? Rate us (1-10):</p>
+                    <div className="ratingButtons">
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                        <button
+                          key={num}
+                          className="rateBtn"
+                          disabled={ratingLoading === res.idUnitReservation}
+                          onClick={() => handleRate(res.idUnitReservation, num)}
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
+                    {ratingLoading === res.idUnitReservation && <span style={{fontSize: '12px'}}>Sending...</span>}
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Modali ostaju isti... */}
+      {/* MODALI (Postojeći) */}
       {cancelModal && (
         <div className="reserveOverlay">
           <div className="reserveBox">

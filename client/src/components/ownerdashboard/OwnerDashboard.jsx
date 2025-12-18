@@ -20,16 +20,22 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Le
 
 export default function OwnerDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("stats"); 
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem("activeDashboardTab") || "stats";
+  });
   const [reservations, setReservations] = useState([]);
+  
+  // Popup sada koristimo za sve 4 akcije: Confirm, Reject, Complete, Cancel
   const [popup, setPopup] = useState({ visible: false, action: "", reservationId: null });
 
   const occupancyRef = useRef(null);
   const countryRef = useRef(null);
   const servicesRef = useRef(null);
   const amenitiesRef = useRef(null);
+  const topRatedRef = useRef(null);
 
-  // --- 1. SIGURNOSNA PROVJERA I DOHVAĆANJE PODATAKA ---
+  const VALID_STATS_STATUSES = ["Confirmed", "Completed", "Pending"];
+
   useEffect(() => {
     const savedUser = localStorage.getItem("googleUser");
     const user = savedUser ? JSON.parse(savedUser) : null;
@@ -38,9 +44,12 @@ export default function OwnerDashboard() {
       navigate("/main");
       return;
     }
-
     fetchReservations();
   }, [navigate]);
+
+  useEffect(() => {
+    localStorage.setItem("activeDashboardTab", activeTab);
+  }, [activeTab]);
 
   const fetchReservations = async () => {
     try {
@@ -54,14 +63,30 @@ export default function OwnerDashboard() {
     }
   };
 
-  // --- 2. DINAMIČKA OBRADA PODATAKA ZA GRAFIKONE ---
+  const topRatedStats = useMemo(() => {
+    const unitRatings = {};
+    reservations.forEach(res => {
+      if (res.status === "Completed" && res.rating && res.unit?.unitName) {
+        const name = res.unit.unitName;
+        if (!unitRatings[name]) unitRatings[name] = { sum: 0, count: 0 };
+        unitRatings[name].sum += res.rating;
+        unitRatings[name].count += 1;
+      }
+    });
+    const averages = Object.keys(unitRatings).map(name => ({
+      name,
+      avg: unitRatings[name].sum / unitRatings[name].count
+    }));
+    const sorted = averages.sort((a, b) => b.avg - a.avg).slice(0, 10);
+    return { labels: sorted.map(i => i.name), data: sorted.map(i => i.avg.toFixed(1)) };
+  }, [reservations]);
 
   const monthlyStats = useMemo(() => {
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const guestCounts = new Array(12).fill(0);
     reservations.forEach(res => {
       const date = new Date(res.startDate);
-      if (date.getFullYear() === 2025 && res.status !== "Rejected") {
+      if (date.getFullYear() === 2025 && VALID_STATS_STATUSES.includes(res.status)) {
         guestCounts[date.getMonth()] += (res.adults + (res.children || 0));
       }
     });
@@ -71,21 +96,16 @@ export default function OwnerDashboard() {
   const amenitiesStats = useMemo(() => {
     const counts = {};
     reservations.forEach(res => {
+      if (!VALID_STATS_STATUSES.includes(res.status)) return;
       let amenityList = [];
-      // Koristimo selectedAmenities jer si to koristio u UserReservations
       const rawAmenities = res.selectedAmenities || res.amenities;
-      
-      if (Array.isArray(rawAmenities)) {
-        amenityList = rawAmenities;
-      } else if (typeof rawAmenities === "string" && rawAmenities.trim() !== "") {
+      if (Array.isArray(rawAmenities)) amenityList = rawAmenities;
+      else if (typeof rawAmenities === "string" && rawAmenities.trim() !== "") {
         amenityList = rawAmenities.split(",").map(item => item.trim());
       }
-
       amenityList.forEach(amenity => {
         const formattedName = amenity.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim();
-        if (formattedName) {
-          counts[formattedName] = (counts[formattedName] || 0) + 1;
-        }
+        if (formattedName) counts[formattedName] = (counts[formattedName] || 0) + 1;
       });
     });
     const sortedLabels = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
@@ -95,8 +115,10 @@ export default function OwnerDashboard() {
   const unitStats = useMemo(() => {
     const counts = {};
     reservations.forEach(res => {
-      const name = res.unit?.unitName || "Unknown";
-      counts[name] = (counts[name] || 0) + 1;
+      if (VALID_STATS_STATUSES.includes(res.status)) {
+        const name = res.unit?.unitName || "Unknown";
+        counts[name] = (counts[name] || 0) + 1;
+      }
     });
     return { labels: Object.keys(counts), data: Object.values(counts) };
   }, [reservations]);
@@ -104,11 +126,25 @@ export default function OwnerDashboard() {
   const countryStats = useMemo(() => {
     const counts = {};
     reservations.forEach(res => {
-      const c = res.country || "Other";
-      counts[c] = (counts[c] || 0) + 1;
+      if (VALID_STATS_STATUSES.includes(res.status)) {
+        const c = res.country || "Other";
+        counts[c] = (counts[c] || 0) + 1;
+      }
     });
     return { labels: Object.keys(counts), data: Object.values(counts) };
   }, [reservations]);
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: 1.5,
+    plugins: { legend: { position: 'bottom' } }
+  };
+
+  const topRatedData = {
+    labels: topRatedStats.labels,
+    datasets: [{ label: "Avg Rating", data: topRatedStats.data, backgroundColor: "#f1c40f" }]
+  };
 
   const monthlyGuestsData = {
     labels: monthlyStats.labels,
@@ -117,7 +153,7 @@ export default function OwnerDashboard() {
 
   const amenitiesData = { 
     labels: amenitiesStats.labels, 
-    datasets: [{ label: "Number of Requests", data: amenitiesStats.data, backgroundColor: "rgba(75, 192, 192, 0.6)" }] 
+    datasets: [{ label: "Requests", data: amenitiesStats.data, backgroundColor: "rgba(75, 192, 192, 0.6)" }] 
   };
 
   const guestsByCountryData = { 
@@ -138,7 +174,6 @@ export default function OwnerDashboard() {
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       if (response.status === 200) {
         setReservations((prev) =>
           prev.map((r) => (r.idUnitReservation === id ? { ...r, status: newStatus } : r))
@@ -146,12 +181,21 @@ export default function OwnerDashboard() {
       }
     } catch (err) {
       console.error("Error updating status:", err);
-      alert("Greška pri ažuriranju statusa na serveru.");
+      alert("Greška pri ažuriranju statusa.");
     }
   };
 
   const confirmAction = () => {
-    const finalStatus = popup.action === "Confirm" ? "Confirmed" : "Rejected";
+    let finalStatus = "";
+    // Mapiranje akcije iz gumba na stvarni status u bazi
+    switch (popup.action) {
+      case "Confirm": finalStatus = "Confirmed"; break;
+      case "Reject": finalStatus = "Rejected"; break;
+      case "Complete": finalStatus = "Completed"; break;
+      case "Cancel": finalStatus = "Cancelled"; break;
+      default: return;
+    }
+
     handleUpdateStatus(popup.reservationId, finalStatus);
     setPopup({ visible: false, action: "", reservationId: null });
   };
@@ -166,40 +210,12 @@ export default function OwnerDashboard() {
   const exportStatsPDF = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
-    
-    doc.setFontSize(20);
-    doc.setTextColor(0, 64, 128); // Tamno plava boja kao u dashboardu
-    doc.text("Hotel Statistics Report - 2025", pageWidth / 2, 20, { align: "center" });
-
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-
-    // --- STRANICA 1 ---
-    // 1. Grafikon: Mjesečni gosti
-    doc.text("1. Monthly Guest Count:", 20, 35);
-    addChartToPDF(doc, occupancyRef, 20, 40, 170, 80);
-
-    // 2. Grafikon: Pogodnosti (Amenities)
-    doc.text("2. Most Requested Amenities:", 20, 135);
-    addChartToPDF(doc, amenitiesRef, 20, 140, 170, 80);
-
-    // --- STRANICA 2 ---
-    doc.addPage();
     doc.setFontSize(20);
     doc.setTextColor(0, 64, 128);
-    doc.text("Geographic & Unit Analytics", pageWidth / 2, 20, { align: "center" });
-
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-
-    // 3. Grafikon: Gosti po državama
-    doc.text("3. Guests by Country:", 20, 35);
-    addChartToPDF(doc, countryRef, 40, 40, 120, 90); // Pie chart je bolji u manjem kvadratnom formatu
-
-    // 4. Grafikon: Popularnost jedinica
-    doc.text("4. Unit Popularity:", 20, 145);
-    addChartToPDF(doc, servicesRef, 40, 150, 120, 90);
-
+    doc.text("Hotel Statistics Report - 2025", pageWidth / 2, 20, { align: "center" });
+    addChartToPDF(doc, occupancyRef, 20, 40, 170, 80);
+    doc.text("Top Units by Rating", 20, 135);
+    addChartToPDF(doc, topRatedRef, 20, 140, 170, 80);
     doc.save("hotel_detailed_statistics.pdf");
   };
 
@@ -211,9 +227,7 @@ export default function OwnerDashboard() {
         From: r.startDate,
         To: r.endDate,
         Status: r.status,
-        Adults: r.adults,
-        Children: r.children,
-        Amenities: r.selectedAmenities || (Array.isArray(r.amenities) ? r.amenities.join(", ") : r.amenities)
+        Rating: r.rating || "N/A"
       }))
     );
     const wb = XLSX.utils.book_new();
@@ -223,46 +237,11 @@ export default function OwnerDashboard() {
 
   const exportStatsXLSX = () => {
     const wb = XLSX.utils.book_new();
-
-    // 1. Podaci za Mjesečnu statistiku
-    const monthlyWS = XLSX.utils.json_to_sheet(
-      monthlyStats.labels.map((label, index) => ({
-        Month: label,
-        Total_Guests: monthlyStats.data[index]
-      }))
-    );
+    const monthlyWS = XLSX.utils.json_to_sheet(monthlyStats.labels.map((l, i) => ({ Month: l, Guests: monthlyStats.data[i] })));
     XLSX.utils.book_append_sheet(wb, monthlyWS, "Monthly Stats");
-
-    // 2. Podaci za Amenities (Pogodnosti)
-    const amenitiesWS = XLSX.utils.json_to_sheet(
-      amenitiesStats.labels.map((label, index) => ({
-        Amenity: label,
-        Requests: amenitiesStats.data[index]
-      }))
-    );
-    XLSX.utils.book_append_sheet(wb, amenitiesWS, "Amenities Stats");
-
-    // 3. Podaci za Države
-    const countryWS = XLSX.utils.json_to_sheet(
-      countryStats.labels.map((label, index) => ({
-        Country: label,
-        Count: countryStats.data[index]
-      }))
-    );
-    XLSX.utils.book_append_sheet(wb, countryWS, "Country Stats");
-
-    // 4. Podaci za Popularnost Jedinica
-    const unitWS = XLSX.utils.json_to_sheet(
-      unitStats.labels.map((label, index) => ({
-        Unit_Name: label,
-        Reservations: unitStats.data[index]
-      }))
-    );
-    XLSX.utils.book_append_sheet(wb, unitWS, "Unit Stats");
-
-    // Spremamo datoteku
     XLSX.writeFile(wb, "hotel_business_analytics.xlsx");
   };
+
   return (
     <div className="owner-dashboard">
       <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -290,45 +269,31 @@ export default function OwnerDashboard() {
       {activeTab === "stats" && (
         <section className="statistics">
           <h2>Business Overview</h2>
-          <div className="charts">
+          <div className="charts" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
+            <div className="chart-container">
+                <h3>Top 10 Units (Guest Rating)</h3>
+                <Bar ref={topRatedRef} data={topRatedData} options={{ ...chartOptions, scales: { y: { beginAtZero: true, max: 10 } } }} />
+            </div>
             <div className="chart-container">
                 <h3>Guests per Month (2025)</h3>
-                <Bar ref={occupancyRef} data={monthlyGuestsData} />
+                <Bar ref={occupancyRef} data={monthlyGuestsData} options={chartOptions} />
             </div>
             <div className="chart-container">
                 <h3>Most Requested Amenities</h3>
-                <Bar 
-                    ref={amenitiesRef} 
-                    data={amenitiesData} 
-                    options={{ 
-                        indexAxis: 'y', 
-                        plugins: { legend: { display: false } },
-                        scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
-                    }} 
-                />
+                <Bar ref={amenitiesRef} data={amenitiesData} options={{ ...chartOptions, indexAxis: 'y' }} />
+            </div>
+            <div className="chart-container">
+                <h3>Unit Popularity (Bookings)</h3>
+                <Pie ref={servicesRef} data={popularServicesData} options={chartOptions} />
             </div>
             <div className="chart-container">
                 <h3>Guests by Country</h3>
-                <Pie ref={countryRef} data={guestsByCountryData} />
-            </div>
-            <div className="chart-container">
-                <h3>Unit Popularity</h3>
-                <Pie ref={servicesRef} data={popularServicesData} />
+                <Pie ref={countryRef} data={countryStats.data.length > 0 ? guestsByCountryData : {labels:[], datasets:[]}} options={chartOptions} />
             </div>
           </div>
           <div className="export-buttons" style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
-            <button 
-              onClick={exportStatsPDF} 
-              style={{ background: '#dc3545', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}
-            >
-              Export Stats PDF
-            </button>
-            <button 
-              onClick={exportStatsXLSX} 
-              style={{ background: '#28a745', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}
-            >
-              Export Stats Excel
-            </button>
+            <button onClick={exportStatsPDF} style={{ background: '#dc3545', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}>Export Stats PDF</button>
+            <button onClick={exportStatsXLSX} style={{ background: '#28a745', color: 'white', padding: '10px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer' }}>Export Stats Excel</button>
           </div>
         </section>
       )}
@@ -337,9 +302,7 @@ export default function OwnerDashboard() {
         <section className="reservations">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2>Manage Reservations</h2>
-            <button className="export-btn" onClick={exportReservationsXLSX} style={{ background: '#28a745', color: 'white' }}>
-              Export to Excel (XLSX)
-            </button>
+            <button className="export-btn" onClick={exportReservationsXLSX} style={{ background: '#28a745', color: 'white' }}>Export to Excel (XLSX)</button>
           </div>
           
           <table className="reservation-table">
@@ -350,6 +313,7 @@ export default function OwnerDashboard() {
                 <th>Dates</th>
                 <th>Amenities</th>
                 <th>Status</th>
+                <th>Rating</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -360,7 +324,7 @@ export default function OwnerDashboard() {
                     <td>{r.person?.name}</td>
                     <td>{r.unit?.unitName}</td>
                     <td>{r.startDate} to {r.endDate}</td>
-                    <td style={{ maxWidth: '250px' }}>
+                    <td>
                       <div className="amenitiesTags">
                         {(r.selectedAmenities || r.amenities) ? (
                           (r.selectedAmenities || (Array.isArray(r.amenities) ? r.amenities.join(", ") : r.amenities))
@@ -368,10 +332,11 @@ export default function OwnerDashboard() {
                             .map((am, i) => (
                               <span key={i} className="amenityTag">{am}</span>
                             ))
-                        ) : <span className="detailValue">None</span>}
+                        ) : "None"}
                       </div>
                     </td>
                     <td><span className={`status-badge ${r.status.toLowerCase()}`}>{r.status}</span></td>
+                    <td style={{ fontWeight: 'bold', color: '#f1c40f' }}>{r.rating ? `${r.rating} ⭐` : "-"}</td>
                     <td>
                       {r.status === "Pending" && (
                         <>
@@ -380,60 +345,41 @@ export default function OwnerDashboard() {
                         </>
                       )}
                       {r.status === "Confirmed" && (
-                        <button className="reject-btn" onClick={() => handleUpdateStatus(r.idUnitReservation, "Cancelled")}>Cancel</button>
+                        <div style={{ display: 'flex', gap: '5px' }}>
+                          <button 
+                            className="confirm-btn" 
+                            style={{ background: '#28a745' }} 
+                            onClick={() => setPopup({ visible: true, action: "Complete", reservationId: r.idUnitReservation })}
+                          >
+                            Complete
+                          </button>
+                          <button 
+                            className="reject-btn" 
+                            onClick={() => setPopup({ visible: true, action: "Cancel", reservationId: r.idUnitReservation })}
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       )}
+                      {r.status === "Completed" && <span style={{ color: '#6c757d', fontSize: '12px' }}>No actions</span>}
                     </td>
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan="6" style={{ textAlign: 'center' }}>No reservations found.</td></tr>
+                <tr><td colSpan="7" style={{ textAlign: 'center' }}>No reservations found.</td></tr>
               )}
             </tbody>
           </table>
-
-          <div className="reservation-cards">
-            {reservations.map((r) => (
-              <div key={r.idUnitReservation} className="reservation-card">
-                <p><strong>Guest:</strong> {r.person?.name}</p>
-                <p><strong>Unit:</strong> {r.unit?.unitName}</p>
-                <p><strong>Dates:</strong> {r.startDate} - {r.endDate}</p>
-                <div className="detailItem">
-                  <strong>Amenities:</strong>
-                  <div className="amenitiesTags">
-                    {(r.selectedAmenities || r.amenities) ? (
-                      (r.selectedAmenities || (Array.isArray(r.amenities) ? r.amenities.join(", ") : r.amenities))
-                        .split(", ")
-                        .map((am, i) => (
-                          <span key={i} className="amenityTag">{am}</span>
-                        ))
-                    ) : <span className="detailValue">None</span>}
-                  </div>
-                </div>
-                <p style={{ marginTop: '10px' }}><strong>Status:</strong> {r.status}</p>
-                <div className="card-buttons">
-                  {r.status === "Pending" && (
-                    <>
-                      <button className="confirm-btn" onClick={() => setPopup({ visible: true, action: "Confirm", reservationId: r.idUnitReservation })}>Confirm</button>
-                      <button className="reject-btn" onClick={() => setPopup({ visible: true, action: "Reject", reservationId: r.idUnitReservation })}>Reject</button>
-                    </>
-                  )}
-                  {r.status === "Confirmed" && (
-                    <button className="reject-btn" onClick={() => handleUpdateStatus(r.idUnitReservation, "Cancelled")}>Cancel</button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
         </section>
       )}
 
       {popup.visible && (
         <div className="popup-overlay">
           <div className="popup">
-            <p>Are you sure you want to <strong>{popup.action}</strong> this reservation?</p>
+            <p>Are you sure you want to <strong>{popup.action.toLowerCase()}</strong> this reservation?</p>
             <div className="popup-buttons">
               <button onClick={confirmAction} className="confirm-btn">{popup.action}</button>
-              <button onClick={() => setPopup({ visible: false, action: "", reservationId: null })} className="reject-btn">Cancel</button>
+              <button onClick={() => setPopup({ visible: false, action: "", reservationId: null })} className="reject-btn">Back</button>
             </div>
           </div>
         </div>

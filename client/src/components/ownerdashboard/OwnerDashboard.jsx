@@ -25,7 +25,6 @@ export default function OwnerDashboard() {
   });
   const [reservations, setReservations] = useState([]);
   
-  // Popup sada koristimo za sve 4 akcije: Confirm, Reject, Complete, Cancel
   const [popup, setPopup] = useState({ visible: false, action: "", reservationId: null });
 
   const occupancyRef = useRef(null);
@@ -123,11 +122,13 @@ export default function OwnerDashboard() {
     return { labels: Object.keys(counts), data: Object.values(counts) };
   }, [reservations]);
 
+  // ISPRAVLJENO: Dohvaćanje države preko person objekta
   const countryStats = useMemo(() => {
     const counts = {};
     reservations.forEach(res => {
       if (VALID_STATS_STATUSES.includes(res.status)) {
-        const c = res.country || "Other";
+        // Pristupamo country polju unutar person objekta
+        const c = res.person?.country || "Other";
         counts[c] = (counts[c] || 0) + 1;
       }
     });
@@ -158,7 +159,11 @@ export default function OwnerDashboard() {
 
   const guestsByCountryData = { 
     labels: countryStats.labels, 
-    datasets: [{ label: "Guests", data: countryStats.data, backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"] }] 
+    datasets: [{ 
+        label: "Guests", 
+        data: countryStats.data, 
+        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"] 
+    }] 
   };
 
   const popularServicesData = { 
@@ -187,7 +192,6 @@ export default function OwnerDashboard() {
 
   const confirmAction = () => {
     let finalStatus = "";
-    // Mapiranje akcije iz gumba na stvarni status u bazi
     switch (popup.action) {
       case "Confirm": finalStatus = "Confirmed"; break;
       case "Reject": finalStatus = "Rejected"; break;
@@ -223,6 +227,7 @@ export default function OwnerDashboard() {
     const ws = XLSX.utils.json_to_sheet(
       reservations.map((r) => ({
         Guest: r.person?.name,
+        Country: r.person?.country || "N/A", // Dodano u Excel
         Unit: r.unit?.unitName,
         From: r.startDate,
         To: r.endDate,
@@ -321,7 +326,11 @@ export default function OwnerDashboard() {
               {reservations.length > 0 ? (
                 reservations.map((r) => (
                   <tr key={r.idUnitReservation}>
-                    <td>{r.person?.name}</td>
+                    {/* MODIFICIRANO: Dodana država uz ime gosta u tablicu */}
+                    <td>
+                        <div style={{ fontWeight: 'bold' }}>{r.person?.name}</div>
+                        <div style={{ fontSize: '12px', color: '#666' }}>📍 {r.person?.country || "N/A"}</div>
+                    </td>
                     <td>{r.unit?.unitName}</td>
                     <td>{r.startDate} to {r.endDate}</td>
                     <td>

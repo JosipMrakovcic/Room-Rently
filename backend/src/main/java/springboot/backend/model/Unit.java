@@ -49,8 +49,29 @@ public class Unit {
     @Column(nullable = false)
     private Integer numBeds;
 
-    @Column
-    private Integer rating;
+    @Transient // Ovo polje se ne sprema u bazu, već se računa
+    public Double getAverageRating() {
+        if (unitReservations == null || unitReservations.isEmpty()) {
+            return null; // Ili npr. 0.0 ako želiš početnu vrijednost
+        }
+
+        // Filtriramo rezervacije koje su Completed i imaju rating, pa računamo prosjek
+        return unitReservations.stream()
+                .filter(res -> "Completed".equalsIgnoreCase(res.getStatus()))
+                .filter(res -> res.getRating() != null)
+                .mapToDouble(UnitReservation::getRating)
+                .average()
+                .orElse(0.0);
+    }
+
+    // Kako bi Jackson (JSON) vidio ovo polje kao "rating"
+    @JsonProperty("rating")
+    public Double getRating() {
+        Double avg = getAverageRating();
+        if (avg == null || avg == 0.0) return null;
+        // Zaokruživanje na jednu decimalu (npr. 8.6666 -> 8.7)
+        return Math.round(avg * 10.0) / 10.0;
+    }
 
     @Column(nullable = false)
     private boolean hasParking;

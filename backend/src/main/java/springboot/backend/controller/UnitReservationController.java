@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication; // PAZI NA IMPORT!
 import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -31,6 +32,7 @@ public class UnitReservationController {
     public ResponseEntity<?> addReservation(@RequestBody ReservationRequest req, @AuthenticationPrincipal Jwt jwt) {
         try {
             if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Morate biti prijavljeni.");
+            
 
             String email = jwt.getClaimAsString("email");
             Person person = personRepo.findByEmail(email)
@@ -77,7 +79,10 @@ public class UnitReservationController {
             res.setChildren(req.getChildren());
             res.setStatus("Pending");
             res.setPerson(person);
-            res.setUnit(unitToReserve);
+
+            Unit unit = unitRepo.findById(req.getUnitId())
+                    .orElseThrow(() -> new RuntimeException("Smještaj nije pronađen"));
+            res.setUnit(unit);
 
             if (req.getAmenities() != null && !req.getAmenities().isEmpty()) {
                 res.setSelectedAmenities(String.join(", ", req.getAmenities()));
@@ -138,7 +143,6 @@ public class UnitReservationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        // Dodatna provjera: je li osoba koja šalje zahtjev Owner?
         String email = jwt.getClaimAsString("email");
         Person p = personRepo.findByEmail(email).orElse(null);
         if (p == null || !p.isOwner()) {
@@ -148,8 +152,49 @@ public class UnitReservationController {
         return repo.findById(id).map(res -> {
             String newStatus = body.get("status");
             res.setStatus(newStatus);
+
+            // --- NOVO: Ako je status Completed, postavi endDate na danas ---
+            if ("Completed".equalsIgnoreCase(newStatus)) {
+                res.setEndDate(LocalDate.now());
+            }
+
             repo.save(res);
-            return ResponseEntity.ok("Status ažuriran na: " + newStatus);
+            return ResponseEntity.ok(res); // Vraćamo cijeli objekt da frontend vidi novi datum
+        }).orElse(ResponseEntity.notFound().build());
+    }
+    @PutMapping("/rate/{id}")
+    public ResponseEntity<?> rateReservation(@PathVariable Long id, @RequestBody java.util.Map<String, Integer> body, @AuthenticationPrincipal Jwt jwt) {
+        if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        String email = jwt.getClaimAsString("email");
+        int ratingValue = body.get("rating");
+
+        if (ratingValue < 1 || ratingValue > 10) {
+            return ResponseEntity.badRequest().body("Ocjena mora biti između 1 i 10.");
+        }
+
+        return repo.findById(id).map(res -> {
+            // 1. Provjera vlasništva
+            if (!res.getPerson().getEmail().equals(email)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Ne možete ocijeniti tuđu rezervaciju!");
+            }
+            // 2. Provjera statusa
+            if (!"Completed".equalsIgnoreCase(res.getStatus())) {
+                return ResponseEntity.badRequest().body("Možete ocijeniti samo završene rezervacije.");
+            }
+            // 3. Provjera roka (3 dana od endDate)
+            if (LocalDate.now().isAfter(res.getEndDate().plusDays(3))) {
+                return ResponseEntity.badRequest().body("Rok za ocjenjivanje (3 dana) je prošao.");
+            }
+            // 4. Provjera je li već ocijenjeno
+            if (res.getRating() != null) {
+                return ResponseEntity.badRequest().body("Već ste ocijenili ovu rezervaciju.");
+            }
+
+            res.setRating(ratingValue);
+            res.setRatingDate(LocalDate.now());
+            repo.save(res);
+            return ResponseEntity.ok("Hvala na ocjeni!");
         }).orElse(ResponseEntity.notFound().build());
     }
 }

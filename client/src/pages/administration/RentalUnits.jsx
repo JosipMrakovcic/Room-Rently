@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import "./RentalUnits.css";
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState("units");
+  const [activeTab, setActiveTab] = useState(() => {
+    // Prilikom učitavanja, provjeri localStorage, ako nema ništa, stavi "units"
+    return localStorage.getItem("activeAdminTab") || "units";
+  });
   const [units, setUnits] = useState([]);
   const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
@@ -14,6 +17,10 @@ const AdminDashboard = () => {
   const [showMap, setShowMap] = useState(true);
 
   const navigate = useNavigate();
+  useEffect(() => {
+    // Svaki put kad se activeTab promijeni, spremi ga u memoriju preglednika
+    localStorage.setItem("activeAdminTab", activeTab);
+  }, [activeTab]);
 
   const handleRoleChange = async (userId, newRole) => {
     try {

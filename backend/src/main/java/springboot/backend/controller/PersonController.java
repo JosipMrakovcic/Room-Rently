@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import springboot.backend.model.Person;
 import springboot.backend.repository.PersonRepo;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -131,4 +133,22 @@ public class PersonController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/updateCountry")
+    public ResponseEntity<?> updateCountry(@RequestBody Map<String, String> payload,
+                                           @AuthenticationPrincipal Jwt jwt) {
+        // 1. Koristimo 'jwt' za izvlačenje emaila kao i u ostalim metodama
+        String email = jwt.getClaimAsString("email");
+        String country = payload.get("country");
+
+        if (email == null) {
+            return ResponseEntity.badRequest().body("Invalid token: no email found.");
+        }
+
+        // 2. Koristimo 'repo' (naziv koji si definirao na vrhu klase kod @Autowired)
+        return repo.findByEmail(email).map(person -> {
+            person.setCountry(country);
+            repo.save(person);
+            return ResponseEntity.ok("Country updated successfully");
+        }).orElse(ResponseEntity.status(404).body("User not found"));
+    }
 }

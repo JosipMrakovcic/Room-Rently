@@ -21,27 +21,33 @@ public class Person {
     @Column(columnDefinition = "text", nullable = false, unique = true)
     private String email;
 
-    @JsonProperty("is_admin") // 🔹 osigurava da JSON ima "is_admin"
+    @JsonProperty("is_admin")
     @Column(nullable = false)
     private boolean isAdmin;
 
-    @JsonProperty("is_user") // 🔹 JSON "is_user"
+    @JsonProperty("is_user")
     @Column(nullable = false)
     private boolean isUser;
 
-    @JsonProperty("is_owner") // 🔹 JSON "is_owner"
+    @JsonProperty("is_owner")
     @Column(nullable = false)
     private boolean isOwner;
 
     @Column(columnDefinition = "text", nullable = false)
     private String name;
 
-    public Person(String email, boolean isAdmin, boolean isUser, boolean isOwner, String name) {
+    // NOVO POLJE
+    @Column(columnDefinition = "text")
+    private String country;
+
+    // Ažuriran konstruktor
+    public Person(String email, boolean isAdmin, boolean isUser, boolean isOwner, String name, String country) {
         this.email = email;
         this.isAdmin = isAdmin;
         this.isUser = isUser;
         this.isOwner = isOwner;
         this.name = name;
+        this.country = country;
     }
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)

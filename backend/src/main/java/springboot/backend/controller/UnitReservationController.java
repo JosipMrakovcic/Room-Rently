@@ -42,6 +42,19 @@ public class UnitReservationController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Samo korisnici mogu rezervirati.");
             }
 
+            if (req.getStartDate().isBefore(LocalDate.now())) {
+                return ResponseEntity.badRequest().body("Datum početka ne može biti u prošlosti.");
+            }
+            if (!req.getEndDate().isAfter(req.getStartDate())) {
+                return ResponseEntity.badRequest().body("Datum odlaska mora biti barem jedan dan nakon dolaska.");
+            }
+            // --- KLJUČNA SIGURNOSNA PROVJERA (ANTI-BURP) ---
+            boolean isTaken = repo.existsOverlapping(req.getUnitId(), req.getStartDate(), req.getEndDate());
+            if (isTaken) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("Ovi datumi su već zauzeti. Molimo odaberite drugi termin.");
+            }
+
             // 1. Dohvati jedinicu koju je korisnik odabrao (Roditelj, npr. "Double Room")
             Unit selectedUnit = unitRepo.findById(req.getUnitId())
                     .orElseThrow(() -> new RuntimeException("Smještaj nije pronađen"));
@@ -82,7 +95,7 @@ public class UnitReservationController {
 
             Unit unit = unitRepo.findById(req.getUnitId())
                     .orElseThrow(() -> new RuntimeException("Smještaj nije pronađen"));
-            res.setUnit(unit);
+            res.setUnit(unitToReserve);
 
             if (req.getAmenities() != null && !req.getAmenities().isEmpty()) {
                 res.setSelectedAmenities(String.join(", ", req.getAmenities()));
@@ -90,7 +103,6 @@ public class UnitReservationController {
 
             repo.save(res);
             return ResponseEntity.ok("Rezervacija uspješno kreirana za: " + unitToReserve.getUnitName());
-
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Greška: " + e.getMessage());
         }
@@ -102,6 +114,7 @@ public class UnitReservationController {
     public List<UnitReservation> getAll() {
         return repo.findAll();
     }
+
     @GetMapping("/my-reservations")
     public ResponseEntity<List<UnitReservation>> getMyReservations(@AuthenticationPrincipal Jwt jwt) {
         if (jwt == null) {

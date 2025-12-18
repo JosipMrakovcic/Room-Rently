@@ -27,7 +27,6 @@ public interface UnitReservationRepo extends JpaRepository<UnitReservation, Long
             @Param("endDate") LocalDate endDate
     );
 
-    // DODAJ OVO:
     @Query("SELECT COUNT(r) > 0 FROM UnitReservation r " +
             "WHERE r.unit.idUnit = :unitId " +
             "AND r.status IN ('Pending', 'Confirmed', 'Completed') " +

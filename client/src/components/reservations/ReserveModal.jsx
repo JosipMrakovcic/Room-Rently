@@ -37,48 +37,57 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
   const token = localStorage.getItem("access_token");
 
   // --- DOHVAĆANJE I FILTRIRANJE ZAUZETIH DATUMA ---
-  useEffect(() => {
-    const getDisabledDates = async () => {
-      try {
-        // Dohvaćamo sve rezervacije za ovaj specifični unit
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/unitReservation/all`
-        );
-        
-        const allReservations = response.data;
-        let datesToDisable = [];
+useEffect(() => {
+  const getDisabledDates = async () => {
+    try {
+      // 1. Dohvaćamo sve rezervacije
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/unitReservation/all`);
+      const allReservations = response.data;
+      const occupiedStatuses = ["Pending", "Confirmed", "Completed"];
 
-        // Filtriramo: samo za ovaj unit i samo statusi koji znače "zauzeto"
-        const occupiedStatuses = ["Pending", "Confirmed", "Completed"];
+      // 2. Određujemo ukupan broj soba u ovoj kategoriji
+      // Ako je Roditelj, koristimo numSameRooms, inače je to 1 (za apartman)
+      const totalCapacity = (unit.numSameRooms && unit.numSameRooms > 0) 
+        ? unit.numSameRooms 
+        : 1;
 
-        allReservations.forEach((res) => {
-          if (res.unit?.idUnit === unit.idUnit && occupiedStatuses.includes(res.status)) {
-            // Kreiramo Date objekte (dodajemo sate da izbjegnemo timezone probleme)
-            const start = new Date(res.startDate);
-            const end = new Date(res.endDate);
+      const occupancyCountByDate = {}; // Mapa za brojanje: { "2023-12-20": 2, ... }
 
-            if (start && end) {
-              const interval = eachDayOfInterval({ start, end });
-              
-              // Logika: Zadnji dan (Check-out) mora biti slobodan za novi Check-in
-              // Ako je boravak samo 1 noćenje, slice će ostaviti samo start datum
-              const daysToBlock = interval.length > 1 ? interval.slice(0, -1) : interval;
-              
-              datesToDisable = [...datesToDisable, ...daysToBlock];
-            }
-          }
-        });
+      allReservations.forEach((res) => {
+        // Provjeravamo je li rezervacija povezana s našim roditeljem (unitName)
+        // Budući da pod-sobe imaju ime "Ime Roditelja - Soba X", koristimo 'startsWith'
+        const isRelatedUnit = res.unit?.unitName.startsWith(unit.unitName);
 
-        setDisabledDates(datesToDisable);
-      } catch (err) {
-        console.error("Error fetching occupied dates:", err);
-      }
-    };
+        if (isRelatedUnit && occupiedStatuses.includes(res.status)) {
+          const start = new Date(res.startDate);
+          const end = new Date(res.endDate);
 
-    if (unit?.idUnit) {
-      getDisabledDates();
+          const interval = eachDayOfInterval({ start, end });
+          // Zadnji dan (check-out) ostavljamo slobodnim
+          const daysToBlock = interval.length > 1 ? interval.slice(0, -1) : interval;
+
+          daysToBlock.forEach((day) => {
+            const dateStr = format(day, "yyyy-MM-dd");
+            occupancyCountByDate[dateStr] = (occupancyCountByDate[dateStr] || 0) + 1;
+          });
+        }
+      });
+
+      // 3. BLOKIRANJE: Datum se gasi samo ako je broj rezervacija >= totalCapacity
+      const datesToDisable = Object.keys(occupancyCountByDate)
+        .filter((dateStr) => occupancyCountByDate[dateStr] >= totalCapacity)
+        .map((dateStr) => new Date(dateStr));
+
+      setDisabledDates(datesToDisable);
+    } catch (err) {
+      console.error("Error fetching occupied dates:", err);
     }
-  }, [unit]);
+  };
+
+  if (unit?.idUnit) {
+    getDisabledDates();
+  }
+}, [unit]);
 
   if (!token) {
     return (

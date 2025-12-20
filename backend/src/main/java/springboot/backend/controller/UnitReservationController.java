@@ -19,6 +19,12 @@ import java.util.ArrayList;
 import java.time.LocalDate;
 import java.util.List;
 
+import springboot.backend.service.PdfService; // Ovo rješava crveni PdfService
+import jakarta.servlet.http.HttpServletResponse; // Ovo rješava crveni HttpServletResponse
+import java.io.IOException; // Ovo rješava crveni IOException
+
+import springboot.backend.service.EmailService;
+
 @RestController
 @CrossOrigin(origins = "${frontend.url}")
 @RequestMapping("/unitReservation")
@@ -28,49 +34,52 @@ public class UnitReservationController {
     @Autowired private PersonRepo personRepo;
     @Autowired private UnitRepo unitRepo;
 
+    @Autowired private EmailService emailService;
+
+    @Autowired private PdfService pdfService;
+
     @PostMapping("/add")
     public ResponseEntity<?> addReservation(@RequestBody ReservationRequest req, @AuthenticationPrincipal Jwt jwt) {
         try {
+            // 1. Provjera prijave
             if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Morate biti prijavljeni.");
-            
 
             String email = jwt.getClaimAsString("email");
             Person person = personRepo.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("Korisnik nije pronađen."));
 
+            // 2. Provjera uloge (Samo gosti mogu rezervirati)
             if (!person.isUser()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Samo korisnici mogu rezervirati.");
             }
 
+            // 3. Validacija datuma
             if (req.getStartDate().isBefore(LocalDate.now())) {
                 return ResponseEntity.badRequest().body("Datum početka ne može biti u prošlosti.");
             }
             if (!req.getEndDate().isAfter(req.getStartDate())) {
                 return ResponseEntity.badRequest().body("Datum odlaska mora biti barem jedan dan nakon dolaska.");
             }
-            // --- KLJUČNA SIGURNOSNA PROVJERA (ANTI-BURP) ---
+
+            // 4. Sigurnosna provjera preklapanja (Anti-Double Booking)
             boolean isTaken = repo.existsOverlapping(req.getUnitId(), req.getStartDate(), req.getEndDate());
             if (isTaken) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body("Ovi datumi su već zauzeti. Molimo odaberite drugi termin.");
             }
 
-            // 1. Dohvati jedinicu koju je korisnik odabrao (Roditelj, npr. "Double Room")
+            // 5. Pronalazak slobodne sobe (Roditelj ili slobodna soba-dijete)
             Unit selectedUnit = unitRepo.findById(req.getUnitId())
                     .orElseThrow(() -> new RuntimeException("Smještaj nije pronađen"));
 
             Unit unitToReserve = null;
 
-            // 2. LOGIKA ZA REZERVACIJU DJECE
-            // Provjeravamo 'listOfRooms'
             if (selectedUnit.getListOfRooms() != null && !selectedUnit.getListOfRooms().isEmpty()) {
-
                 List<Unit> children = new ArrayList<>(selectedUnit.getListOfRooms());
                 children.sort(java.util.Comparator.comparing(Unit::getIdUnit));
 
                 for (Unit child : children) {
                     boolean isOccupied = repo.existsByUnitAndDatesOverlap(child, req.getStartDate(), req.getEndDate());
-
                     if (!isOccupied) {
                         unitToReserve = child;
                         break;
@@ -84,25 +93,36 @@ public class UnitReservationController {
                 return ResponseEntity.badRequest().body("Nažalost, nema slobodnih soba ovog tipa u odabranom terminu.");
             }
 
-
+            // 6. Kreiranje rezervacije
             UnitReservation res = new UnitReservation();
             res.setStartDate(req.getStartDate());
             res.setEndDate(req.getEndDate());
             res.setAdults(req.getAdults());
             res.setChildren(req.getChildren());
-            res.setStatus("Pending");
+            res.setStatus("Pending"); // Inicijalni status
             res.setPerson(person);
-
-            Unit unit = unitRepo.findById(req.getUnitId())
-                    .orElseThrow(() -> new RuntimeException("Smještaj nije pronađen"));
             res.setUnit(unitToReserve);
 
+            // Postavljanje odabranih opcija (Amenities)
             if (req.getAmenities() != null && !req.getAmenities().isEmpty()) {
                 res.setSelectedAmenities(String.join(", ", req.getAmenities()));
             }
 
+            // 7. SPREMANJE U BAZU
             repo.save(res);
-            return ResponseEntity.ok("Rezervacija uspješno kreirana za: " + unitToReserve.getUnitName());
+
+            // 8. NOVO: SLANJE PDF POTVRDE NA MAIL
+            // Radimo ovo u try-catch bloku da rezervacija ostane uspješna čak i ako mail server privremeno zakaka
+            try {
+                emailService.sendEmailWithPdf(res);
+                System.out.println("Email potvrda uspješno poslana na: " + email);
+            } catch (Exception e) {
+                System.err.println("Greška prilikom slanja potvrde na mail: " + e.getMessage());
+                // Opcionalno: Možeš dodati poruku korisniku da provjeri 'My Reservations' jer mail nije prošao
+            }
+
+            return ResponseEntity.ok("Rezervacija uspješno kreirana za: " + unitToReserve.getUnitName() + ". Potvrda je poslana na Vaš email.");
+
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Greška: " + e.getMessage());
         }
@@ -210,4 +230,29 @@ public class UnitReservationController {
             return ResponseEntity.ok("Hvala na ocjeni!");
         }).orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/download-pdf/{id}")
+    public void downloadPdf(@PathVariable Long id, HttpServletResponse response, @AuthenticationPrincipal Jwt jwt) throws IOException {
+        if (jwt == null) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        UnitReservation res = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Rezervacija nije pronađena"));
+
+        String email = jwt.getClaimAsString("email");
+        if (!res.getPerson().getEmail().equals(email)) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Nemate pristup ovom dokumentu.");
+            return;
+        }
+
+        response.setContentType("application/pdf");
+        String fileName = "Rezervacija_" + res.getIdUnitReservation() + ".pdf";
+        response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+        // KLJUČNA PROMJENA: Šaljemo getOutputStream(), a ne cijeli response
+        pdfService.generateReservationPdf(response.getOutputStream(), res);
+    }
+
 }

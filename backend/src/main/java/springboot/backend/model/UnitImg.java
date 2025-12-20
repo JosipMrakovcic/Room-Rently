@@ -1,5 +1,6 @@
 package springboot.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +19,7 @@ public class UnitImg {
 
     @ManyToOne
     @JoinColumn(name = "idUnit", nullable = false)
+    @JsonBackReference
     private Unit unit;
 
 

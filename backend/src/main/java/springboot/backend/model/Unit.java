@@ -2,6 +2,7 @@ package springboot.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
@@ -119,8 +120,8 @@ public class Unit {
     @Column(columnDefinition = "text", nullable = false)
     private String secDescContent;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<UnitImg> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true)

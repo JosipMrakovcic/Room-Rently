@@ -139,7 +139,6 @@ const ApartmentForm = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(unitPayload),
       });
-
       if (response.ok) {
         alert(id ? "Unit updated successfully!" : "Unit added successfully!");
         navigate("/admin"); 

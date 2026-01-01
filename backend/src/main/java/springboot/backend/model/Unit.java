@@ -38,6 +38,7 @@ public class Unit {
 
     @OneToMany(mappedBy = "parentUnit", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore // Ovo sprječava da glavni unit povlači sve svoje sobe u JSON-u pri pretrazi
+    @OrderBy("unitName ASC")
     private List<Unit> listOfRooms = new ArrayList<>();
 
 
@@ -131,10 +132,5 @@ public class Unit {
     public void addRoom(Unit room) {
         this.listOfRooms.add(room);
         room.setParentUnit(this);
-    }
-
-    @JsonProperty("isChild")
-    public boolean isChild() {
-        return parentUnit != null;
     }
 }

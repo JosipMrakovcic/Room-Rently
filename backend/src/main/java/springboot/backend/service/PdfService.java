@@ -18,34 +18,42 @@ public class PdfService {
 
         document.open();
 
-        // Fontovi
+        // Fonts
         Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 20);
         Font fontSubtitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14);
         Font fontNormal = FontFactory.getFont(FontFactory.HELVETICA, 12);
         Font fontBold = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
 
-        // 1. NASLOV
-        Paragraph title = new Paragraph("POTVRDA REZERVACIJE #" + res.getIdUnitReservation(), fontTitle);
+        // 1. TITLE
+        Paragraph title = new Paragraph(
+                "RESERVATION DETAILS",
+                fontTitle
+        );
         title.setAlignment(Element.ALIGN_CENTER);
         title.setSpacingAfter(20);
         document.add(title);
 
-        // 2. PODACI O OBJEKTU I GOSTU
-        document.add(new Paragraph("Smještaj: " + res.getUnit().getUnitName(), fontBold));
-        document.add(new Paragraph("Adresa: " + res.getUnit().getLocation(), fontNormal));
-        document.add(new Paragraph("Gost: " + res.getPerson().getName() + " (" + res.getPerson().getEmail() + ")", fontNormal));
+
+        // 2. PROPERTY AND GUEST DETAILS
+        document.add(new Paragraph("Accommodation: " + res.getUnit().getUnitName(), fontBold));
+        document.add(new Paragraph("Address: " + res.getUnit().getLocation(), fontNormal));
+        document.add(new Paragraph(
+                "Guest: " + res.getPerson().getName() +
+                        " (" + res.getPerson().getEmail() + ")",
+                fontNormal
+        ));
         document.add(new Paragraph(" "));
 
-        // 3. DATUMI I TRAJANJE
+        // 3. DATES AND DURATION
         long nights = ChronoUnit.DAYS.between(res.getStartDate(), res.getEndDate());
-        document.add(new Paragraph("Detalji boravka:", fontSubtitle));
-        document.add(new Paragraph("Dolazak: " + res.getStartDate(), fontNormal));
-        document.add(new Paragraph("Odlazak: " + res.getEndDate(), fontNormal));
-        document.add(new Paragraph("Trajanje: " + nights + " noćenja", fontNormal));
+        document.add(new Paragraph("Stay details:", fontSubtitle));
+        document.add(new Paragraph("Check-in: " + res.getStartDate(), fontNormal));
+        document.add(new Paragraph("Check-out: " + res.getEndDate(), fontNormal));
+        document.add(new Paragraph("Duration: " + nights + " nights", fontNormal));
         document.add(new Paragraph(" "));
 
-        // 4. ODABRANE OPCIJE
-        document.add(new Paragraph("Vaše odabrane usluge:", fontSubtitle));
+        // 4. SELECTED AMENITIES
+        document.add(new Paragraph("Selected services:", fontSubtitle));
         if (res.getSelectedAmenities() != null && !res.getSelectedAmenities().isEmpty()) {
             List list = new List(List.UNORDERED);
             String[] amenities = res.getSelectedAmenities().split(", ");
@@ -54,21 +62,30 @@ public class PdfService {
             }
             document.add(list);
         } else {
-            document.add(new Paragraph("Nema dodatnih odabranih usluga.", fontNormal));
+            document.add(new Paragraph("No additional services selected.", fontNormal));
         }
         document.add(new Paragraph(" "));
 
-        // 5. FINANCIJSKI OBRAČUN
-        document.add(new Paragraph("Obračun troškova:", fontSubtitle));
+        // 5. PRICE SUMMARY
+        document.add(new Paragraph("Cost summary:", fontSubtitle));
         double pricePerNight = res.getUnit().getPrice();
         double total = nights * pricePerNight;
 
-        document.add(new Paragraph("Cijena po noćenju: " + pricePerNight + " EUR", fontNormal));
-        Paragraph totalLine = new Paragraph("UKUPNO ZA PLATITI: " + String.format("%.2f", total) + " EUR", fontBold);
+        document.add(new Paragraph(
+                "Price per night: " + pricePerNight + " EUR",
+                fontNormal
+        ));
+        Paragraph totalLine = new Paragraph(
+                "TOTAL AMOUNT: " + String.format("%.2f", total) + " EUR",
+                fontBold
+        );
         totalLine.setSpacingBefore(10);
         document.add(totalLine);
 
-        document.add(new Paragraph("\nStatus rezervacije: " + res.getStatus(), fontNormal));
+        document.add(new Paragraph(
+                "\nReservation status: " + res.getStatus(),
+                fontNormal
+        ));
 
         document.close();
     }

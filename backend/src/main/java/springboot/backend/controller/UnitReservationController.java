@@ -170,7 +170,7 @@ public class UnitReservationController {
             return ResponseEntity.ok("Rezervacija #" + id + " je uspješno otkazana.");
         }).orElse(ResponseEntity.notFound().build());
     }
-    @PutMapping("/update-status/{id}")
+    /*@PutMapping("/update-status/{id}")
     public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> body, @AuthenticationPrincipal Jwt jwt) {
         if (jwt == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -194,7 +194,51 @@ public class UnitReservationController {
             repo.save(res);
             return ResponseEntity.ok(res); // Vraćamo cijeli objekt da frontend vidi novi datum
         }).orElse(ResponseEntity.notFound().build());
+    }*/
+
+    @PutMapping("/update-status/{id}")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> body, @AuthenticationPrincipal Jwt jwt) {
+        if (jwt == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String emailOwner = jwt.getClaimAsString("email");
+        Person p = personRepo.findByEmail(emailOwner).orElse(null);
+        if (p == null || !p.isOwner()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Samo vlasnici mogu mijenjati status rezervacije.");
+        }
+
+        return repo.findById(id).map(res -> {
+            String newStatus = body.get("status"); // Očekuje: "Confirmed", "Cancelled" ili "Rejected"
+            res.setStatus(newStatus);
+
+            if ("Completed".equalsIgnoreCase(newStatus)) {
+                res.setEndDate(LocalDate.now());
+            }
+
+            // Spremamo promjenu statusa
+            repo.save(res);
+
+            // SLANJE EMAILA OVISNO O STATUSU
+            try {
+                if ("Confirmed".equalsIgnoreCase(newStatus)) {
+                    emailService.sendStatusUpdateEmail(res, "VAŠA REZERVACIJA JE POTVRĐENA",
+                            "Drago nam je obavijestiti Vas da je vlasnik potvrdio Vašu rezervaciju. U privitku se nalazi službena potvrda.");
+                } else if ("Cancelled".equalsIgnoreCase(newStatus)) {
+                    emailService.sendStatusUpdateEmail(res, "OTKAZIVANJE REZERVACIJE",
+                            "Obavještavamo Vas da je Vaša rezervacija otkazana. Ispod se nalaze detalji otkazane rezervacije.");
+                } else if ("Rejected".equalsIgnoreCase(newStatus)) {
+                    emailService.sendStatusUpdateEmail(res, "REZERVACIJA ODBIJENA",
+                            "Nažalost, vlasnik objekta je morao odbiti Vaš upit za rezervaciju. Više informacija potražite u priloženom dokumentu.");
+                }
+            } catch (Exception e) {
+                System.err.println("Greška pri slanju emaila o statusu: " + e.getMessage());
+            }
+
+            return ResponseEntity.ok(res);
+        }).orElse(ResponseEntity.notFound().build());
     }
+
     @PutMapping("/rate/{id}")
     public ResponseEntity<?> rateReservation(@PathVariable Long id, @RequestBody java.util.Map<String, Integer> body, @AuthenticationPrincipal Jwt jwt) {
         if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

@@ -100,7 +100,7 @@ const ApartmentForm = () => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e) => {
+  /*const handleSubmit = async (e) => {
     e.preventDefault();
 
     const unitPayload = {
@@ -150,7 +150,81 @@ const ApartmentForm = () => {
       console.error("Error submitting form:", error);
       alert("Something went wrong!");
     }
-  };
+  };*/
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const unitPayload = {
+      unitName: formData.unitName,
+      mainDescName: formData.mainDescriptionTitle,
+      mainDescContent: formData.mainDescription,
+      secDescName: formData.secondaryDescriptionTitle,
+      secDescContent: formData.secondaryDescription,
+      price: parseInt(formData.price),
+      capAdults: parseInt(formData.capAdults),
+      capChildren: parseInt(formData.capChildren),
+      numRooms: formData.isApartment ? parseInt(formData.numRooms) : 1,
+      numSameRooms: !formData.isApartment ? parseInt(formData.numSameRooms) : 1,
+      numBeds: parseInt(formData.numBeds),
+      hasParking: formData.amenities.parking,
+      hasWifi: formData.amenities.wifi,
+      hasBreakfast: formData.amenities.breakfast,
+      hasTowels: formData.amenities.towels,
+      hasShampoo: formData.amenities.shampoo,
+      hasHairDryer: formData.amenities.hairDryer,
+      hasHeater: formData.amenities.heater,
+      hasAirConditioning: formData.amenities.airConditioning,
+      isApartment: formData.isApartment,
+      location: "Zagreb, Croatia",
+      rating: 0,
+    };
+
+    const url = id
+      ? `${process.env.REACT_APP_API_URL}/unit/update/${id}`
+      : `${process.env.REACT_APP_API_URL}/unit/add`;
+    const method = id ? "PUT" : "POST";
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(unitPayload),
+      });
+
+      if (response.ok) {
+        // 1. Dobijemo spremljeni Unit (njegov ID nam treba za slike)
+        const savedUnit = await response.json();
+        const unitId = savedUnit.idUnit || id;
+
+        // 2. SLANJE SLIKA (Upload svake slike posebno)
+        if (images.length > 0) {
+          for (const imageObj of images) {
+            // Ako slika već ima URL iz baze (ako je u edit modu), ne šaljemo je ponovo
+            if (imageObj.file) { 
+              const imageFormData = new FormData();
+              imageFormData.append("file", imageObj.file);
+
+              await fetch(`${process.env.REACT_APP_API_URL}/unitImg/upload/${unitId}`, {
+                method: "POST",
+                body: imageFormData,
+                // Napomena: Ne stavljaj "Content-Type" header, browser će ga sam staviti za FormData
+              });
+            }
+          }
+        }
+
+        alert(id ? "Unit updated successfully!" : "Unit added successfully!");
+        navigate("/admin"); 
+      } else {
+        const errorText = await response.text();
+        alert("Error: " + errorText);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Something went wrong!");
+    }
+  };
 
   const handleCancel = () => {
     if (window.confirm("Are you sure you want to cancel? Changes will not be saved.")) {

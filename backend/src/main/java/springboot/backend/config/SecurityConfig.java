@@ -25,6 +25,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Dopuštamo ove tri rute ulogiranim korisnicima bez obzira na ulogu
                         .requestMatchers("/addPerson", "/me", "/unitReservation/add").authenticated()
+                        .requestMatchers("/uploads/**").permitAll()
                         // Sve ostalo (poput dohvaćanja apartmana) neka bude javno
                         .anyRequest().permitAll()
                 )

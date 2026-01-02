@@ -70,8 +70,11 @@ public class UnitController {
             }
         }
 
-        repo.save(unit);
-        return ResponseEntity.ok("Unit added successfully");
+        //repo.save(unit);
+        //return ResponseEntity.ok("Unit added successfully"); OVO JE PROMIJENJENO
+
+        Unit savedUnit = repo.save(unit);
+        return ResponseEntity.ok(savedUnit);
     }
 
     @GetMapping("/{id}")

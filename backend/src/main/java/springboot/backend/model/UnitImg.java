@@ -14,20 +14,22 @@ import lombok.*;
 public class UnitImg {
 
     @Id
-    @Column(columnDefinition = "text", nullable = false)
-    private String URL;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // ID za JPA
 
-    @ManyToOne
-    @JoinColumn(name = "idUnit", nullable = false)
+    @Column(name = "url", nullable = false)
+    private String url; // URL slike
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "unit_id", nullable = false)
     @JsonBackReference
     private Unit unit;
 
-
-    public String getURL() {
+    /*public String getURL() {
         return URL;
     }
 
     public void setURL(String URL) {
         this.URL = URL;
-    }
+    }*/
 }

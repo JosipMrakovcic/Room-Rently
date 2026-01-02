@@ -63,7 +63,7 @@ public class EmailService {
                         "</div>" +
                         "<p>Sve detalje Vašeg boravka i financijski obračun možete pronaći u <strong>priloženom PDF dokumentu</strong>.</p>" +
                         "<br>" +
-                        "<p>Srdačan pozdrav,<br><strong>Hotel Rently tim</strong></p>" +
+                        "<p>Srdačan pozdrav,<br><strong>Room Rently tim</strong></p>" +
                         "</div>";
 
         helper.setText(emailBody, true);

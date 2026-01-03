@@ -170,7 +170,7 @@ const Navbar = () => {
       {showCountryModal && (
         <div className="country-modal-overlay">
           <div className="country-modal">
-            <h3>Dobrodošli! 👋</h3>
+            <h3>Dobro došli! 👋</h3>
             <p>Molimo odaberite svoju državu kako biste nastavili:</p>
             <select 
               value={selectedCountry} 

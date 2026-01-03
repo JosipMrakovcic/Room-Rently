@@ -306,7 +306,6 @@ const List = () => {
                     className="amenitiesToggle" 
                 >
                     Amenities 
-                    <span className={`arrow ${openAmenities ? 'open' : ''}`}></span>
                 </label>
                 
                 {openAmenities && (

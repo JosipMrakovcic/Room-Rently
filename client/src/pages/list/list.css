@@ -259,23 +259,6 @@ body {
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.arrow {
-    display: inline-block;
-    width: 0;
-    height: 0;
-    margin-left: 10px;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 5px solid #333; /* Početno stanje: Strelica dolje */
-    transition: transform 0.3s ease;
-}
-
-.arrow.open {
-    transform: rotate(180deg); /* Stanje 'otvoreno': Strelica gore */
-    border-top: none; 
-    border-bottom: 5px solid #333;
-}
-
 .amenitiesDropdown {
     margin-top: 10px;
     padding: 10px;

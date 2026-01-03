@@ -199,6 +199,37 @@ public class UnitController {
         return ResponseEntity.ok(topRated);
     }
 
+    @GetMapping("/counts-by-beds")
+    public ResponseEntity<java.util.Map<Integer, Long>> getCountsByBeds() {
+        List<Unit> allUnits = repo.findAll();
+
+        java.util.Map<Integer, Long> counts = new java.util.HashMap<>();
+
+        for (int i = 1; i <= 5; i++) {
+            final int bedThreshold = i;
+
+            long totalAvailableUnits = allUnits.stream()
+                    .filter(u -> u.getParentUnit() == null) // Uzimamo samo glavne zapise
+                    .filter(u -> u.getNumBeds() != null && u.getNumBeds() >= bedThreshold)
+                    .mapToLong(u -> {
+                        // Ako je apartman, on je 1 jedinica
+                        // Ako je soba, uzimamo vrijednost numSameRooms (ako je null, stavljamo 1)
+                        if (u.isApartment()) {
+                            return 1L;
+                        } else {
+                            return (u.getNumSameRooms() != null && u.getNumSameRooms() > 0)
+                                    ? u.getNumSameRooms().longValue()
+                                    : 1L;
+                        }
+                    })
+                    .sum(); // Zbrajamo sve jedinice umjesto samo .count()
+
+            counts.put(i, totalAvailableUnits);
+        }
+
+        return ResponseEntity.ok(counts);
+    }
+
 
     @GetMapping("/filter")
     public List<Unit> filterUnits(
@@ -206,6 +237,7 @@ public class UnitController {
             @RequestParam(required = false) Integer adults,
             @RequestParam(required = false) Integer children,
             @RequestParam(required = false) Integer rooms,
+            @RequestParam(required = false) Integer beds,
             @RequestParam(required = false) Boolean isApartment,
             @RequestParam(required = false) Boolean hasParking,
             @RequestParam(required = false) Boolean hasWifi,
@@ -229,6 +261,7 @@ public class UnitController {
                 adults,
                 children,
                 rooms,
+                beds,
                 isApartment,
                 hasParking,
                 hasWifi,

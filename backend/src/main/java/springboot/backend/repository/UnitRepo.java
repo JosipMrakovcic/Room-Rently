@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import springboot.backend.model.Unit;
-//import springboot.backend.model.UnitReservation;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,6 +21,7 @@ WHERE
     AND (:adults IS NULL OR u.capAdults >= :adults) 
     AND (:children IS NULL OR u.capChildren >= :children)
     AND (:rooms IS NULL OR u.numRooms >= :rooms)
+    AND (:beds IS NULL OR u.numBeds >= :beds)
     AND (:isApartment IS NULL OR u.apartment = :isApartment)
     AND (:hasParking IS NULL OR u.hasParking = :hasParking)
     AND (:hasWifi IS NULL OR u.hasWifi = :hasWifi)
@@ -47,6 +47,7 @@ WHERE
             @Param("adults") Integer adults,
             @Param("children") Integer children,
             @Param("rooms") Integer rooms,
+            @Param("beds") Integer beds, // NOVO: Dodano u potpis metode
             @Param("isApartment") Boolean isApartment,
             @Param("hasParking") Boolean hasParking,
             @Param("hasWifi") Boolean hasWifi,

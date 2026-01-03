@@ -5,7 +5,7 @@ import Header from "../../components/header/Header";
 import { useLocation, useNavigate } from "react-router-dom";
 import Searchitem from "../../components/searchitem/searchitem";
 import axios from "axios";
-import { format, differenceInCalendarDays } from "date-fns"; 
+import { format, differenceInCalendarDays, addDays} from "date-fns"; 
 import { DateRange } from "react-date-range"; 
 import "react-date-range/dist/styles.css"; 
 import "react-date-range/dist/theme/default.css";
@@ -32,9 +32,19 @@ const List = () => {
     savedSearch?.options?.room ?? location.state?.options?.room ?? 1
   );
 
+// Ovdje hvatamo 'location.state.beds' koji dolazi s početne stranice
+  const [beds, setBeds] = useState(
+    savedSearch?.options?.beds ?? location.state?.beds ?? 1
+  );
+
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(false);
   const [openDate, setOpenDate] = useState(false);
+
+  //Ako dolazimo preko filtera za krevete, pretpostavljamo da tražimo Apartman
+  /*const [isApartment, setIsApartment] = useState(
+      savedSearch?.isApartment ?? (location.state?.beds ? true : null)
+  );*/
 
   // Dodatni filteri
   const [isApartment, setIsApartment] = useState(savedSearch?.isApartment ?? null);
@@ -51,9 +61,23 @@ const List = () => {
   const [minPrice, setMinPrice] = useState(savedSearch?.minPrice ?? null);
   const [maxPrice, setMaxPrice] = useState(savedSearch?.maxPrice ?? null);
 
-  const [dates, setDates] = useState(
-    location.state?.date || savedSearch?.dates || [{ startDate: new Date(), endDate: new Date(), key: "selection" }]
-  );
+  const [dates, setDates] = useState(() => {
+    // 1. Ako je korisnik došao preko glavne tražilice (ima odabrane datume)
+    if (location.state?.date) return location.state.date;
+
+    // 2. Ako postoji spremljena pretraga u sesiji
+    if (savedSearch?.dates) return savedSearch.dates;
+
+    // 3. Ako dolazimo preko "Propertylist" (klik na krevete) ili je prvi posjet
+    // Postavljamo automatski: Danas -> Sutra (1 noćenje)
+    return [
+      {
+        startDate: new Date(),
+        endDate: addDays(new Date(), 1), // Ovo osigurava da je uvijek +1 dan
+        key: "selection",
+      },
+    ];
+  });
 
   // --- LOGIKA ZA IZRAČUN NOĆENJA ---
   const nightCount = differenceInCalendarDays(dates[0].endDate, dates[0].startDate);
@@ -62,7 +86,7 @@ const List = () => {
   useEffect(() => {
     const searchData = {
       destination,
-      options: { adult: adults, children, room },
+      options: { adult: adults, children, room , beds},
       isApartment,
       hasParking,
       hasWifi,
@@ -77,7 +101,7 @@ const List = () => {
       dates 
     };
     sessionStorage.setItem("lastSearch", JSON.stringify(searchData));
-  }, [destination, adults, children, room, isApartment, hasParking, hasWifi, hasBreakfast, hasAirConditioning, hasTowels, hasShampoo, hasHairDryer, hasHeater, minPrice, maxPrice, dates]);
+  }, [destination, adults, children, room, beds, isApartment, hasParking, hasWifi, hasBreakfast, hasAirConditioning, hasTowels, hasShampoo, hasHairDryer, hasHeater, minPrice, maxPrice, dates]);
 
   const handleBack = () => {
     navigate("/main");
@@ -111,9 +135,10 @@ const List = () => {
           name: destination.trim() === '' ? null : destination,
           adults,
           children,
-          rooms: isApartment === false ? 1 : room,
+          //rooms: isApartment === false ? 1 : room,
           isApartment: isApartment,
-          rooms: isApartment === true ? room : (isApartment === false ? null : null),
+          rooms: room,//isApartment === true ? room : (isApartment === false ? null : null),
+          beds: beds,
           hasParking: hasParking || null,
           hasWifi: hasWifi || null,
           hasBreakfast: hasBreakfast || null,
@@ -242,6 +267,16 @@ const List = () => {
                 />
               </div>
             )}
+
+            <div className="lsitem">
+              <label>Beds</label>
+              <input
+                type="number"
+                min={1}
+                value={beds}
+                onChange={(e) => setBeds(parseInt(e.target.value) || 1)}
+              />
+            </div>
             
             <div className="lsitem">
               <label>Price Range (€)</label>

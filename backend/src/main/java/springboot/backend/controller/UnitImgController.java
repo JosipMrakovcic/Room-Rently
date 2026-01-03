@@ -12,7 +12,9 @@ import springboot.backend.repository.UnitRepo;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.Comparator;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @RestController
 @CrossOrigin(origins = "${frontend.url}")
@@ -25,58 +27,180 @@ public class UnitImgController {
     @Autowired
     private UnitRepo unitRepo;
 
-    // Osnovna putanja na serveru
+    // Osnovna putanja unutar projekta
     private final String BASE_UPLOAD_DIR = "uploads/units/";
 
     @PostMapping("/upload/{unitId}")
     @Transactional
-    public ResponseEntity<?> uploadImage(@PathVariable Long unitId, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadImage(
+            @PathVariable Long unitId,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("isCover") boolean isCover) {
+
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("Datoteka je prazna.");
         }
 
         try {
-            // 1. Definiraj putanju specifičnu za tu jedinicu (npr. uploads/units/5/)
-            // Ovo osigurava da se na serveru stvori folder za točno tu sobu
-            String unitFolderName = BASE_UPLOAD_DIR + unitId + "/";
-            Path uploadPath = Paths.get(unitFolderName);
+            Unit unit = unitRepo.findById(unitId)
+                    .orElseThrow(() -> new RuntimeException("Unit nije pronađen s ID: " + unitId));
 
-            // 2. Kreiraj foldere na serveru ako ne postoje
-            // Files.createDirectories kreira i 'uploads' i 'units' i '{unitId}' odjednom
+            // Određivanje foldera na temelju isCover (i === 0 iz Reacta)
+            String subFolder = isCover ? "cover/" : "other/";
+            String unitFolderRelative = BASE_UPLOAD_DIR + unitId + "/" + subFolder;
+            Path uploadPath = Paths.get(unitFolderRelative);
+
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-            // 3. Generiraj jedinstveno ime datoteke (UUID sprječava prepisivanje slika)
             String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
             Path filePath = uploadPath.resolve(fileName);
 
-            // 4. Kopiraj bajtove slike iz mrežnog requesta direktno na disk servera
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            // 5. Pronađi Unit u bazi
-            Unit unit = unitRepo.findById(unitId)
-                    .orElseThrow(() -> new RuntimeException("Unit nije pronađen s ID: " + unitId));
-
-            // 6. Kreiraj zapis u bazi podataka
-            // Putanja počinje s '/' kako bi frontend znao da je to apsolutna putanja na serveru
             UnitImg img = new UnitImg();
-            String dbPath = "/" + unitFolderName + fileName;
-            img.setUrl(dbPath);
+            // URL spremamo s vodećim slashom za React frontend
+            img.setUrl("/" + unitFolderRelative + fileName);
             img.setUnit(unit);
 
             UnitImg saved = repo.save(img);
-
-            // Logiranje putanje na serveru radi lakše provjere u konzoli
-            System.out.println("Slika uspješno spremljena na server: " + filePath.toAbsolutePath());
-            System.out.println("Putanja spremljena u bazu: " + saved.getUrl());
-
             return ResponseEntity.ok(saved);
 
         } catch (IOException e) {
-            return ResponseEntity.status(500).body("Greška pri pisanju na disk servera: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Greška u bazi podataka: " + e.getMessage());
+            return ResponseEntity.status(500).body("Greška pri pisanju na disk: " + e.getMessage());
         }
     }
+
+    @DeleteMapping("/delete/{id}")
+    @Transactional
+    public ResponseEntity<?> deleteImage(@PathVariable Long id) {
+        try {
+            UnitImg img = repo.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Slika nije pronađena s ID: " + id));
+
+            String dbPath = img.getUrl();
+            if (dbPath.startsWith("/")) {
+                dbPath = dbPath.substring(1);
+            }
+
+            // Koristi user.dir da osiguraš točnu lokaciju na disku
+            Path filePath = Paths.get(System.getProperty("user.dir")).resolve(dbPath);
+
+            System.out.println("Pokušavam obrisati datoteku: " + filePath);
+
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+                System.out.println("Datoteka obrisana s diska.");
+            }
+
+            repo.delete(img);
+            System.out.println("Zapis obrisan iz baze.");
+
+            return ResponseEntity.ok("Slika uspješno obrisana.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Greška pri brisanju: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/update-status/{imgId}")
+    @Transactional
+    public ResponseEntity<?> updateImageStatus(@PathVariable Long imgId, @RequestParam boolean isCover) {
+        try {
+            UnitImg img = repo.findById(imgId)
+                    .orElseThrow(() -> new RuntimeException("Slika nije pronađena."));
+
+            String currentUrl = img.getUrl();
+            // Definiramo gdje slika TREBA biti
+            String targetSubFolder = isCover ? "cover/" : "other/";
+            String expectedPathPart = "/" + targetSubFolder;
+
+            // Ako je slika već u ispravnom folderu, samo potvrdi i izađi
+            if (currentUrl.contains(expectedPathPart)) {
+                return ResponseEntity.ok("Status je već ispravan.");
+            }
+
+            // 1. Priprema putanja
+            String relativeOldPath = currentUrl.startsWith("/") ? currentUrl.substring(1) : currentUrl;
+            Path source = Paths.get(System.getProperty("user.dir")).resolve(relativeOldPath);
+
+            if (Files.exists(source)) {
+                String fileName = source.getFileName().toString();
+
+                // 2. Kreiranje novog foldera
+                String newFolderRelative = BASE_UPLOAD_DIR + img.getUnit().getIdUnit() + "/" + targetSubFolder;
+                Path targetDir = Paths.get(System.getProperty("user.dir")).resolve(newFolderRelative);
+
+                if (!Files.exists(targetDir)) {
+                    Files.createDirectories(targetDir);
+                }
+
+                Path targetFile = targetDir.resolve(fileName);
+
+                // 3. Premještanje datoteke (REPLACE_EXISTING je ključno ako se nešto "zaglavilo")
+                Files.move(source, targetFile, StandardCopyOption.REPLACE_EXISTING);
+
+                // 4. Ažuriranje baze podataka s novim URL-om
+                img.setUrl("/" + newFolderRelative + fileName);
+                repo.save(img);
+
+                return ResponseEntity.ok("Slika uspješno premještena u " + targetSubFolder);
+            } else {
+                // Ako datoteke nema, možda je već netko ručno obrisao ili premjestio
+                return ResponseEntity.status(404).body("Datoteka nije pronađena na disku: " + source.toString());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Greška pri ažuriranju statusa slike: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/delete-full/{id}")
+    @Transactional
+    public ResponseEntity<?> deleteUnit(@PathVariable Long id) {
+        try {
+            // 1. Pronađi Unit u bazi
+            Unit unit = unitRepo.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Unit nije pronađen s ID: " + id));
+
+            // 2. Putanja do glavnog foldera unita (npr. uploads/units/1)
+            Path unitFolderPath = Paths.get(System.getProperty("user.dir")).resolve(BASE_UPLOAD_DIR + id).normalize();
+
+            System.out.println("Pokušavam obrisati cijeli folder unita na putanji: " + unitFolderPath);
+
+            // 3. Brisanje sadržaja i samog foldera
+            if (Files.exists(unitFolderPath)) {
+                // Koristimo try-with-resources da osiguramo zatvaranje streama
+                try (Stream<Path> paths = Files.walk(unitFolderPath)) {
+                    paths.sorted(Comparator.reverseOrder()) // Prvo djeca, pa roditelji
+                            .forEach(path -> {
+                                try {
+                                    Files.delete(path);
+                                    System.out.println("Uspješno obrisano: " + path);
+                                } catch (IOException e) {
+                                    System.err.println("Greška kod brisanja stavke " + path + ": " + e.getMessage());
+                                }
+                            });
+                }
+
+                // Dodatna provjera: Ako je folder čudom preživio (npr. file lock na Windowsima)
+                if (Files.exists(unitFolderPath)) {
+                    // Pokušaj brisanja samog korijenskog foldera još jednom nakon što se stream zatvorio
+                    Files.deleteIfExists(unitFolderPath);
+                }
+            }
+
+            // 4. Brisanje iz baze podataka
+            unitRepo.delete(unit);
+
+            return ResponseEntity.ok("Unit ID: " + id + " i njegov cijeli direktorij su obrisani.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Kritična greška pri brisanju: " + e.getMessage());
+        }
+    }
+
 }

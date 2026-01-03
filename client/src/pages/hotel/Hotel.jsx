@@ -20,15 +20,6 @@ const Hotel = () => {
   const [open, setopen] = useState(false);
   const [openReserve, setOpenReserve] = useState(false);
 
-  const photos = [
-    { src: "/20210710_084619.jpg" },
-    { src: "/20210710_085443.jpg" },
-    { src: "/20210710_085121.jpg" },
-    { src: "/20210710_085154.jpg" },
-    { src: "/20210710_085438.jpg" },
-    { src: "/20210710_084619.jpg" },
-  ];
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -54,12 +45,21 @@ const Hotel = () => {
     setopen(true);
   };
 
+  // Filtriramo slike tako da se u galeriji prikazuju samo one iz "other" foldera
+const unitPhotos = unit?.images
+  ?.filter((img) => img.url.includes("/other/")) // Zadrži samo slike koje NISU cover
+  .map((img) => ({
+    src: `${API_URL}${img.url}`
+  })) || [];
+
   const handlemove = (direction) => {
     let newslidenumber;
+    const lastIndex = unitPhotos.length - 1;
+
     if (direction === "l") {
-      newslidenumber = slidenumber === 0 ? 5 : slidenumber - 1;
+      newslidenumber = slidenumber === 0 ? lastIndex : slidenumber - 1;
     } else {
-      newslidenumber = slidenumber === 5 ? 0 : slidenumber + 1;
+      newslidenumber = slidenumber === lastIndex ? 0 : slidenumber + 1;
     }
     setslidenumber(newslidenumber);
   };
@@ -68,7 +68,6 @@ const Hotel = () => {
   if (!unit) return <div className="hotelcontainer">Unit not found.</div>;
 
   const totalGuests = unit.capAdults + unit.capChildren;
-
   const hasAnyAmenity = 
     unit.hasWifi || unit.hasParking || unit.hasAirConditioning || 
     unit.hasBreakfast || unit.hasTowels || unit.hasShampoo || 
@@ -80,34 +79,45 @@ const Hotel = () => {
       <Header type="list" />
       
       {openReserve && (
-        <ReserveModal 
-          setOpenReserve={setOpenReserve} 
-          unit={unit} // Ovdje je bila greška, mora biti 'unit={unit}'
-        />
+        <ReserveModal setOpenReserve={setOpenReserve} unit={unit} />
       )}
 
       <div className="hotelcontainer">
-        {open && (
-          <div className="slider">
-            <span className="close" onClick={() => setopen(false)}>❌</span>
-            <span className="arrow" onClick={() => handlemove("l")}>⬅️</span>
-            <div className="sliderwrapper">
-              <img src={photos[slidenumber].src} alt="" className="sliderimg" />
-            </div>
-            <span className="arrow" onClick={() => handlemove("r")}>➡️</span>
-          </div>
-        )}
-
+    {/* SLIDER ZA SLIKE */}
+{open && unitPhotos.length > 0 && (
+  <div className="slider" onClick={() => setopen(false)}>
+    {/* Promijenjen znak u &times; za bolju simetriju */}
+    <div className="close" onClick={() => setopen(false)}>&times;</div>
+    
+    <div className="arrow left" onClick={(e) => { e.stopPropagation(); handlemove("l"); }}>
+      ❮
+    </div>
+    
+    <div className="sliderwrapper">
+      <img 
+        src={unitPhotos[slidenumber].src} 
+        alt="Property" 
+        className="sliderimg" 
+        onClick={(e) => e.stopPropagation()} 
+      />
+    </div>
+    
+    <div className="arrow right" onClick={(e) => { e.stopPropagation(); handlemove("r"); }}>
+      ❯
+    </div>
+  </div>
+)}
         <div className="hotelwrapper">
           <div className="hotelButtonsTop">
             <button className="backToList" onClick={() => navigate(-1)}>
               ⬅ Back to Search
             </button>
-            {/* Gornji gumb je uklonjen odavde */}
+            <button className="booknow" onClick={() => setOpenReserve(true)}>
+              Reserve or Book Now!
+            </button>
           </div>
           
           <h1 className="hoteltitle">{unit.unitName}</h1>
-          
           <div className="hoteladress">
             <span>📍 {globalAddress || unit.location || "Zagreb, Croatia"}</span>
           </div>
@@ -121,20 +131,20 @@ const Hotel = () => {
           </span>
 
           <div className="hotelimages">
-            {photos.map((photo, index) => (
+            {unitPhotos.map((photo, index) => (
               <div className="hotelimgwrapper" key={index}>
                 <img
                   onClick={() => handleopen(index)}
-                  src={photo.src}
-                  alt=""
+                  src={photo.src} 
+                  alt={`${unit.unitName} ${index}`}
                   className="hotelimg"
+                  onError={(e) => { e.target.src = "/default_room.jpg"; }}
                 />
               </div>
             ))}
           </div>
 
           <div className="hoteldetails">
-            {/* LIJEVA STRANA - MAIN DESCRIPTION */}
             <div className="hoteldetailstexts">
               <h1 className="hoteltitle">{unit.mainDescName}</h1>
               <p className="hoteldesc">{unit.mainDescContent}</p>
@@ -150,42 +160,34 @@ const Hotel = () => {
 
               <div className="amenitiesHighlight">
                 <h3>Included Amenities:</h3>
-                {hasAnyAmenity ? (
-                  <div className="amenityTags">
-                    {unit.hasWifi && <span className="amenityTag">✅ Free WiFi</span>}
-                    {unit.hasParking && <span className="amenityTag">✅ Free Parking</span>}
-                    {unit.hasAirConditioning && <span className="amenityTag">✅ Air Conditioning</span>}
-                    {unit.hasBreakfast && <span className="amenityTag">✅ Breakfast included</span>}
-                    {unit.hasTowels && <span className="amenityTag">✅ Towels</span>}
-                    {unit.hasShampoo && <span className="amenityTag">✅ Shampoo</span>}
-                    {unit.hasHairDryer && <span className="amenityTag">✅ Hair Dryer</span>}
-                    {unit.hasHeater && <span className="amenityTag">✅ Heating</span>}
-                  </div>
-                ) : (
-                  <p className="noAmenitiesText">😔 Sorry, no specific amenities listed for this unit.</p>
-                )}
+                <div className="amenityTags">
+                  {unit.hasWifi && <span className="amenityTag">✅ Free WiFi</span>}
+                  {unit.hasParking && <span className="amenityTag">✅ Free Parking</span>}
+                  {unit.hasAirConditioning && <span className="amenityTag">✅ Air Conditioning</span>}
+                  {unit.hasBreakfast && <span className="amenityTag">✅ Breakfast included</span>}
+                  {unit.hasTowels && <span className="amenityTag">✅ Towels</span>}
+                  {unit.hasShampoo && <span className="amenityTag">✅ Shampoo</span>}
+                  {unit.hasHairDryer && <span className="amenityTag">✅ Hair Dryer</span>}
+                  {unit.hasHeater && <span className="amenityTag">✅ Heating</span>}
+                  {!hasAnyAmenity && <p className="noAmenitiesText">No specific amenities listed.</p>}
+                </div>
               </div>
             </div>
             
-            {/* DESNA STRANA - SECONDARY DESCRIPTION U HIGHLIGHTSU */}
             <div className="hoteldetailsprice">
               <div className="hotelDetailsPrice">
                 <h1>{unit.secDescName || "Property Highlights"}</h1>
-                
                 {unit.secDescContent && (
                   <p className="hoteldesc" style={{marginTop: "0", fontSize: "14px"}}>
                     {unit.secDescContent}
                   </p>
                 )}
-
                 <span>
                   Perfect for <b>{totalGuests} {totalGuests === 1 ? "guest" : "guests"}</b>!
                   <br />
                   Rating: {unit.rating ? `${unit.rating}/10` : "No rating yet"}
                 </span>
-                <h2>
-                  <b>€{unit.price}</b> (per night)
-                </h2>
+                <h2><b>€{unit.price}</b> (per night)</h2>
                 <button onClick={() => setOpenReserve(true)}>Reserve or Book Now!</button>
               </div>
             </div>
@@ -197,7 +199,7 @@ const Hotel = () => {
               height="450"
               style={{ border: 0, borderRadius: "10px" }}
               loading="lazy"
-              src={`https://maps.google.com/maps?q=${encodeURIComponent(globalAddress || "Zagreb")}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+              src={`https://maps.google.com/maps?q=${encodeURIComponent(globalAddress || unit.location || "Zagreb")}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
               frameBorder="0"
               title="Google Maps"
             ></iframe>

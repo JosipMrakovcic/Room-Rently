@@ -6,6 +6,10 @@ const ApartmentForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+
+  // --- 🟢 NOVO: Stanje za Modal (prikaz velike slike) ---
+  const [selectedImage, setSelectedImage] = useState(null);
+
   const [formData, setFormData] = useState({
     unitName: "",
     mainDescriptionTitle: "",
@@ -32,6 +36,14 @@ const ApartmentForm = () => {
   });
 
   const [images, setImages] = useState([]);
+
+
+  const [hasExistingImages, setHasExistingImages] = useState(false);
+
+  // 🔴 DODANO: Stanje za čuvanje ID-ova slika koje treba obrisati pri submitu
+  const [imagesToDelete, setImagesToDelete] = useState([]);
+
+
 
   useEffect(() => {
     const savedUser = localStorage.getItem("googleUser");
@@ -64,13 +76,36 @@ const ApartmentForm = () => {
               wifi: data.hasWifi || false,
               breakfast: data.hasBreakfast || false,
               towels: data.hasTowels || false,
-              shampoo: data.hasShampoo || false,
+              sohampoo: data.hasShampoo || false,   //PRIJE JE BILO hasShampo, A sad je hasShampoo, AK SE BREAKA TAJ AMENITY ONDA JE NEKI TYPO
               hairDryer: data.hasHairDryer || false,
               heater: data.hasHeater || false,
               airConditioning: data.hasAirConditioning || false,
             },
           });
-        })
+
+          // 🔴 DODANO: ako unit već ima slike u bazi
+          setHasExistingImages((data.images?.length || 0) > 0);
+
+          // --- UNUTAR useEffect, u dijelu gdje dobivaš podatke ---
+if (data.images && data.images.length > 0) {
+  // 🟢 POPRAVAK: Sortiramo slike tako da ona koja sadrži "/cover/" bude prva (index 0)
+  const sortedImages = [...data.images].sort((a, b) => {
+    const aIsCover = a.url.includes("/cover/");
+    const bIsCover = b.url.includes("/cover/");
+    if (aIsCover && !bIsCover) return -1;
+    if (!aIsCover && bIsCover) return 1;
+    return 0;
+  });
+
+  const existingImages = sortedImages.map((img) => ({
+    file: null,
+    url: `${process.env.REACT_APP_API_URL}${img.url}`,
+    id: img.id
+  }));
+  
+  setImages(existingImages);
+}
+      })
         .catch((err) => console.error("Error fetching unit:", err));
     }
   }, [id, navigate]);
@@ -92,11 +127,56 @@ const ApartmentForm = () => {
     const newImages = files.map((file) => ({
       file,
       url: URL.createObjectURL(file),
+      id: null, // 🔴 OVO JE KLJUČNO: Nove slike nemaju ID dok se ne spreme u bazu
     }));
     setImages((prev) => [...prev, ...newImages]);
   };
 
+
+  const handleReplaceImage = (index, e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const imageToReplace = images[index];
+
+    // 1. Ako stara slika ima ID (već je u bazi), dodaj ga u listu za brisanje
+    if (imageToReplace.id) {
+      setImagesToDelete((prev) => [...prev, imageToReplace.id]);
+    } else if (imageToReplace.url.startsWith("blob:")) {
+      // Ako mijenjaš novu sliku koja još nije spremljena, oslobodi memoriju
+      URL.revokeObjectURL(imageToReplace.url);
+    }
+
+    // 2. Kreiraj novu sliku
+    const newImage = {
+      file,
+      url: URL.createObjectURL(file),
+      id: null,
+    };
+
+    // 3. Zamijeni sliku u nizu na točno tom indeksu
+    setImages((prev) => {
+      const updated = [...prev];
+      updated[index] = newImage;
+      return updated;
+    });
+  };
+
+
+
+  // 🔴 IZMIJENJENO: Sada samo miče sliku iz UI-a i sprema ID u niz za brisanje
   const removeImage = (index) => {
+    const imageToHandle = images[index];
+
+    if (imageToHandle.id) {
+      // Ako slika ima ID (već je u bazi), dodajemo ga u listu za brisanje
+      setImagesToDelete((prev) => [...prev, imageToHandle.id]);
+    } else if (imageToHandle.url.startsWith("blob:")) {
+      // Ako je nova slika, samo čistimo memoriju
+      URL.revokeObjectURL(imageToHandle.url);
+    }
+
+    // Makni iz vizualnog prikaza odmah
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -152,6 +232,12 @@ const ApartmentForm = () => {
     }
   };*/
 
+  // --- 🟢 NOVO: Funkcije za Modal ---
+  const openModal = (url) => setSelectedImage(url);
+  const closeModal = () => setSelectedImage(null);
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -192,39 +278,54 @@ const ApartmentForm = () => {
         body: JSON.stringify(unitPayload),
       });
 
-      if (response.ok) {
-        // 1. Dobijemo spremljeni Unit (njegov ID nam treba za slike)
+     if (response.ok) {
         const savedUnit = await response.json();
-        const unitId = savedUnit.idUnit || id;
+        const unitId = id || savedUnit.idUnit;
 
-        // 2. SLANJE SLIKA (Upload svake slike posebno)
-        if (images.length > 0) {
-          for (const imageObj of images) {
-            // Ako slika već ima URL iz baze (ako je u edit modu), ne šaljemo je ponovo
-            if (imageObj.file) { 
-              const imageFormData = new FormData();
-              imageFormData.append("file", imageObj.file);
-
-              await fetch(`${process.env.REACT_APP_API_URL}/unitImg/upload/${unitId}`, {
-                method: "POST",
-                body: imageFormData,
-                // Napomena: Ne stavljaj "Content-Type" header, browser će ga sam staviti za FormData
-              });
-            }
+        // --- 1. KORAK: PRVO OBRISATI SLIKE KOJE SU UKLONJENE ---
+        if (imagesToDelete.length > 0) {
+          for (const imgId of imagesToDelete) {
+            await fetch(`${process.env.REACT_APP_API_URL}/unitImg/delete/${imgId}`, {
+              method: "DELETE",
+            });
           }
         }
 
-        alert(id ? "Unit updated successfully!" : "Unit added successfully!");
-        navigate("/admin"); 
-      } else {
-        const errorText = await response.text();
-        alert("Error: " + errorText);
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("Something went wrong!");
-    }
-  };
+        // --- 2. KORAK: OBRADA PREOSTALIH SLIKA (INDEX PO INDEX) ---
+        // Ključno: koristimo for petlju kako bi slali zahtjeve jedan po jedan
+        for (let i = 0; i < images.length; i++) {
+          const imageObj = images[i];
+          const isCover = (i === 0); // Samo prva slika dobiva COVER status
+
+          if (imageObj.file) {
+            // Nova slika koju treba uploadati
+            const imageFormData = new FormData();
+            imageFormData.append("file", imageObj.file);
+            imageFormData.append("isCover", isCover);
+            
+            await fetch(`${process.env.REACT_APP_API_URL}/unitImg/upload/${unitId}`, {
+              method: "POST",
+              body: imageFormData,
+            });
+          } else if (imageObj.id) {
+            // Postojeća slika - provjeravamo treba li promijeniti folder (Cover <-> Other)
+            await fetch(`${process.env.REACT_APP_API_URL}/unitImg/update-status/${imageObj.id}?isCover=${isCover}`, {
+              method: "PUT",
+            });
+          }
+        }
+
+        alert("Unit and images updated successfully!");
+        navigate("/admin");
+      } else {
+        const errorText = await response.text();
+        alert("Error: " + errorText);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Something went wrong!");
+    }
+  };
 
   const handleCancel = () => {
     if (window.confirm("Are you sure you want to cancel? Changes will not be saved.")) {
@@ -362,24 +463,59 @@ const ApartmentForm = () => {
         />
 
         <div className="image-upload">
-          <label>Images</label>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleImageUpload}
-          />
-          <div className="image-preview">
-            {images.map((img, index) => (
-              <div key={index} className="preview-item">
-                <img src={img.url} alt={`Image ${index + 1}`} />
-                <button type="button" onClick={() => removeImage(index)}>
-                  Remove
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
+  <label>Images</label>
+  <input
+    type="file"
+    multiple
+    accept="image/*"
+    onChange={handleImageUpload}
+  />
+  {/* Pronađi ovaj dio oko linije 320 u svom kodu */}
+<div className="image-preview">
+  {images.map((img, index) => (
+    <div key={index} className="preview-item">
+      {index === 0 && <span className="cover-badge">COVER</span>}
+      
+      {/* 🟢 IZMIJENJENO: Dodan onClick i stil za kursor na sliku */}
+                <img 
+                  src={img.url} 
+                  alt={`Image ${index}`} 
+                  onClick={() => openModal(img.url)}
+                  style={{ cursor: "zoom-in" }} 
+                />
+      
+      <div className="image-action-buttons">
+        {/* Update gumb */}
+        <button 
+          type="button" 
+          className="update-img-btn"
+          onClick={() => document.getElementById(`replace-input-${index}`).click()}
+        >
+          Update
+        </button>
+
+        {/* Skriveni input */}
+        <input
+          id={`replace-input-${index}`}
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={(e) => handleReplaceImage(index, e)}
+        />
+
+        {/* Remove gumb */}
+        <button 
+          type="button" 
+          className="remove-img-btn" 
+          onClick={() => removeImage(index)}
+        >
+          Remove
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
+</div>
 
         <div className="checkbox-section">
           <h4>Amenities</h4>
@@ -405,6 +541,15 @@ const ApartmentForm = () => {
           </button>
         </div>
       </form>
+      {/* --- 🟢 NOVO: Modal dio (dodati na sam kraj komponente) --- */}
+      {selectedImage && (
+        <div className="image-modal-overlay" onClick={closeModal}>
+          <div className="image-modal-content" onClick={(e) => e.stopPropagation()}>
+            <span className="close-modal-btn" onClick={closeModal}>&times;</span>
+            <img src={selectedImage} alt="Full view" className="full-res-image" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

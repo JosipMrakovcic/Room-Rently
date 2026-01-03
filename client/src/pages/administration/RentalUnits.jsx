@@ -161,7 +161,7 @@ const AdminDashboard = () => {
 
   const handleEdit = (id) => navigate(`/form/${id}`);
 
-  const handleDeleteUnit = async (id) => {
+  /*const handleDeleteUnit = async (id) => {
     if (window.confirm("Are you sure you want to delete this unit?")) {
       try {
         const token = localStorage.getItem("access_token");
@@ -181,7 +181,36 @@ const AdminDashboard = () => {
         console.error("Error deleting unit:", err);
       }
     }
-  };
+  };*/
+
+  const handleDeleteUnit = async (id) => {
+  if (window.confirm("Are you sure you want to delete this unit and ALL its files from disk?")) {
+    try {
+      const token = localStorage.getItem("access_token");
+      
+      // PAŽNJA: Putanja je sada /unitImg/delete-full/ jer smo tako stavili u kontroler
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/unitImg/delete-full/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // Makni unit iz lokalnog state-a da nestane s ekrana bez refresha
+        setUnits((prev) => prev.filter((unit) => unit.id !== id));
+        alert("Unit and all files deleted successfully.");
+      } else {
+        const errorMsg = await response.text();
+        alert("Failed to delete unit: " + errorMsg);
+      }
+    } catch (err) {
+      console.error("Error deleting unit:", err);
+      alert("An error occurred while deleting.");
+    }
+  }
+};
+
 
   const handleDeleteUser = async (id, email) => {
     if (email === currentUser?.email) {

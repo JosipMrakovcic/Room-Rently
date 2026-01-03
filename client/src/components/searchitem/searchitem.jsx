@@ -8,6 +8,9 @@ const Searchitem = ({ unit }) => {
   const API_URL = process.env.REACT_APP_API_URL;
   const [globalAddress, setGlobalAddress] = useState("Loading address...");
 
+  // --- 1. DODAJ STANJE ZA UČITAVANJE ---
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   useEffect(() => {
     const fetchLocation = async () => {
       try {
@@ -24,6 +27,25 @@ const Searchitem = ({ unit }) => {
     fetchLocation();
   }, [API_URL]);
 
+
+  // --- OVAKO IZMIJENI FUNKCIJU ---
+const getCoverImage = () => {
+  // Ako unit još nije učitan ili nema images niz
+  if (!unit || !unit.images || unit.images.length === 0) {
+    return "/default_room.jpg";
+  }
+
+  const coverImg = unit.images.find((img) => img.url && img.url.includes("/cover/"));
+  
+  if (coverImg && coverImg.url) {
+    return `${API_URL}${coverImg.url}`;
+  }
+
+  return "/default_room.jpg"; 
+};
+
+
+
   // Pomoćna funkcija za dinamički tekst ocjene na temelju tvog izračunatog prosjeka
   const getRatingLabel = (rating) => {
     if (!rating) return "No reviews yet";
@@ -34,15 +56,31 @@ const Searchitem = ({ unit }) => {
     return "Good";
   };
 
+  const coverImg = unit.images?.find((img) => img.url && img.url.includes("/cover/"));
+  const fullCoverUrl = coverImg ? `${API_URL}${coverImg.url}` : null;
+
   return (
     <div className="searchitem" onClick={() => navigate(`/hotels/${unit.idUnit}`)}>
-      {/* 1. SLIKA */}
-      <img 
-        src={unit.photos?.[0] || "/default_room.jpg"} 
-        alt="" 
-        className="siimg" 
-      />
-
+    
+    {/* --- OVAKO IZMIJENI CIJELI KONTEJNER SLIKE --- */}
+    <div className="siimgContainer">
+      {fullCoverUrl ? (
+        <img 
+          src={fullCoverUrl} 
+          alt="" 
+          className="siimg" 
+          onLoad={() => setImageLoaded(true)}
+          onError={(e) => { e.target.style.display = 'none'; }} 
+          style={{ opacity: imageLoaded ? 1 : 0 }}
+        />
+      ) : (
+        /* Ovaj blok se prikazuje AKO NEMA cover slike - nema <img> taga, nema titranja */
+        <div className="siNoPhoto">
+          <span className="noPhotoIcon">📷</span>
+          <span className="noPhotoText">No photo available</span>
+        </div>
+      )}
+    </div>
       {/* 2. OPIS (Sredina) */}
       <div className="sidesc">
         <h1 className="siTitle">{unit.unitName}</h1>

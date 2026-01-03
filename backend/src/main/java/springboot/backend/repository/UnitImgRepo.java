@@ -6,5 +6,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import springboot.backend.model.UnitImg;
 
 @RepositoryRestResource(path = "unitImg")
-public interface UnitImgRepo extends JpaRepository<UnitImg, String> {
+public interface UnitImgRepo extends JpaRepository<UnitImg, Long> {
 }

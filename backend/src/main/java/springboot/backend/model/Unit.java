@@ -53,12 +53,24 @@ public class Unit {
 
     @Transient // Ovo polje se ne sprema u bazu, već se računa
     public Double getAverageRating() {
-        if (unitReservations == null || unitReservations.isEmpty()) {
-            return null; // Ili npr. 0.0 ako želiš početnu vrijednost
+        List<UnitReservation> allRelevantReservations = new ArrayList<>();
+
+        // 1. Ako je ovo soba
+        if (this.listOfRooms != null && !this.listOfRooms.isEmpty()) {
+            for (Unit room : this.listOfRooms) {
+                if (room.getUnitReservations() != null) {
+                    allRelevantReservations.addAll(room.getUnitReservations());
+                }
+            }
+        }
+        // 2. Dodaj i rezervacije izravno na ovaj unit (za apartmane koji nemaju podsobe)
+        if (this.unitReservations != null) {
+            allRelevantReservations.addAll(this.unitReservations);
         }
 
+
         // Filtriramo rezervacije koje su Completed i imaju rating, pa računamo prosjek
-        return unitReservations.stream()
+        return allRelevantReservations.stream()
                 .filter(res -> "Completed".equalsIgnoreCase(res.getStatus()))
                 .filter(res -> res.getRating() != null)
                 .mapToDouble(UnitReservation::getRating)

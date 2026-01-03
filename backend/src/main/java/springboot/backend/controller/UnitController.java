@@ -181,6 +181,23 @@ public class UnitController {
         }
     }
 
+    @GetMapping("/top-rated")
+    public ResponseEntity<List<Unit>> getTopRated() {
+        // 1. Dohvaćamo sve objekte
+        List<Unit> allUnits = repo.findAll();
+
+        List<Unit> topRated = allUnits.stream()
+                .filter(u -> u.getParentUnit() == null) // Samo glavni objekti
+                .sorted((u1, u2) -> {
+                    Double r1 = u1.getAverageRating();
+                    Double r2 = u2.getAverageRating();
+                    return r2.compareTo(r1);
+                })
+                .limit(4)
+                .toList();
+
+        return ResponseEntity.ok(topRated);
+    }
 
 
     @GetMapping("/filter")

@@ -10,11 +10,14 @@ import springboot.backend.model.UnitImg;
 import springboot.backend.repository.UnitImgRepo;
 import springboot.backend.repository.UnitRepo;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
+import springboot.backend.service.FileCleanupService;
 
 @RestController
 @CrossOrigin(origins = "${frontend.url}")
@@ -29,6 +32,9 @@ public class UnitImgController {
 
     // Osnovna putanja unutar projekta
     private final String BASE_UPLOAD_DIR = "uploads/units/";
+
+    @Autowired
+    private FileCleanupService cleanupService;
 
     @PostMapping("/upload/{unitId}")
     @Transactional
@@ -160,42 +166,27 @@ public class UnitImgController {
     @DeleteMapping("/delete-full/{id}")
     @Transactional
     public ResponseEntity<?> deleteUnit(@PathVariable Long id) {
+        System.out.println(">>> Zahtjev za potpuno brisanje Unita ID: " + id);
+
+        // 1. Pronađi Unit
+        Unit unit = unitRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Unit nije pronađen s ID: " + id));
+
         try {
-            // 1. Pronađi Unit u bazi
-            Unit unit = unitRepo.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Unit nije pronađen s ID: " + id));
-
-            // 2. Putanja do glavnog foldera unita (npr. uploads/units/1)
-            Path unitFolderPath = Paths.get(System.getProperty("user.dir")).resolve(BASE_UPLOAD_DIR + id).normalize();
-
-            System.out.println("Pokušavam obrisati cijeli folder unita na putanji: " + unitFolderPath);
-
-            // 3. Brisanje sadržaja i samog foldera
-            if (Files.exists(unitFolderPath)) {
-                // Koristimo try-with-resources da osiguramo zatvaranje streama
-                try (Stream<Path> paths = Files.walk(unitFolderPath)) {
-                    paths.sorted(Comparator.reverseOrder()) // Prvo djeca, pa roditelji
-                            .forEach(path -> {
-                                try {
-                                    Files.delete(path);
-                                    System.out.println("Uspješno obrisano: " + path);
-                                } catch (IOException e) {
-                                    System.err.println("Greška kod brisanja stavke " + path + ": " + e.getMessage());
-                                }
-                            });
-                }
-
-                // Dodatna provjera: Ako je folder čudom preživio (npr. file lock na Windowsima)
-                if (Files.exists(unitFolderPath)) {
-                    // Pokušaj brisanja samog korijenskog foldera još jednom nakon što se stream zatvorio
-                    Files.deleteIfExists(unitFolderPath);
-                }
-            }
-
-            // 4. Brisanje iz baze podataka
+            // 2. PRVO BRIŠEMO IZ BAZE
+            // Ovo osigurava da korisnik na frontendu odmah vidi da je unit nestao
             unitRepo.delete(unit);
+            unitRepo.flush();
+            System.out.println(">>> Unit " + id + " uspješno uklonjen iz baze.");
 
-            return ResponseEntity.ok("Unit ID: " + id + " i njegov cijeli direktorij su obrisani.");
+            // 3. OTPUŠTANJE FILE-HANDLERA (Ključno za Windows)
+            System.gc();
+
+            // 4. POKRETANJE CLEANUP-A
+            // Prvo pokušava obrisati mapu tog unita, a onda i sve ostale koji su možda zapeli ranije
+            cleanupService.runFullCleanup();
+
+            return ResponseEntity.ok("Unit ID: " + id + " je obrisan. Disk cleanup pokrenut.");
 
         } catch (Exception e) {
             e.printStackTrace();

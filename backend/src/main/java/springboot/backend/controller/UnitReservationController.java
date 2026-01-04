@@ -12,16 +12,15 @@ import springboot.backend.model.UnitReservation;
 import springboot.backend.repository.PersonRepo;
 import springboot.backend.repository.UnitRepo;
 import springboot.backend.repository.UnitReservationRepo;
-import org.springframework.security.core.Authentication; // PAZI NA IMPORT!
 import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.time.LocalDate;
 import java.util.List;
 
-import springboot.backend.service.PdfService; // Ovo rješava crveni PdfService
-import jakarta.servlet.http.HttpServletResponse; // Ovo rješava crveni HttpServletResponse
-import java.io.IOException; // Ovo rješava crveni IOException
+import springboot.backend.service.PdfService;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 import springboot.backend.service.EmailService;
 
@@ -33,44 +32,43 @@ public class UnitReservationController {
     @Autowired private UnitReservationRepo repo;
     @Autowired private PersonRepo personRepo;
     @Autowired private UnitRepo unitRepo;
-
     @Autowired private EmailService emailService;
-
     @Autowired private PdfService pdfService;
 
     @PostMapping("/add")
     public ResponseEntity<?> addReservation(@RequestBody ReservationRequest req, @AuthenticationPrincipal Jwt jwt) {
         try {
-            // 1. Provjera prijave
-            if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Morate biti prijavljeni.");
+            // 1. Authentication check
+            if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You must be logged in.");
 
             String email = jwt.getClaimAsString("email");
             Person person = personRepo.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("Korisnik nije pronađen."));
+                    .orElseThrow(() -> new RuntimeException("User not found."));
 
-            // 2. Provjera uloge (Samo gosti mogu rezervirati)
+            // 2. Role check (Strictly only Guests/Users can reserve)
+            // Tip: Check if your person.isUser() accidentally returns true for admins
             if (!person.isUser()) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Samo korisnici mogu rezervirati.");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only regular users can make reservations.");
             }
 
-            // 3. Validacija datuma
+            // 3. Date validation
             if (req.getStartDate().isBefore(LocalDate.now())) {
-                return ResponseEntity.badRequest().body("Datum početka ne može biti u prošlosti.");
+                return ResponseEntity.badRequest().body("Start date cannot be in the past.");
             }
             if (!req.getEndDate().isAfter(req.getStartDate())) {
-                return ResponseEntity.badRequest().body("Datum odlaska mora biti barem jedan dan nakon dolaska.");
+                return ResponseEntity.badRequest().body("Departure date must be at least one day after arrival.");
             }
 
-            // 4. Sigurnosna provjera preklapanja (Anti-Double Booking)
+            // 4. Double-booking prevention
             boolean isTaken = repo.existsOverlapping(req.getUnitId(), req.getStartDate(), req.getEndDate());
             if (isTaken) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body("Ovi datumi su već zauzeti. Molimo odaberite drugi termin.");
+                        .body("These dates are already taken. Please choose another period.");
             }
 
-            // 5. Pronalazak slobodne sobe (Roditelj ili slobodna soba-dijete)
+            // 5. Finding an available room (Parent unit or child room)
             Unit selectedUnit = unitRepo.findById(req.getUnitId())
-                    .orElseThrow(() -> new RuntimeException("Smještaj nije pronađen"));
+                    .orElseThrow(() -> new RuntimeException("Accommodation not found"));
 
             Unit unitToReserve = null;
 
@@ -90,46 +88,41 @@ public class UnitReservationController {
             }
 
             if (unitToReserve == null) {
-                return ResponseEntity.badRequest().body("Nažalost, nema slobodnih soba ovog tipa u odabranom terminu.");
+                return ResponseEntity.badRequest().body("Unfortunately, no rooms of this type are available for the selected dates.");
             }
 
-            // 6. Kreiranje rezervacije
+            // 6. Create reservation
             UnitReservation res = new UnitReservation();
             res.setStartDate(req.getStartDate());
             res.setEndDate(req.getEndDate());
             res.setAdults(req.getAdults());
             res.setChildren(req.getChildren());
-            res.setStatus("Pending"); // Inicijalni status
+            res.setStatus("Pending"); // Initial status
             res.setPerson(person);
             res.setUnit(unitToReserve);
 
-            // Postavljanje odabranih opcija (Amenities)
             if (req.getAmenities() != null && !req.getAmenities().isEmpty()) {
                 res.setSelectedAmenities(String.join(", ", req.getAmenities()));
             }
 
-            // 7. SPREMANJE U BAZU
+            // 7. Save to Database
             repo.save(res);
 
-            // 8. NOVO: SLANJE PDF POTVRDE NA MAIL
-            // Radimo ovo u try-catch bloku da rezervacija ostane uspješna čak i ako mail server privremeno zakaka
+            // 8. Send PDF confirmation via Email
             try {
                 emailService.sendEmailWithPdf(res);
-                System.out.println("Email potvrda uspješno poslana na: " + email);
+                System.out.println("Email confirmation successfully sent to: " + email);
             } catch (Exception e) {
-                System.err.println("Greška prilikom slanja potvrde na mail: " + e.getMessage());
-                // Opcionalno: Možeš dodati poruku korisniku da provjeri 'My Reservations' jer mail nije prošao
+                System.err.println("Error sending email confirmation: " + e.getMessage());
             }
 
-            return ResponseEntity.ok("Rezervacija uspješno kreirana za: " + unitToReserve.getUnitName() + ". Potvrda je poslana na Vaš email.");
+            return ResponseEntity.ok("Reservation successfully created for: " + unitToReserve.getUnitName() + ". A confirmation has been sent to your email.");
 
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Greška: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
 
-    // Dohvaćanje rezervacija za određenog vlasnika (za dashboard)
-    // Ovdje bi se mogla dodati logika da filtrira samo uniti koji pripadaju tom vlasniku
     @GetMapping("/all")
     public List<UnitReservation> getAll() {
         return repo.findAll();
@@ -141,60 +134,30 @@ public class UnitReservationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        // Google token sadrži email u claimu "email"
         String email = jwt.getClaimAsString("email");
-
         List<UnitReservation> userReservations = repo.findByPersonEmail(email);
         return ResponseEntity.ok(userReservations);
     }
 
-    // 2. Sigurno otkazivanje rezervacije
     @PutMapping("/cancel/{id}")
     public ResponseEntity<?> cancelReservation(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
         if (jwt == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        // Izvlačimo email iz JWT claim-a
         String email = jwt.getClaimAsString("email");
 
         return repo.findById(id).map(res -> {
-            // Provjera: Pripada li rezervacija osobi s tim emailom?
             if (!res.getPerson().getEmail().equals(email)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("Ne možete otkazati tuđu rezervaciju!");
+                        .body("You cannot cancel someone else's reservation!");
             }
 
             res.setStatus("Cancelled");
             repo.save(res);
-            return ResponseEntity.ok("Rezervacija #" + id + " je uspješno otkazana.");
+            return ResponseEntity.ok("Reservation #" + id + " has been successfully cancelled.");
         }).orElse(ResponseEntity.notFound().build());
     }
-    /*@PutMapping("/update-status/{id}")
-    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> body, @AuthenticationPrincipal Jwt jwt) {
-        if (jwt == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        String email = jwt.getClaimAsString("email");
-        Person p = personRepo.findByEmail(email).orElse(null);
-        if (p == null || !p.isOwner()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Samo vlasnici mogu mijenjati status rezervacije.");
-        }
-
-        return repo.findById(id).map(res -> {
-            String newStatus = body.get("status");
-            res.setStatus(newStatus);
-
-            // --- NOVO: Ako je status Completed, postavi endDate na danas ---
-            if ("Completed".equalsIgnoreCase(newStatus)) {
-                res.setEndDate(LocalDate.now());
-            }
-
-            repo.save(res);
-            return ResponseEntity.ok(res); // Vraćamo cijeli objekt da frontend vidi novi datum
-        }).orElse(ResponseEntity.notFound().build());
-    }*/
 
     @PutMapping("/update-status/{id}")
     public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> body, @AuthenticationPrincipal Jwt jwt) {
@@ -205,34 +168,33 @@ public class UnitReservationController {
         String emailOwner = jwt.getClaimAsString("email");
         Person p = personRepo.findByEmail(emailOwner).orElse(null);
         if (p == null || !p.isOwner()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Samo vlasnici mogu mijenjati status rezervacije.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only owners can change reservation status.");
         }
 
         return repo.findById(id).map(res -> {
-            String newStatus = body.get("status"); // Očekuje: "Confirmed", "Cancelled" ili "Rejected"
+            String newStatus = body.get("status");
             res.setStatus(newStatus);
 
             if ("Completed".equalsIgnoreCase(newStatus)) {
                 res.setEndDate(LocalDate.now());
             }
 
-            // Spremamo promjenu statusa
             repo.save(res);
 
-            // SLANJE EMAILA OVISNO O STATUSU
+            // Send email based on new status
             try {
                 if ("Confirmed".equalsIgnoreCase(newStatus)) {
-                    emailService.sendStatusUpdateEmail(res, "VAŠA REZERVACIJA JE POTVRĐENA",
-                            "Drago nam je obavijestiti Vas da je vlasnik potvrdio Vašu rezervaciju. U privitku se nalazi službena potvrda.");
+                    emailService.sendStatusUpdateEmail(res, "YOUR RESERVATION IS CONFIRMED",
+                            "We are pleased to inform you that the owner has confirmed your reservation. The official confirmation is attached.");
                 } else if ("Cancelled".equalsIgnoreCase(newStatus)) {
-                    emailService.sendStatusUpdateEmail(res, "OTKAZIVANJE REZERVACIJE",
-                            "Obavještavamo Vas da je Vaša rezervacija otkazana. Ispod se nalaze detalji otkazane rezervacije.");
+                    emailService.sendStatusUpdateEmail(res, "RESERVATION CANCELLED",
+                            "We inform you that your reservation has been cancelled. Details are attached below.");
                 } else if ("Rejected".equalsIgnoreCase(newStatus)) {
-                    emailService.sendStatusUpdateEmail(res, "REZERVACIJA ODBIJENA",
-                            "Nažalost, vlasnik objekta je morao odbiti Vaš upit za rezervaciju. Više informacija potražite u priloženom dokumentu.");
+                    emailService.sendStatusUpdateEmail(res, "RESERVATION REJECTED",
+                            "Unfortunately, the owner had to reject your reservation request. Please find more information in the attached document.");
                 }
             } catch (Exception e) {
-                System.err.println("Greška pri slanju emaila o statusu: " + e.getMessage());
+                System.err.println("Error sending status update email: " + e.getMessage());
             }
 
             return ResponseEntity.ok(res);
@@ -247,31 +209,27 @@ public class UnitReservationController {
         int ratingValue = body.get("rating");
 
         if (ratingValue < 1 || ratingValue > 10) {
-            return ResponseEntity.badRequest().body("Ocjena mora biti između 1 i 10.");
+            return ResponseEntity.badRequest().body("Rating must be between 1 and 10.");
         }
 
         return repo.findById(id).map(res -> {
-            // 1. Provjera vlasništva
             if (!res.getPerson().getEmail().equals(email)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Ne možete ocijeniti tuđu rezervaciju!");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You cannot rate someone else's reservation!");
             }
-            // 2. Provjera statusa
             if (!"Completed".equalsIgnoreCase(res.getStatus())) {
-                return ResponseEntity.badRequest().body("Možete ocijeniti samo završene rezervacije.");
+                return ResponseEntity.badRequest().body("You can only rate completed reservations.");
             }
-            // 3. Provjera roka (3 dana od endDate)
             if (LocalDate.now().isAfter(res.getEndDate().plusDays(3))) {
-                return ResponseEntity.badRequest().body("Rok za ocjenjivanje (3 dana) je prošao.");
+                return ResponseEntity.badRequest().body("The 3-day rating period has expired.");
             }
-            // 4. Provjera je li već ocijenjeno
             if (res.getRating() != null) {
-                return ResponseEntity.badRequest().body("Već ste ocijenili ovu rezervaciju.");
+                return ResponseEntity.badRequest().body("You have already rated this reservation.");
             }
 
             res.setRating(ratingValue);
             res.setRatingDate(LocalDate.now());
             repo.save(res);
-            return ResponseEntity.ok("Hvala na ocjeni!");
+            return ResponseEntity.ok("Thank you for your rating!");
         }).orElse(ResponseEntity.notFound().build());
     }
 
@@ -283,21 +241,18 @@ public class UnitReservationController {
         }
 
         UnitReservation res = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Rezervacija nije pronađena"));
+                .orElseThrow(() -> new RuntimeException("Reservation not found"));
 
         String email = jwt.getClaimAsString("email");
         if (!res.getPerson().getEmail().equals(email)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Nemate pristup ovom dokumentu.");
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "You do not have access to this document.");
             return;
         }
 
         response.setContentType("application/pdf");
-        String fileName = "Rezervacija_" + res.getIdUnitReservation() + ".pdf";
+        String fileName = "Reservation_" + res.getIdUnitReservation() + ".pdf";
         response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
 
-        // KLJUČNA PROMJENA: Šaljemo getOutputStream(), a ne cijeli response
         pdfService.generateReservationPdf(response.getOutputStream(), res);
     }
-
-
 }

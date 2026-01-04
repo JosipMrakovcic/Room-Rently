@@ -47,7 +47,7 @@ const Hotel = () => {
 
   // Filtriramo slike tako da se u galeriji prikazuju samo one iz "other" foldera
 const unitPhotos = unit?.images
-  ?.filter((img) => img.url.includes("/other/")) // Zadrži samo slike koje NISU cover
+  ?.sort((a, b) => (a.url.includes("cover") ? -1 : 1)) // Cover ide na prvo mjesto
   .map((img) => ({
     src: `${API_URL}${img.url}`
   })) || [];
@@ -110,7 +110,7 @@ const unitPhotos = unit?.images
         <div className="hotelwrapper">
           <div className="hotelButtonsTop">
             <button className="backToList" onClick={() => navigate(-1)}>
-              ⬅ Back to Search
+              ⬅ Back
             </button>
             <button className="booknow" onClick={() => setOpenReserve(true)}>
               Reserve or Book Now!

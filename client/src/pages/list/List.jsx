@@ -301,49 +301,50 @@ const List = () => {
             </div>
 
             <div className="lsitem">
-                <label 
-                    onClick={() => setOpenAmenities(prev => !prev)}
-                    className="amenitiesToggle" 
-                >
-                    Amenities 
-                </label>
+              <label 
+                onClick={() => setOpenAmenities(prev => !prev)}
+                className={`amenitiesToggle ${openAmenities ? "active" : ""}`}
+              >
+                Amenities 
+                <span className="arrowIcon">{openAmenities ? "▲" : "▼"}</span>
+              </label>
                 
-                {openAmenities && (
-                    <div className="amenitiesDropdown"> 
-                        <div className="amenityItem">
-                            <input type="checkbox" id="parking" checked={hasParking} onChange={() => setHasParking(prev => !prev)} />
-                            <label htmlFor="parking">Parking</label>
-                        </div>
-                        <div className="amenityItem">
-                            <input type="checkbox" id="wifi" checked={hasWifi} onChange={() => setHasWifi(prev => !prev)} />
-                            <label htmlFor="wifi">WiFi</label>
-                        </div>
-                        <div className="amenityItem">
-                            <input type="checkbox" id="breakfast" checked={hasBreakfast} onChange={() => setHasBreakfast(prev => !prev)} />
-                            <label htmlFor="breakfast">Breakfast</label>
-                        </div>
-                        <div className="amenityItem">
-                            <input type="checkbox" id="ac" checked={hasAirConditioning} onChange={() => setHasAirConditioning(prev => !prev)} />
-                            <label htmlFor="ac">A/C Unit</label>
-                        </div>
-                        <div className="amenityItem">
-                            <input type="checkbox" id="heater" checked={hasHeater} onChange={() => setHasHeater(prev => !prev)} />
-                            <label htmlFor="heater">Heater</label>
-                        </div>
-                        <div className="amenityItem">
-                            <input type="checkbox" id="towels" checked={hasTowels} onChange={() => setHasTowels(prev => !prev)} />
-                            <label htmlFor="towels">Towels</label>
-                        </div>
-                        <div className="amenityItem">
-                            <input type="checkbox" id="shampoo" checked={hasShampoo} onChange={() => setHasShampoo(prev => !prev)} />
-                            <label htmlFor="shampoo">Shampoo</label>
-                        </div>
-                        <div className="amenityItem">
-                            <input type="checkbox" id="hairdryer" checked={hasHairDryer} onChange={() => setHasHairDryer(prev => !prev)} />
-                            <label htmlFor="hairdryer">Hair Dryer</label>
-                        </div>
-                    </div>
-                )}
+              {openAmenities && (
+                <div className="amenitiesDropdown"> 
+                  <div className="amenityItem">
+                    <input type="checkbox" id="parking" checked={hasParking} onChange={() => setHasParking(prev => !prev)} />
+                    <label htmlFor="parking">Parking</label>
+                  </div>
+                  <div className="amenityItem">
+                    <input type="checkbox" id="wifi" checked={hasWifi} onChange={() => setHasWifi(prev => !prev)} />
+                    <label htmlFor="wifi">WiFi</label>
+                  </div>
+                  <div className="amenityItem">
+                    <input type="checkbox" id="breakfast" checked={hasBreakfast} onChange={() => setHasBreakfast(prev => !prev)} />
+                    <label htmlFor="breakfast">Breakfast</label>
+                  </div>
+                  <div className="amenityItem">
+                    <input type="checkbox" id="ac" checked={hasAirConditioning} onChange={() => setHasAirConditioning(prev => !prev)} />
+                    <label htmlFor="ac">A/C Unit</label>
+                  </div>
+                  <div className="amenityItem">
+                    <input type="checkbox" id="heater" checked={hasHeater} onChange={() => setHasHeater(prev => !prev)} />
+                    <label htmlFor="heater">Heater</label>
+                  </div>
+                  <div className="amenityItem">
+                    <input type="checkbox" id="towels" checked={hasTowels} onChange={() => setHasTowels(prev => !prev)} />
+                    <label htmlFor="towels">Towels</label>
+                  </div>
+                  <div className="amenityItem">
+                    <input type="checkbox" id="shampoo" checked={hasShampoo} onChange={() => setHasShampoo(prev => !prev)} />
+                    <label htmlFor="shampoo">Shampoo</label>
+                  </div>
+                  <div className="amenityItem">
+                    <input type="checkbox" id="hairdryer" checked={hasHairDryer} onChange={() => setHasHairDryer(prev => !prev)} />
+                    <label htmlFor="hairdryer">Hair Dryer</label>
+                  </div>
+                </div>
+              )}
             </div>
 
             <button 

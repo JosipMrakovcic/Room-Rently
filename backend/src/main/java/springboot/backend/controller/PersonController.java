@@ -42,17 +42,23 @@ public class PersonController {
             return ResponseEntity.status(409).body("User already exists");
         }
 
-
         Person person = new Person();
         person.setEmail(email);
         person.setName(name);
 
-
         boolean isFirstUser = repo.count() == 0;
 
-        person.setAdmin(isFirstUser);
-        person.setOwner(false);
-        person.setUser(true);
+        if (isFirstUser) {
+            // Prvi korisnik je SAMO Admin
+            person.setAdmin(true);
+            person.setOwner(false);
+            person.setUser(false); // Admin nije običan "Guest"
+        } else {
+            // Svi ostali su po defaultu SAMO Useri (Gosti)
+            person.setAdmin(false);
+            person.setOwner(false);
+            person.setUser(true);
+        }
 
         repo.save(person);
 

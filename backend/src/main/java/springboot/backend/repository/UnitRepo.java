@@ -23,6 +23,9 @@ WHERE
     AND (:rooms IS NULL OR u.numRooms >= :rooms)
     AND (:beds IS NULL OR u.numBeds >= :beds)
     AND (:isApartment IS NULL OR u.apartment = :isApartment)
+    AND (:seaView IS NULL OR u.seaView = :seaView)
+    AND (:lakeView IS NULL OR u.lakeView = :lakeView)
+    AND (:villageView IS NULL OR u.villageView = :villageView)
     AND (:hasParking IS NULL OR u.hasParking = :hasParking)
     AND (:hasWifi IS NULL OR u.hasWifi = :hasWifi)
     AND (:hasBreakfast IS NULL OR u.hasBreakfast = :hasBreakfast)
@@ -49,6 +52,9 @@ WHERE
             @Param("rooms") Integer rooms,
             @Param("beds") Integer beds, // NOVO: Dodano u potpis metode
             @Param("isApartment") Boolean isApartment,
+            @Param("seaView") Boolean seaView,
+            @Param("lakeView") Boolean lakeView,
+            @Param("villageView") Boolean villageView,
             @Param("hasParking") Boolean hasParking,
             @Param("hasWifi") Boolean hasWifi,
             @Param("hasBreakfast") Boolean hasBreakfast,

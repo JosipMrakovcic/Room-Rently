@@ -92,6 +92,15 @@
   color: #025c9a;
 }
 
+.checkbox-section-view{
+  margin-top: 0px;
+}
+
+.checkbox-section-view h4 {
+  margin-bottom: 5px;
+  color: #025c9a;
+}
+
 .checkbox-label {
   display: block;
   margin-bottom: 6px;

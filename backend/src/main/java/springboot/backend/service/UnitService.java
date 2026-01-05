@@ -24,7 +24,8 @@ public class UnitService {
     public List<Unit> filterUnits(
             String name, Integer adults, Integer children, Integer rooms,
             Integer beds, // <--- Dodano u potpis metode
-            Boolean isApartment, Boolean hasParking, Boolean hasWifi,
+            Boolean isApartment, Boolean seaView, Boolean lakeView,
+            Boolean villageView,Boolean hasParking, Boolean hasWifi,
             Boolean hasBreakfast, Boolean hasTowels, Boolean hasShampoo,
             Boolean hasHairDryer, Boolean hasHeater, Boolean hasAirConditioning,
             BigDecimal minPrice, BigDecimal maxPrice,
@@ -36,7 +37,7 @@ public class UnitService {
         // Dohvaćamo jedinice
         List<Unit> basicFilteredUnits = unitRepo.filterUnits(
                 searchName, adults, children, rooms, beds,
-                isApartment, hasParking, hasWifi, hasBreakfast,
+                isApartment, seaView, lakeView, villageView,hasParking, hasWifi, hasBreakfast,
                 hasTowels, hasShampoo, hasHairDryer, hasHeater,
                 hasAirConditioning, minPrice, maxPrice, startDate, endDate
         );

@@ -183,7 +183,6 @@ public class UnitController {
 
     @GetMapping("/top-rated")
     public ResponseEntity<List<Unit>> getTopRated() {
-        // 1. Dohvaćamo sve objekte
         List<Unit> allUnits = repo.findAll();
 
         List<Unit> topRated = allUnits.stream()
@@ -230,6 +229,36 @@ public class UnitController {
         return ResponseEntity.ok(counts);
     }
 
+    @GetMapping("/counts-by-view")
+    public ResponseEntity<java.util.Map<String, Long>> getCountsByView() {
+        List<Unit> allUnits = repo.findAll();
+
+        java.util.Map<String, Long> counts = new java.util.HashMap<>();
+        counts.put("sea", 0L);
+        counts.put("village", 0L);
+        counts.put("lake", 0L);
+
+        for (Unit u : allUnits) {
+            // Ignoriramo pod-sobe generirane u bazi
+            if (u.getParentUnit() != null) continue;
+
+            // Određivanje količine: ako je soba, uzmi numSameRooms
+            long amount = 1L;
+            if (!u.isApartment()) {
+                amount = (u.getNumSameRooms() != null && u.getNumSameRooms() > 0)
+                        ? u.getNumSameRooms().longValue()
+                        : 1L;
+            }
+
+            // Zbrajanje po pogledima
+            if (u.isSeaView()) counts.put("sea", counts.get("sea") + amount);
+            if (u.isVillageView()) counts.put("village", counts.get("village") + amount);
+            if (u.isLakeView()) counts.put("lake", counts.get("lake") + amount);
+        }
+
+        return ResponseEntity.ok(counts);
+    }
+
 
     @GetMapping("/filter")
     public List<Unit> filterUnits(
@@ -239,6 +268,9 @@ public class UnitController {
             @RequestParam(required = false) Integer rooms,
             @RequestParam(required = false) Integer beds,
             @RequestParam(required = false) Boolean isApartment,
+            @RequestParam(required = false) Boolean seaView,
+            @RequestParam(required = false) Boolean lakeView,
+            @RequestParam(required = false) Boolean villageView,
             @RequestParam(required = false) Boolean hasParking,
             @RequestParam(required = false) Boolean hasWifi,
             @RequestParam(required = false) Boolean hasBreakfast,
@@ -263,6 +295,9 @@ public class UnitController {
                 rooms,
                 beds,
                 isApartment,
+                seaView,
+                lakeView,
+                villageView,
                 hasParking,
                 hasWifi,
                 hasBreakfast,

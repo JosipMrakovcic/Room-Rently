@@ -23,6 +23,11 @@ const ApartmentForm = () => {
     numSameRooms: 1,
     numBeds: 1,
     isApartment: true, 
+    view: {
+      sea: false,
+      lake: false,
+      village: false,
+    },
     amenities: {
       parking: false,
       wifi: false,
@@ -71,6 +76,11 @@ const ApartmentForm = () => {
             numSameRooms: data.numSameRooms || 1,
             numBeds: data.numBeds || 1,
             isApartment: data.isApartment ?? true,
+            view: {
+              sea: data.seaView || false,
+              lake: data.lakeView || false,
+              village: data.villageView || false,
+            },
             amenities: {
               parking: data.hasParking || false,
               wifi: data.hasWifi || false,
@@ -117,7 +127,23 @@ if (data.images && data.images.length > 0) {
         ...prev,
         amenities: { ...prev.amenities, [name]: checked },
       }));
-    } else {
+    } else if (name in formData.view) {
+    setFormData((prev) => {
+      // Prvo sve resetiramo na false
+      const resetViews = Object.keys(prev.view).reduce((acc, key) => {
+        acc[key] = false;
+        return acc;
+      }, {});
+
+      return {
+        ...prev,
+        view: {
+          ...resetViews,
+          [name]: checked, // Postavljamo samo onaj koji je kliknut
+        },
+      };
+    });
+  } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
@@ -253,6 +279,9 @@ if (data.images && data.images.length > 0) {
       numRooms: formData.isApartment ? parseInt(formData.numRooms) : 1,
       numSameRooms: !formData.isApartment ? parseInt(formData.numSameRooms) : 1,
       numBeds: parseInt(formData.numBeds),
+      seaView: formData.view.sea,
+      lakeView: formData.view.lake,
+      villageView: formData.view.village,
       hasParking: formData.amenities.parking,
       hasWifi: formData.amenities.wifi,
       hasBreakfast: formData.amenities.breakfast,
@@ -393,6 +422,20 @@ if (data.images && data.images.length > 0) {
               />
             </div>
           )}
+        </div>
+        <div className="checkbox-section-view">
+          <h4>Views</h4>
+          {Object.keys(formData.view).map((option) => (
+            <label key={option} className="checkbox-label">
+              <input
+                type="checkbox"
+                name={option}
+                checked={formData.view[option] === true} 
+                onChange={handleChange}
+              />
+              {option.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
+            </label>
+          ))}
         </div>
 
         <label>Capacity (Adults)</label>

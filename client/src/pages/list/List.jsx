@@ -32,7 +32,7 @@ const List = () => {
     savedSearch?.options?.room ?? location.state?.options?.room ?? 1
   );
 
-// Ovdje hvatamo 'location.state.beds' koji dolazi s početne stranice
+  // Ovdje hvatamo 'location.state.beds' koji dolazi s početne stranice
   const [beds, setBeds] = useState(
     savedSearch?.options?.beds ?? location.state?.beds ?? 1
   );
@@ -48,6 +48,9 @@ const List = () => {
 
   // Dodatni filteri
   const [isApartment, setIsApartment] = useState(savedSearch?.isApartment ?? null);
+  const [seaView, setSeaView] = useState(savedSearch?.seaView ?? location.state?.seaView ?? false);
+  const [lakeView, setLakeView] = useState(savedSearch?.lakeView ?? location.state?.lakeView ?? false);
+  const [villageView, setVillageView] = useState(savedSearch?.villageView ?? location.state?.villageView ?? false);
   const [hasParking, setHasParking] = useState(savedSearch?.hasParking ?? false);
   const [hasWifi, setHasWifi] = useState(savedSearch?.hasWifi ?? false);
   const [hasBreakfast, setHasBreakfast] = useState(savedSearch?.hasBreakfast ?? false);
@@ -58,6 +61,7 @@ const List = () => {
   const [hasHeater, setHasHeater] = useState(savedSearch?.hasHeater ?? false);
 
   const [openAmenities, setOpenAmenities] = useState(false);
+  const [openViews, setOpenViews] = useState(false);
   const [minPrice, setMinPrice] = useState(savedSearch?.minPrice ?? null);
   const [maxPrice, setMaxPrice] = useState(savedSearch?.maxPrice ?? null);
 
@@ -88,6 +92,9 @@ const List = () => {
       destination,
       options: { adult: adults, children, room , beds},
       isApartment,
+      seaView,
+      lakeView,
+      villageView,
       hasParking,
       hasWifi,
       hasBreakfast,
@@ -139,6 +146,9 @@ const List = () => {
           isApartment: isApartment,
           rooms: room,//isApartment === true ? room : (isApartment === false ? null : null),
           beds: beds,
+          seaView: seaView || null,
+          lakeView: lakeView || null,
+          villageView: villageView || null,
           hasParking: hasParking || null,
           hasWifi: hasWifi || null,
           hasBreakfast: hasBreakfast || null,
@@ -168,6 +178,31 @@ const List = () => {
       handleSearch();
     }
   }, []);
+
+  const handleViewChange = (viewName) => {
+    if (viewName === 'sea') {
+      const newState = !seaView;
+      setSeaView(newState);
+      if (newState) {
+        setLakeView(false);
+        setVillageView(false);
+      }
+    } else if (viewName === 'lake') {
+      const newState = !lakeView;
+      setLakeView(newState);
+      if (newState) {
+        setSeaView(false);
+        setVillageView(false);
+      }
+    } else if (viewName === 'village') {
+      const newState = !villageView;
+      setVillageView(newState);
+      if (newState) {
+        setSeaView(false);
+        setLakeView(false);
+      }
+    }
+  };
 
   return (
     <div>
@@ -298,6 +333,33 @@ const List = () => {
                   onChange={(e) => setMaxPrice(e.target.value)}
                 />
               </div>
+            </div>
+            
+            <div className="lsitem">
+              <label 
+                onClick={() => setOpenViews(prev => !prev)}
+                className={`amenitiesToggle ${openViews ? "active" : ""}`}
+              >
+                Views
+                <span className="arrowIcon">{openViews ? "▲" : "▼"}</span>
+              </label>
+                
+              {openViews && (
+                <div className="amenitiesDropdown"> 
+                  <div className="amenityItem">
+                    <input type="checkbox" id="seaView" checked={seaView} onChange={() => handleViewChange('sea')} />
+                    <label htmlFor="seaView">Sea View</label>
+                  </div>
+                  <div className="amenityItem">
+                    <input type="checkbox" id="lakeView" checked={lakeView} onChange={() => handleViewChange('lake')} />
+                    <label htmlFor="lakeView">Lake View</label>
+                  </div>
+                  <div className="amenityItem">
+                    <input type="checkbox" id="villageView" checked={villageView} onChange={() => handleViewChange('village')} />
+                    <label htmlFor="villageView">Village View</label>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="lsitem">

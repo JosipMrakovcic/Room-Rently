@@ -88,6 +88,15 @@ public class Unit {
     }
 
     @Column(nullable = false)
+    private boolean seaView;
+
+    @Column(nullable = false)
+    private boolean lakeView;
+
+    @Column(nullable = false)
+    private boolean villageView;
+
+    @Column(nullable = false)
     private boolean hasParking;
 
     @Column(nullable = false)

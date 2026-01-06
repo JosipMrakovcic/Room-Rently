@@ -161,28 +161,6 @@ const AdminDashboard = () => {
 
   const handleEdit = (id) => navigate(`/form/${id}`);
 
-  /*const handleDeleteUnit = async (id) => {
-    if (window.confirm("Are you sure you want to delete this unit?")) {
-      try {
-        const token = localStorage.getItem("access_token");
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/unit/delete/${id}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          setUnits((prev) => prev.filter((unit) => unit.id !== id));
-          fetchUnits();
-        } else {
-          alert("Failed to delete unit.");
-        }
-      } catch (err) {
-        console.error("Error deleting unit:", err);
-      }
-    }
-  };*/
-
   const handleDeleteUnit = async (id) => {
   if (window.confirm("Are you sure you want to delete this unit and ALL its files from disk?")) {
     try {

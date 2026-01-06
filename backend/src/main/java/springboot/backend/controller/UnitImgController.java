@@ -17,12 +17,22 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
+
+import springboot.backend.repository.UnitReservationRepo;
+import springboot.backend.service.EmailService;
 import springboot.backend.service.FileCleanupService;
 
 @RestController
 @CrossOrigin(origins = "${frontend.url}")
 @RequestMapping("/unitImg")
 public class UnitImgController {
+
+
+    @Autowired
+    private UnitReservationRepo reservationRepo; // Treba nam za nalazak rezervacija
+
+    @Autowired
+    private EmailService emailService; // Treba nam za slanje PDF-a
 
     @Autowired
     private UnitImgRepo repo;
@@ -110,6 +120,26 @@ public class UnitImgController {
         }
     }
 
+    @PutMapping("/set-cover/{unitId}/{imgId}")
+    @Transactional
+    public ResponseEntity<?> setCover(@PathVariable Long unitId, @PathVariable Long imgId) {
+        // 1. Pronađi sve slike koje pripadaju tom unitu
+        List<UnitImg> images = repo.findAll().stream()
+                .filter(i -> i.getUnit().getIdUnit().equals(unitId))
+                .toList();
+
+        for (UnitImg img : images) {
+            if (img.getId().equals(imgId)) {
+                // Koristimo tvoju postojeću metodu iz kontrolera da je stavimo u cover/
+                updateImageStatus(img.getId(), true);
+            } else if (img.getUrl().contains("/cover/")) {
+                // Sve ostale koje su bile cover vraćamo u other/
+                updateImageStatus(img.getId(), false);
+            }
+        }
+        return ResponseEntity.ok("Cover updated successfully");
+    }
+
     @PutMapping("/update-status/{imgId}")
     @Transactional
     public ResponseEntity<?> updateImageStatus(@PathVariable Long imgId, @RequestParam boolean isCover) {
@@ -168,25 +198,52 @@ public class UnitImgController {
     public ResponseEntity<?> deleteUnit(@PathVariable Long id) {
         System.out.println(">>> Zahtjev za potpuno brisanje Unita ID: " + id);
 
-        // 1. Pronađi Unit
+        // 1. Pronađi Unit (glavni objekt)
         Unit unit = unitRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Unit nije pronađen s ID: " + id));
 
         try {
-            // 2. PRVO BRIŠEMO IZ BAZE
-            // Ovo osigurava da korisnik na frontendu odmah vidi da je unit nestao
+            // --- NOVO: LOGIKA ZA REZERVACIJE I EMAIL ---
+
+            // Skupi sve povezane unute (on + sobe)
+            List<springboot.backend.model.Unit> allUnits = new java.util.ArrayList<>();
+            allUnits.add(unit);
+            if (unit.getListOfRooms() != null) {
+                allUnits.addAll(unit.getListOfRooms());
+            }
+
+            // Nađi sve aktivne rezervacije (Pending i Confirmed)
+            java.util.List<String> activeStatuses = java.util.Arrays.asList("Pending", "Confirmed");
+            java.util.List<springboot.backend.model.UnitReservation> affectedReservations =
+                    reservationRepo.findByUnitInAndStatusIn(allUnits, activeStatuses);
+
+            System.out.println(">>> Broj pronađenih rezervacija za obavijest: " + affectedReservations.size());
+
+            // Pošalji mailove
+            for (springboot.backend.model.UnitReservation res : affectedReservations) {
+                res.setStatus("Cancelled");
+
+                // ZAMIJENI STARO SLANJE S OVIM:
+                emailService.sendSimpleStatusEmail(
+                        res,
+                        "Important: Reservation Cancelled",
+                        "We regret to inform you that the property '" + unit.getUnitName() + "' is no longer available. Your reservation has been cancelled."
+                );
+            }
+            // --- KRAJ NOVE LOGIKE ---
+
+            // 2. BRIŠEMO IZ BAZE (tek nakon što su mailovi poslani!)
             unitRepo.delete(unit);
             unitRepo.flush();
             System.out.println(">>> Unit " + id + " uspješno uklonjen iz baze.");
 
-            // 3. OTPUŠTANJE FILE-HANDLERA (Ključno za Windows)
+            // 3. OTPUŠTANJE FILE-HANDLERA (Windows cleanup)
             System.gc();
 
-            // 4. POKRETANJE CLEANUP-A
-            // Prvo pokušava obrisati mapu tog unita, a onda i sve ostale koji su možda zapeli ranije
+            // 4. POKRETANJE CLEANUP-A DISKA
             cleanupService.runFullCleanup();
 
-            return ResponseEntity.ok("Unit ID: " + id + " je obrisan. Disk cleanup pokrenut.");
+            return ResponseEntity.ok("Unit ID: " + id + " i " + affectedReservations.size() + " rezervacija su obrađeni.");
 
         } catch (Exception e) {
             e.printStackTrace();

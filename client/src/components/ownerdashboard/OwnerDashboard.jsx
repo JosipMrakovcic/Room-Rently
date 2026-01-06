@@ -35,7 +35,6 @@ export default function OwnerDashboard() {
   const [selectedMonth, setSelectedMonth] = useState("all"); 
   const [popup, setPopup] = useState({ visible: false, action: "", reservationId: null });
 
-  // --- NOVO: State za paginaciju ---
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -62,7 +61,6 @@ export default function OwnerDashboard() {
     localStorage.setItem("activeDashboardTab", activeTab);
   }, [activeTab]);
 
-  // Resetiraj stranicu na 1 kada se promijeni filter godine ili mjeseca
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedYear, selectedMonth]);
@@ -84,7 +82,6 @@ export default function OwnerDashboard() {
     }
   };
 
-  // --- FILTRIRANJE I SORTIRANJE ---
   const filteredReservations = useMemo(() => {
     const filtered = reservations.filter(res => {
         const date = new Date(res.startDate);
@@ -95,7 +92,6 @@ export default function OwnerDashboard() {
     return filtered.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
   }, [reservations, selectedYear, selectedMonth]);
 
-  // --- NOVO: Logika za izračun prikazanih rezervacija (Paginacija) ---
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentReservations = filteredReservations.slice(indexOfFirstItem, indexOfLastItem);
@@ -131,7 +127,6 @@ export default function OwnerDashboard() {
     return `${monthName} ${selectedYear}`.trim();
   };
 
-  // --- STATISTIKE (useMemo blokovi ostaju isti) ---
   const topRatedStats = useMemo(() => {
     const unitRatings = {};
     filteredReservations.forEach(res => {
@@ -216,6 +211,7 @@ export default function OwnerDashboard() {
   const guestsByCountryData = { labels: countryStats.labels, datasets: [{ label: "Guests", data: countryStats.data, backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"] }] };
   const popularServicesData = { labels: unitStats.labels, datasets: [{ label: "Reservations", data: unitStats.data, backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"] }] };
 
+  // NADOPUNJENO: Error handling sa alertom koji pokazuje poruku s backenda
   const handleUpdateStatus = async (id, newStatus) => {
     try {
       const token = localStorage.getItem("access_token");
@@ -223,7 +219,11 @@ export default function OwnerDashboard() {
       if (response.status === 200) {
         setReservations(prev => prev.map(r => r.idUnitReservation === id ? { ...r, status: newStatus, endDate: newStatus === "Completed" ? new Date().toISOString().split('T')[0] : r.endDate } : r));
       }
-    } catch (err) { console.error(err); alert("Greška pri ažuriranju statusa."); }
+    } catch (err) { 
+        console.error(err); 
+        const msg = err.response?.data || "Greška pri ažuriranju statusa.";
+        alert(`Action failed: ${msg}`); 
+    }
   };
 
   const confirmAction = () => {
@@ -247,7 +247,6 @@ export default function OwnerDashboard() {
     return y + height + 20;
   };
 
-  // --- PDF EXPORT SVIH GRAFOVA ---
   const exportStatsPDF = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -385,6 +384,7 @@ export default function OwnerDashboard() {
     downloadXML(data, `analytics_${selectedYear}.xml`);
   };
 
+  // NADOPUNJENO: Gumb Complete je disabled i prozirniji ako gost nije prenoćio
   const renderActionButtons = (r) => {
     if (r.status === "Pending") {
       return (
@@ -395,9 +395,22 @@ export default function OwnerDashboard() {
       );
     }
     if (r.status === "Confirmed") {
+      const startDate = new Date(r.startDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const canComplete = today > startDate;
+
       return (
         <div className="action-buttons-flex">
-          <button className="complete-btn" onClick={() => setPopup({ visible: true, action: "Complete", reservationId: r.idUnitReservation })}>Complete</button>
+          <button 
+            className="complete-btn" 
+            onClick={() => setPopup({ visible: true, action: "Complete", reservationId: r.idUnitReservation })}
+            disabled={!canComplete}
+            style={{ opacity: canComplete ? 1 : 0.5, cursor: canComplete ? "pointer" : "not-allowed" }}
+            title={!canComplete ? "At least one night must pass" : ""}
+          >
+            Complete
+          </button>
           <button className="cancel-btn" onClick={() => setPopup({ visible: true, action: "Cancel", reservationId: r.idUnitReservation })}>Cancel</button>
         </div>
       );
@@ -530,7 +543,6 @@ export default function OwnerDashboard() {
             </tbody>
           </table>
 
-          {/* NOVO: Kartice za mobilni prikaz također koriste paginaciju */}
           <div className="reservation-cards">
             {currentReservations.length > 0 ? (
               currentReservations.map((r) => (
@@ -564,7 +576,6 @@ export default function OwnerDashboard() {
             )}
           </div>
 
-          {/* NOVO: Kontrole paginacije */}
           {totalPages > 1 && (
             <div className="pagination-container">
               <button 

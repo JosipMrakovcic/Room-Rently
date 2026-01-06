@@ -18,7 +18,9 @@ import java.util.List;
 @RepositoryRestResource(path = "unitReservation")
 public interface UnitReservationRepo extends JpaRepository<UnitReservation, Long> {
 
+    List<UnitReservation> findByUnitInAndStatusInAndEndDateAfter(List<Unit> units, List<String> statuses, LocalDate date);
     List<UnitReservation> findByPersonEmail(String email);
+    List<UnitReservation> findByUnitInAndStatusIn(List<Unit> units, List<String> statuses);
 
     @Query("SELECT COUNT(r) > 0 FROM UnitReservation r WHERE r.unit = :unit " +
             "AND r.status != 'Cancelled' " +

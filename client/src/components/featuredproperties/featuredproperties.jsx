@@ -6,21 +6,30 @@ import "./featuredproperties.css";
 const Featuredproperties = () => {
   const navigate = useNavigate();
   const [units, setUnits] = useState([]);
+  const [globalAddress, setGlobalAddress] = useState(""); // Dodano stanje za globalnu adresu
   const [loading, setLoading] = useState(true);
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
   useEffect(() => {
-    const fetchTopRated = async () => {
+    const fetchData = async () => {
       try {
+        setLoading(true);
+        // 1. Dohvaćamo najbolje ocijenjene jedinice
         const response = await axios.get(`${API_URL}/unit/top-rated`);
         setUnits(response.data);
+
+        // 2. Dohvaćamo globalnu adresu lokacije (isto kao u Hotel.jsx)
+        const locationRes = await axios.get(`${API_URL}/api/location`);
+        if (locationRes.data) {
+          setGlobalAddress(locationRes.data.address);
+        }
       } catch (err) {
         console.error("Greška pri dohvaćanju podataka:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchTopRated();
+    fetchData();
   }, [API_URL]);
 
   if (loading) return <div className="fp">Učitavanje najboljih smještaja...</div>;
@@ -55,7 +64,12 @@ const Featuredproperties = () => {
             )}
 
             <span className="fpname">{unit.unitName}</span>
-            <span className="fploc">{unit.location || "Hrvatska"}</span>
+            
+            {/* Logika za adresu: Prioritet ima globalAddress, pa unit.location, pa unit.address */}
+            <span className="fploc">
+              📍 {globalAddress || unit.location || unit.address || "Croatia"}
+            </span>
+
             <span className="fpprice">Već od {unit.price}€</span>
             
             <div className="fprating">

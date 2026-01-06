@@ -36,21 +36,23 @@ WHERE
     AND (:hasAirConditioning IS NULL OR u.hasAirConditioning = :hasAirConditioning)
     AND (:minPrice IS NULL OR u.price >= :minPrice)
     AND (:maxPrice IS NULL OR u.price <= :maxPrice)
-    AND NOT EXISTS (
-        SELECT r FROM UnitReservation r
-        WHERE r.unit = u
-        AND r.status IN ('Confirmed', 'Pending')
-        AND (
-            CAST(:startDate AS date) IS NULL OR
-            CAST(:endDate AS date) IS NULL OR
-            (r.startDate < :endDate AND r.endDate > :startDate)))
+    AND (
+        CAST(:startDate AS date) IS NULL OR 
+        CAST(:endDate AS date) IS NULL OR 
+        NOT EXISTS (
+            SELECT r FROM UnitReservation r
+            WHERE r.unit = u
+            AND r.status IN ('Confirmed', 'Pending')
+            AND (r.startDate < :endDate AND r.endDate > :startDate)
+        )
+    )
 """)
     List<Unit> filterUnits(
             @Param("name") String name,
             @Param("adults") Integer adults,
             @Param("children") Integer children,
             @Param("rooms") Integer rooms,
-            @Param("beds") Integer beds, // NOVO: Dodano u potpis metode
+            @Param("beds") Integer beds,
             @Param("isApartment") Boolean isApartment,
             @Param("seaView") Boolean seaView,
             @Param("lakeView") Boolean lakeView,

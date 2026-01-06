@@ -7,6 +7,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 // Uklonjeni import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import springboot.backend.model.Unit;
 import springboot.backend.model.UnitReservation;
 import springboot.backend.repository.UnitRepo;
 import springboot.backend.repository.UnitReservationRepo;
+import springboot.backend.service.EmailService;
 import springboot.backend.service.UnitService;
 
 // Uklonjeni import java.time.LocalDate;
@@ -38,6 +40,9 @@ public class UnitController {
     @Autowired
     private UnitService unitService;
 
+    @Autowired
+    private EmailService emailService;
+
     @GetMapping("/all")
     public List<Unit> getAllUnits() {
         return repo.findAll();
@@ -45,6 +50,13 @@ public class UnitController {
 
     @PostMapping("/add")
     public ResponseEntity<?> addUnit(@RequestBody Unit unit) {
+        if (unit.getPrice() != null && unit.getPrice() < 1) {
+            return ResponseEntity.badRequest().body("Price must be a positive number.");
+        }
+        if (unit.getCapAdults() != null && unit.getCapAdults() < 1) {
+            return ResponseEntity.badRequest().body("Cap of adults must be at least 1.");
+        }
+
         if (repo.findByUnitName(unit.getUnitName()).isPresent()) {
             return ResponseEntity.status(409).body("Unit already exists");
         }
@@ -83,23 +95,16 @@ public class UnitController {
     }
 
 
-    @DeleteMapping("/delete/{id}")
-    @Transactional // Osigurava da se cijela operacija brisanja (roditelj + djeca) izvrši u komadu
-    public ResponseEntity<?> deleteUnit(@PathVariable Long id) {
-        return repo.findById(id).map(unit -> {
-            // Zahvaljujući cascade = CascadeType.ALL u klasi Unit,
-            // brisanjem roditelja automatski se brišu sve sobe iz listOfRooms
-            repo.delete(unit);
-            return ResponseEntity.ok("Unit and all its sub-rooms deleted successfully");
-        }).orElse(ResponseEntity.notFound().build());
-    }
 
     @Transactional
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateUnit(@PathVariable Long id, @RequestBody Unit unitPayload) {
         try {
+            if (unitPayload.getPrice() != null && unitPayload.getPrice() < 1) {
+                return ResponseEntity.badRequest().body("Price can't be negative.");
+            }
             Unit existingUnit = repo.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Smještaj nije pronađen."));
+                    .orElseThrow(() -> new RuntimeException("Unit can't be found."));
 
             String[] ignoreProperties = {"idUnit", "listOfRooms", "parentUnit", "images", "unitReservations"};
             List<String> activeStatuses = Arrays.asList("Pending", "Confirmed");
@@ -186,10 +191,11 @@ public class UnitController {
         List<Unit> allUnits = repo.findAll();
 
         List<Unit> topRated = allUnits.stream()
-                .filter(u -> u.getParentUnit() == null) // Samo glavni objekti
+                .filter(u -> u.getParentUnit() == null)
                 .sorted((u1, u2) -> {
-                    Double r1 = u1.getAverageRating();
-                    Double r2 = u2.getAverageRating();
+                    // Sigurna provjera za null vrijednosti
+                    Double r1 = (u1.getAverageRating() != null) ? u1.getAverageRating() : 0.0;
+                    Double r2 = (u2.getAverageRating() != null) ? u2.getAverageRating() : 0.0;
                     return r2.compareTo(r1);
                 })
                 .limit(4)
@@ -199,64 +205,106 @@ public class UnitController {
     }
 
     @GetMapping("/counts-by-beds")
-    public ResponseEntity<java.util.Map<Integer, Long>> getCountsByBeds() {
+    public ResponseEntity<List<java.util.Map<String, Object>>> getCountsByBeds() {
         List<Unit> allUnits = repo.findAll();
-
-        java.util.Map<Integer, Long> counts = new java.util.HashMap<>();
+        List<java.util.Map<String, Object>> result = new ArrayList<>();
 
         for (int i = 1; i <= 5; i++) {
             final int bedThreshold = i;
 
-            long totalAvailableUnits = allUnits.stream()
-                    .filter(u -> u.getParentUnit() == null) // Uzimamo samo glavne zapise
+            // 1. Filtriramo jedinice koje imaju barem ovoliko kreveta
+            List<Unit> unitsWithBeds = allUnits.stream()
+                    .filter(u -> u.getParentUnit() == null)
                     .filter(u -> u.getNumBeds() != null && u.getNumBeds() >= bedThreshold)
-                    .mapToLong(u -> {
-                        // Ako je apartman, on je 1 jedinica
-                        // Ako je soba, uzimamo vrijednost numSameRooms (ako je null, stavljamo 1)
-                        if (u.isApartment()) {
-                            return 1L;
-                        } else {
-                            return (u.getNumSameRooms() != null && u.getNumSameRooms() > 0)
-                                    ? u.getNumSameRooms().longValue()
-                                    : 1L;
-                        }
-                    })
-                    .sum(); // Zbrajamo sve jedinice umjesto samo .count()
+                    .toList();
 
-            counts.put(i, totalAvailableUnits);
+            // 2. Računamo ukupan broj dostupnih jedinica
+            long totalCount = unitsWithBeds.stream().mapToLong(u -> {
+                if (u.isApartment()) return 1L;
+                return (u.getNumSameRooms() != null && u.getNumSameRooms() > 0) ? u.getNumSameRooms() : 1L;
+            }).sum();
+
+            // 3. Pronalazimo najbolje ocijenjenu jedinicu za sliku u ovoj kategoriji
+            String bestImageUrl = null;
+            Optional<Unit> bestUnit = unitsWithBeds.stream()
+                    .sorted((u1, u2) -> {
+                        Double r1 = (u1.getAverageRating() != null) ? u1.getAverageRating() : 0.0;
+                        Double r2 = (u2.getAverageRating() != null) ? u2.getAverageRating() : 0.0;
+                        return r2.compareTo(r1);
+                    })
+                    .findFirst();
+
+            if (bestUnit.isPresent()) {
+                bestImageUrl = bestUnit.get().getImages().stream()
+                        .filter(img -> img.getUrl().contains("/cover/"))
+                        .map(img -> img.getUrl())
+                        .findFirst()
+                        .orElse(bestUnit.get().getImages().isEmpty() ? null : bestUnit.get().getImages().get(0).getUrl());
+            }
+
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            map.put("beds", i);
+            map.put("count", totalCount);
+            map.put("image", bestImageUrl);
+            result.add(map);
         }
 
-        return ResponseEntity.ok(counts);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/counts-by-view")
-    public ResponseEntity<java.util.Map<String, Long>> getCountsByView() {
+    public ResponseEntity<List<java.util.Map<String, Object>>> getCountsByView() {
         List<Unit> allUnits = repo.findAll();
+        String API_URL = ""; // Možeš ostaviti prazno jer frontend dodaje base URL
 
-        java.util.Map<String, Long> counts = new java.util.HashMap<>();
-        counts.put("sea", 0L);
-        counts.put("village", 0L);
-        counts.put("lake", 0L);
+        String[] viewTypes = {"sea", "village", "lake"};
+        List<java.util.Map<String, Object>> result = new ArrayList<>();
 
-        for (Unit u : allUnits) {
-            // Ignoriramo pod-sobe generirane u bazi
-            if (u.getParentUnit() != null) continue;
+        for (String type : viewTypes) {
+            // Filtriramo sve glavne objekte koji imaju taj pogled
+            List<Unit> unitsWithView = allUnits.stream()
+                    .filter(u -> u.getParentUnit() == null)
+                    .filter(u -> {
+                        if (type.equals("sea")) return u.isSeaView();
+                        if (type.equals("village")) return u.isVillageView();
+                        if (type.equals("lake")) return u.isLakeView();
+                        return false;
+                    })
+                    .toList();
 
-            // Određivanje količine: ako je soba, uzmi numSameRooms
-            long amount = 1L;
-            if (!u.isApartment()) {
-                amount = (u.getNumSameRooms() != null && u.getNumSameRooms() > 0)
-                        ? u.getNumSameRooms().longValue()
-                        : 1L;
+            // Izračunavamo ukupni broj (uključujući numSameRooms)
+            long count = unitsWithView.stream().mapToLong(u -> {
+                if (u.isApartment()) return 1L;
+                return (u.getNumSameRooms() != null && u.getNumSameRooms() > 0) ? u.getNumSameRooms() : 1L;
+            }).sum();
+
+            // Pronalazimo najbolje ocijenjenog za sliku
+            String bestImageUrl = null;
+            Optional<Unit> bestUnit = unitsWithView.stream()
+                    .sorted((u1, u2) -> {
+                        Double r1 = (u1.getAverageRating() != null) ? u1.getAverageRating() : 0.0;
+                        Double r2 = (u2.getAverageRating() != null) ? u2.getAverageRating() : 0.0;
+                        return r2.compareTo(r1);
+                    })
+                    .findFirst();
+
+            if (bestUnit.isPresent()) {
+                // Tražimo sliku koja sadrži "/cover/"
+                bestImageUrl = bestUnit.get().getImages().stream()
+                        .filter(img -> img.getUrl().contains("/cover/"))
+                        .map(img -> img.getUrl())
+                        .findFirst()
+                        .orElse(bestUnit.get().getImages().isEmpty() ? null : bestUnit.get().getImages().get(0).getUrl());
             }
 
-            // Zbrajanje po pogledima
-            if (u.isSeaView()) counts.put("sea", counts.get("sea") + amount);
-            if (u.isVillageView()) counts.put("village", counts.get("village") + amount);
-            if (u.isLakeView()) counts.put("lake", counts.get("lake") + amount);
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            map.put("type", type);
+            map.put("count", count);
+            map.put("image", bestImageUrl);
+            result.add(map);
         }
 
-        return ResponseEntity.ok(counts);
+        return ResponseEntity.ok(result);
     }
 
 

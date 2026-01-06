@@ -69,6 +69,11 @@ const List = () => {
     // 1. Ako je korisnik došao preko glavne tražilice (ima odabrane datume)
     if (location.state?.date) return location.state.date;
 
+    // NOVO: Ako dolazimo preko "Featured" pogleda (Sea/Lake/Village), ne stavljamo datume
+    if (location.state?.seaView || location.state?.lakeView || location.state?.villageView) {
+        return [{ startDate: null, endDate: null, key: "selection" }];
+    }
+
     // 2. Ako postoji spremljena pretraga u sesiji
     if (savedSearch?.dates) return savedSearch.dates;
 
@@ -84,7 +89,10 @@ const List = () => {
   });
 
   // --- LOGIKA ZA IZRAČUN NOĆENJA ---
-  const nightCount = differenceInCalendarDays(dates[0].endDate, dates[0].startDate);
+  // Dodana provjera postojanja datuma prije računanja
+  const nightCount = (dates[0].startDate && dates[0].endDate) 
+    ? differenceInCalendarDays(dates[0].endDate, dates[0].startDate) 
+    : 0;
 
   // 3. SPREMANJE U SESSION STORAGE
   useEffect(() => {
@@ -108,7 +116,7 @@ const List = () => {
       dates 
     };
     sessionStorage.setItem("lastSearch", JSON.stringify(searchData));
-  }, [destination, adults, children, room, beds, isApartment, hasParking, hasWifi, hasBreakfast, hasAirConditioning, hasTowels, hasShampoo, hasHairDryer, hasHeater, minPrice, maxPrice, dates]);
+  }, [destination, adults, children, room, beds, isApartment, seaView, lakeView, villageView, hasParking, hasWifi, hasBreakfast, hasAirConditioning, hasTowels, hasShampoo, hasHairDryer, hasHeater, minPrice, maxPrice, dates]);
 
   const handleBack = () => {
     navigate("/main");
@@ -124,16 +132,18 @@ const List = () => {
   };
 
   const handleSearch = async () => {
-    // --- VALIDACIJA: Sprječavanje pretrage ako je 0 noćenja ---
-    if (nightCount <= 0) {
+    // --- VALIDACIJA: Sprječavanje pretrage ako je 0 noćenja (ali samo ako su datumi uneseni) ---
+    if (dates[0].startDate && dates[0].endDate && nightCount <= 0) {
       alert("Please select at least one night. Departure date must be after arrival date.");
       return;
     }
 
     setLoading(true);
     try {
-      const startDateStr = format(dates[0].startDate, "yyyy-MM-dd");
-      const endDateStr = format(dates[0].endDate, "yyyy-MM-dd");
+      // Formatiramo datume samo ako nisu null
+      const startDateStr = dates[0].startDate ? format(dates[0].startDate, "yyyy-MM-dd") : null;
+      const endDateStr = dates[0].endDate ? format(dates[0].endDate, "yyyy-MM-dd") : null;
+      
       const parsedMinPrice = minPrice ? parseFloat(minPrice) : null;
       const parsedMaxPrice = maxPrice ? parseFloat(maxPrice) : null;
       
@@ -173,10 +183,8 @@ const List = () => {
   };
 
   useEffect(() => {
-    // Pokreni pretragu samo ako imamo barem jednu noć
-    if (nightCount > 0) {
-      handleSearch();
-    }
+    // Pokreni pretragu čak i ako su datumi null (Explorer mode)
+    handleSearch();
   }, []);
 
   const handleViewChange = (viewName) => {
@@ -239,21 +247,23 @@ const List = () => {
             <div className="lsitem">
               <label>Check-in Date</label>
               <span onClick={() => setOpenDate(!openDate)} className="lsDateDisplay" style={{backgroundColor:"white", padding:"8px", cursor:"pointer", borderRadius:"3px"}}>
-                {`${format(dates[0].startDate, "dd/MM/yyyy")} to ${format(dates[0].endDate, "dd/MM/yyyy")}`}
+                {dates[0].startDate && dates[0].endDate 
+                  ? `${format(dates[0].startDate, "dd/MM/yyyy")} to ${format(dates[0].endDate, "dd/MM/yyyy")}`
+                  : "Select Dates (Optional)"}
               </span>
               
               {/* Vizualni indikator broja noćenja */}
-              <div style={{ textAlign: "center", fontSize: "12px", marginTop: "5px", color: nightCount <= 0 ? "red" : "#0071c2", fontWeight: "bold" }}>
-                 {nightCount > 0 
-                   ? `Selected: ${nightCount} night(s)` 
-                   : "Departure must be at least 1 day after arrival"}
+              <div style={{ textAlign: "center", fontSize: "12px", marginTop: "5px", color: (dates[0].startDate && nightCount <= 0) ? "red" : "#0071c2", fontWeight: "bold" }}>
+                 {dates[0].startDate 
+                   ? (nightCount > 0 ? `Selected: ${nightCount} night(s)` : "Departure must be at least 1 day after arrival") 
+                   : "Explore all units"}
               </div>
 
               {openDate && (
                 <DateRange
                   onChange={(item) => setDates([item.selection])}
                   minDate={new Date()}
-                  ranges={dates}
+                  ranges={dates[0].startDate ? dates : [{ startDate: new Date(), endDate: addDays(new Date(), 1), key: "selection" }]}
                 />
               )}
             </div>
@@ -411,8 +421,7 @@ const List = () => {
 
             <button 
               onClick={handleSearch}
-              disabled={nightCount <= 0}
-              style={{ opacity: nightCount <= 0 ? 0.6 : 1, cursor: nightCount <= 0 ? "not-allowed" : "pointer" }}
+              disabled={loading}
             >
               Search
             </button>

@@ -206,7 +206,7 @@ const unitPhotos = unit?.images
           </div>
         </div>
         <Maillist />
-        <Footer />
+
       </div>
     </div>
   );

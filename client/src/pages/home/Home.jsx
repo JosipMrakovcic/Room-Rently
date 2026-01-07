@@ -22,7 +22,6 @@ const Home = () => {
         <h1 className="hometitle">Apartments guests love</h1>
         <Featuredproperties></Featuredproperties>
         <Maillist></Maillist>
-        <Footer></Footer>
       </div>
     </div>
   );

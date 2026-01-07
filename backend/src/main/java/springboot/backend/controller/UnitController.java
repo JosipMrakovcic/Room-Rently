@@ -115,6 +115,7 @@ public class UnitController {
             if (!existingUnit.isApartment() && existingUnit.getNumSameRooms() != null) {
                 List<Unit> currentRooms = existingUnit.getListOfRooms();
                 int targetCount = existingUnit.getNumSameRooms();
+                int numOfSameRooms = currentRooms.size();
 
                 // A. BRISANJE
                 if (targetCount < currentRooms.size()) {
@@ -134,9 +135,12 @@ public class UnitController {
                     if (!busyRooms.isEmpty()) {
                         // Ako nismo mogli obrisati sve, ažuriramo barem ono što je ostalo
                         syncSubRoomsAndSort(existingUnit, ignoreProperties);
+                        int numOfRooms= existingUnit.getNumSameRooms();
                         existingUnit.setNumSameRooms(currentRooms.size());
                         repo.save(existingUnit);
-                        return ResponseEntity.badRequest().body("Neke sobe nisu obrisane jer imaju aktivne rezervacije rezervacija.");
+                        return ResponseEntity.badRequest().body(
+                               "Some rooms have active reservations. You cannot reduce the number of rooms below " + currentRooms.size() + "."
+                        );
                     }
                 }
 

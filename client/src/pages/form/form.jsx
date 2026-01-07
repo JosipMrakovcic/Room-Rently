@@ -224,6 +224,12 @@ const ApartmentForm = () => {
         body: JSON.stringify(unitPayload),
       });
 
+      if (!response.ok) {
+        const errorMessage = await response.text(); // Čita tekst koji smo poslali iz Jave
+        alert(errorMessage);
+        return; // Prekida daljnje izvođenje funkcije
+      }
+
       if (response.ok) {
         const savedUnit = await response.json();
         const unitId = id || savedUnit.idUnit;

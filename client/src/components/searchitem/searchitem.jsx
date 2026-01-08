@@ -87,7 +87,7 @@ const getCoverImage = () => {
         <span className="siLocation">📍 {globalAddress}</span>
         
         <span className="siSubtitle">
-          {unit.isApartment ? "Entire Apartment" : "Private Room"} • {unit.numRooms} {unit.numRooms === 1 ? "Bedroom" : "Bedrooms"}
+          {unit.isApartment ? "Entire Apartment" : "Private Room"} • {unit.numRooms} {unit.numRooms === 1 ? "Bedroom" : "Bedrooms"} • {unit.numBeds} {unit.numBeds === 1 ? "Bed" : "Beds"}
         </span>
         
         <span className="siFeaturesText">

@@ -155,6 +155,7 @@ const unitPhotos = unit?.images
                   <li>🚪 {unit.numRooms} {unit.numRooms === 1 ? "Room" : "Rooms"}</li>
                   <li>👥 {unit.capAdults} {unit.capAdults === 1 ? "Adult" : "Adults"}</li>
                   <li>🧒 {unit.capChildren} {unit.capChildren === 1 ? "Child" : "Children"}</li>
+                  <li>🛏️ {unit.numBeds} {unit.numBeds === 1 ? "Bed" : "Beds"}</li>
                 </ul>
               </div>
 

@@ -54,7 +54,7 @@ const UserReservations = () => {
       setConfirmedCancel(cancelModal);
       setCancelModal(null);
     } catch (err) {
-      alert("Greška pri otkazivanju rezervacije.");
+      alert("Error cancelling the reservation.");
     }
   };
 
@@ -94,7 +94,7 @@ const UserReservations = () => {
     return !isAfter(now, deadline); // Vraća true ako "sada" nije nakon "deadlinea"
   };
 
-  if (loading) return <div className="loading">Učitavanje...</div>;
+  if (loading) return <div className="loading">Loading...</div>;
 
   return (
     <div className="userReservationsPage">

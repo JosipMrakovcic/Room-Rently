@@ -32,8 +32,8 @@ const Featuredproperties = () => {
     fetchData();
   }, [API_URL]);
 
-  if (loading) return <div className="fp">Učitavanje najboljih smještaja...</div>;
-  if (units.length === 0) return <div className="fp">Trenutno nema dostupnih ocjena.</div>;
+  if (loading) return <div className="fp">Loading top-rated properties...</div>;
+  if (units.length === 0) return <div className="fp">No ratings available at the moment.</div>;
 
   return (
     <div className="fp">
@@ -70,11 +70,11 @@ const Featuredproperties = () => {
               📍 {globalAddress || unit.location || unit.address || "Croatia"}
             </span>
 
-            <span className="fpprice">Već od {unit.price}€</span>
+            <span className="fpprice">From {unit.price}€</span>
             
             <div className="fprating">
               <button>{unit.rating ? unit.rating.toFixed(1) : "NEW"}</button>
-              <span>{unit.rating >= 9.5 ? "Izvrsno" : "Odlično"}</span>
+              <span>{unit.rating >= 9.5 ? "Excellent" : "Very Good"}</span>
             </div>
           </div>
         );

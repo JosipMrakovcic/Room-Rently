@@ -11,8 +11,7 @@ const Navbar = () => {
     const savedUser = localStorage.getItem("googleUser");
     return savedUser ? JSON.parse(savedUser) : null;
   });
-
-  // --- NOVO: State za državu ---
+  //State za državu
   const [showCountryModal, setShowCountryModal] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("");
   const countries = ["Croatia", "Germany", "Austria", "Slovenia", "Italy", "Other"];
@@ -33,7 +32,7 @@ const Navbar = () => {
           setUser(finalUser);
           localStorage.setItem("googleUser", JSON.stringify(finalUser));
 
-          // PROVJERA: Ako u bazi nema države, prikaži modal
+          //Ako u bazi nema države, prikaži modal
           if (!verifiedUser.country) {
             setShowCountryModal(true);
           }
@@ -46,7 +45,7 @@ const Navbar = () => {
     verifyUser();
   }, []);
 
-  // --- NOVO: Funkcija za spremanje države ---
+  //Funkcija za spremanje države
   const handleSaveCountry = async () => {
     if (!selectedCountry) return;
     try {
@@ -57,7 +56,7 @@ const Navbar = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      // Osvježi lokalne podatke i zatvori modal
+      //Osvježi lokalne podatke i zatvori modal
       const updatedUser = { ...user, country: selectedCountry };
       setUser(updatedUser);
       localStorage.setItem("googleUser", JSON.stringify(updatedUser));
@@ -65,7 +64,7 @@ const Navbar = () => {
       window.location.reload(); 
     } catch (err) {
       console.error("Error updating country", err);
-      alert("Greška pri spremanju države.");
+      alert("Error while saving country.");
     }
   };
 
@@ -166,18 +165,18 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* --- NOVO: Modal za odabir države (prikazuje se samo ako country fali) --- */}
+      {/*Modal za odabir države (prikazuje se samo ako country fali) */}
       {showCountryModal && (
         <div className="country-modal-overlay">
           <div className="country-modal">
-            <h3>Dobro došli! 👋</h3>
-            <p>Molimo odaberite svoju državu kako biste nastavili:</p>
+            <h3>Welcome! 👋</h3>
+            <p>Please select your country to continue:</p>
             <select 
               value={selectedCountry} 
               onChange={(e) => setSelectedCountry(e.target.value)}
               className="country-select"
             >
-              <option value="">-- Odaberi državu --</option>
+              <option value="">-- Select Country --</option>
               {countries.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
             <button 
@@ -185,7 +184,7 @@ const Navbar = () => {
               disabled={!selectedCountry}
               className="save-country-btn"
             >
-              Potvrdi
+              Confirm
             </button>
           </div>
         </div>

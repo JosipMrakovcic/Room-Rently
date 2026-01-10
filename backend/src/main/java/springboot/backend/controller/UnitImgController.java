@@ -54,12 +54,12 @@ public class UnitImgController {
             @RequestParam("isCover") boolean isCover) {
 
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("Datoteka je prazna.");
+            return ResponseEntity.badRequest().body("File is empty.");
         }
 
         try {
             Unit unit = unitRepo.findById(unitId)
-                    .orElseThrow(() -> new RuntimeException("Unit nije pronađen s ID: " + unitId));
+                    .orElseThrow(() -> new RuntimeException("Unit not found with ID: " + unitId));
 
             // Određivanje foldera na temelju isCover (i === 0 iz Reacta)
             String subFolder = isCover ? "cover/" : "other/";
@@ -84,7 +84,7 @@ public class UnitImgController {
             return ResponseEntity.ok(saved);
 
         } catch (IOException e) {
-            return ResponseEntity.status(500).body("Greška pri pisanju na disk: " + e.getMessage());
+            return ResponseEntity.status(500).body("Error writing to disk:" + e.getMessage());
         }
     }
 
@@ -93,7 +93,7 @@ public class UnitImgController {
     public ResponseEntity<?> deleteImage(@PathVariable Long id) {
         try {
             UnitImg img = repo.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Slika nije pronađena s ID: " + id));
+                    .orElseThrow(() -> new RuntimeException("Image not found with ID: " + id));
 
             String dbPath = img.getUrl();
             if (dbPath.startsWith("/")) {
@@ -103,20 +103,20 @@ public class UnitImgController {
             // Koristi user.dir da osiguraš točnu lokaciju na disku
             Path filePath = Paths.get(System.getProperty("user.dir")).resolve(dbPath);
 
-            System.out.println("Pokušavam obrisati datoteku: " + filePath);
+            System.out.println("Trying to delete image: " + filePath);
 
             if (Files.exists(filePath)) {
                 Files.delete(filePath);
-                System.out.println("Datoteka obrisana s diska.");
+                System.out.println("Image deleted successfully.");
             }
 
             repo.delete(img);
-            System.out.println("Zapis obrisan iz baze.");
+            System.out.println("Deleted from base.");
 
-            return ResponseEntity.ok("Slika uspješno obrisana.");
+            return ResponseEntity.ok("Image successfully deleted.");
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body("Greška pri brisanju: " + e.getMessage());
+            return ResponseEntity.status(500).body("Erorr while deleting: " + e.getMessage());
         }
     }
 
@@ -145,7 +145,7 @@ public class UnitImgController {
     public ResponseEntity<?> updateImageStatus(@PathVariable Long imgId, @RequestParam boolean isCover) {
         try {
             UnitImg img = repo.findById(imgId)
-                    .orElseThrow(() -> new RuntimeException("Slika nije pronađena."));
+                    .orElseThrow(() -> new RuntimeException("Image not found."));
 
             String currentUrl = img.getUrl();
             // Definiramo gdje slika TREBA biti
@@ -154,7 +154,7 @@ public class UnitImgController {
 
             // Ako je slika već u ispravnom folderu, samo potvrdi i izađi
             if (currentUrl.contains(expectedPathPart)) {
-                return ResponseEntity.ok("Status je već ispravan.");
+                return ResponseEntity.ok("Status already valid.");
             }
 
             // 1. Priprema putanja
@@ -181,15 +181,15 @@ public class UnitImgController {
                 img.setUrl("/" + newFolderRelative + fileName);
                 repo.save(img);
 
-                return ResponseEntity.ok("Slika uspješno premještena u " + targetSubFolder);
+                return ResponseEntity.ok("Image sucessfully transfered to:  " + targetSubFolder);
             } else {
                 // Ako datoteke nema, možda je već netko ručno obrisao ili premjestio
-                return ResponseEntity.status(404).body("Datoteka nije pronađena na disku: " + source.toString());
+                return ResponseEntity.status(404).body("File not found on disc: " + source.toString());
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body("Greška pri ažuriranju statusa slike: " + e.getMessage());
+            return ResponseEntity.status(500).body("Error while updating image on disc:  " + e.getMessage());
         }
     }
 
@@ -200,7 +200,7 @@ public class UnitImgController {
 
         // 1. Pronađi Unit (glavni objekt)
         Unit unit = unitRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Unit nije pronađen s ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Unit not found with ID: " + id));
 
         try {
             // --- NOVO: LOGIKA ZA REZERVACIJE I EMAIL ---
@@ -247,7 +247,7 @@ public class UnitImgController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body("Kritična greška pri brisanju: " + e.getMessage());
+            return ResponseEntity.status(500).body("Critical error while deleting: " + e.getMessage());
         }
     }
 

@@ -101,15 +101,15 @@ const AdminDashboard = () => {
       });
 
       if (response.ok) {
-        alert("Adresa uspješno ažurirana u bazi!");
+        alert("Address successfully updated in the database!");
       } else if (response.status === 401) {
-        alert("Greška 401: Niste autorizirani. Ponovno se prijavite.");
+        alert("Error 401: You are not authorized. Please log in again.");
       } else {
-        alert("Neuspješno spremanje adrese.");
+        alert("Failed to save the address.");
       }
     } catch (err) {
       console.error("Error saving location:", err);
-      alert("Greška na serveru.");
+      alert("Server error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -256,19 +256,19 @@ const AdminDashboard = () => {
               border: '1px solid #ddd'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ margin: 0 }}>📍 Globalna Lokacija Objekta</h3>
+                <h3 style={{ margin: 0 }}>📍 Global Property Location</h3>
                 <button 
                    onClick={() => setShowMap(!showMap)}
                    style={{ background: '#eee', border: '1px solid #ccc', cursor: 'pointer', padding: '5px 10px', borderRadius: '4px' }}
                 >
-                  {showMap ? "Sakrij mapu" : "Prikaži mapu"}
+                  {showMap ? "Hide Map" : "Show Map"}
                 </button>
               </div>
               
               <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
                 <input
                   type="text"
-                  placeholder="Unesite adresu (npr. Ilica 1, Zagreb)"
+                  placeholder="Enter address (e.g., Ilica 1, Zagreb)"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   style={{
@@ -290,7 +290,7 @@ const AdminDashboard = () => {
                     cursor: 'pointer'
                   }}
                 >
-                  {isLoading ? "Spremanje..." : "Ažuriraj Adresu"}
+                  {isLoading ? "Saving..." : "Update Address"}
                 </button>
               </div>
 

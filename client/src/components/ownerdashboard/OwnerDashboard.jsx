@@ -335,54 +335,234 @@ export default function OwnerDashboard() {
   };
 
   const exportReservationsXLSX = () => {
-    const ws = XLSX.utils.json_to_sheet(
-      filteredReservations.map((r) => ({
-        Guest: r.person?.name,
-        Country: r.person?.country || "N/A",
-        Unit: r.unit?.unitName,
-        From: r.startDate,
-        To: r.endDate,
-        Status: r.status,
-        Rating: r.rating || "N/A"
-      }))
-    );
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Reservations");
-    XLSX.writeFile(wb, `reservations_${getReportTitle().replace(" ", "_")}.xlsx`);
-  };
+  const ws = XLSX.utils.json_to_sheet(
+    filteredReservations.map((r) => ({
+      ReservationID: r.idUnitReservation,
+      GuestName: r.person?.name || "",
+      GuestCountry: r.person?.country || "",
+      UnitName: r.unit?.unitName || "",
+      StartDate: r.startDate,
+      EndDate: r.endDate,
+      Status: r.status,
+      Rating: r.rating || "",
+      Adults: r.adults || 0,
+      Children: r.children || 0,
+      TotalGuests: (r.adults || 0) + (r.children || 0),
+      Amenities: Array.isArray(r.selectedAmenities || r.amenities)
+        ? (r.selectedAmenities || r.amenities).join(", ")
+        : (r.selectedAmenities || r.amenities || "")
+    }))
+  );
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Reservations");
+  XLSX.writeFile(wb, `reservations_${getReportTitle().replace(" ", "_")}.xlsx`);
+};
+
 
   const exportReservationsXML = () => {
-    const data = filteredReservations.map((r) => ({
-        Guest: r.person?.name,
-        Country: r.person?.country || "N/A",
-        Unit: r.unit?.unitName,
-        From: r.startDate,
-        To: r.endDate,
-        Status: r.status,
-        Rating: r.rating || "N/A"
-    }));
-    downloadXML(data, `reservations_${getReportTitle().replace(" ", "_")}.xml`);
-  };
+  const data = filteredReservations.map((r) => ({
+    ReservationID: r.idUnitReservation,
+    GuestName: r.person?.name || "",
+    GuestCountry: r.person?.country || "",
+    UnitName: r.unit?.unitName || "",
+    StartDate: r.startDate,
+    EndDate: r.endDate,
+    Status: r.status,
+    Rating: r.rating || "",
+    Adults: r.adults || 0,
+    Children: r.children || 0,
+    TotalGuests: (r.adults || 0) + (r.children || 0),
+    Amenities: Array.isArray(r.selectedAmenities || r.amenities)
+      ? (r.selectedAmenities || r.amenities).join(", ")
+      : (r.selectedAmenities || r.amenities || "")
+  }));
+
+  downloadXML(data, `reservations_${getReportTitle().replace(" ", "_")}.xml`);
+};
 
   const exportStatsXLSX = () => {
-    const wb = XLSX.utils.book_new();
-    const monthlyWS = XLSX.utils.json_to_sheet(monthlyStats.labels.map((l, i) => ({ 
-        Year: selectedYear,
-        Month: l, 
-        Guests: monthlyStats.data[i] 
-    })));
-    XLSX.utils.book_append_sheet(wb, monthlyWS, `Stats ${selectedYear}`);
-    XLSX.writeFile(wb, `analytics_${selectedYear}.xlsx`);
-  };
+  const wb = XLSX.utils.book_new();
+
+  // ===== MONTHLY STATS =====
+  const monthlyRows = MONTHS.map((monthName, i) => {
+    const monthReservations = reservations.filter(r => {
+      const d = new Date(r.startDate);
+      return (
+        d.getFullYear() === selectedYear &&
+        d.getMonth() === i &&
+        VALID_STATS_STATUSES.includes(r.status)
+      );
+    });
+
+    const totalGuests = monthReservations.reduce(
+      (sum, r) => sum + (r.adults || 0) + (r.children || 0),
+      0
+    );
+
+    return {
+      Year: selectedYear,
+      Month: monthName,
+      MonthIndex: i + 1,
+      TotalGuests: totalGuests,
+      TotalReservations: monthReservations.length,
+      CompletedReservations: monthReservations.filter(r => r.status === "Completed").length,
+      ConfirmedReservations: monthReservations.filter(r => r.status === "Confirmed").length,
+      PendingReservations: monthReservations.filter(r => r.status === "Pending").length,
+      AvgGuestsPerReservation:
+        monthReservations.length > 0
+          ? (totalGuests / monthReservations.length).toFixed(2)
+          : 0
+    };
+  });
+
+  const monthlyWS = XLSX.utils.json_to_sheet(monthlyRows);
+  XLSX.utils.book_append_sheet(wb, monthlyWS, `MonthlyStatistics_${selectedYear}`);
+
+  // ===== COUNTRY STATS =====
+  const countryMap = {};
+
+  reservations.forEach(r => {
+    if (!VALID_STATS_STATUSES.includes(r.status)) return;
+
+    const country = r.person?.country || "Unknown";
+    const guests = (r.adults || 0) + (r.children || 0);
+
+    if (!countryMap[country]) {
+      countryMap[country] = {
+        Country: country,
+        TotalGuests: 0,
+        TotalReservations: 0,
+        CompletedReservations: 0,
+        ConfirmedReservations: 0,
+        PendingReservations: 0
+      };
+    }
+
+    countryMap[country].TotalGuests += guests;
+    countryMap[country].TotalReservations += 1;
+    if (r.status === "Completed") countryMap[country].CompletedReservations += 1;
+    if (r.status === "Confirmed") countryMap[country].ConfirmedReservations += 1;
+    if (r.status === "Pending") countryMap[country].PendingReservations += 1;
+  });
+
+  const countryRows = Object.values(countryMap).map(c => ({
+    ...c,
+    AvgGuestsPerReservation:
+      c.TotalReservations > 0
+        ? (c.TotalGuests / c.TotalReservations).toFixed(2)
+        : 0
+  }));
+
+  const countryWS = XLSX.utils.json_to_sheet(countryRows);
+  XLSX.utils.book_append_sheet(wb, countryWS, `CountryStatistics_${selectedYear}`);
+
+  XLSX.writeFile(wb, `analytics_${selectedYear}.xlsx`);
+};
+
+
 
   const exportStatsXML = () => {
-    const data = monthlyStats.labels.map((l, i) => ({ 
-        Year: selectedYear,
-        Month: l, 
-        Guests: monthlyStats.data[i] 
-    }));
-    downloadXML(data, `analytics_${selectedYear}.xml`);
-  };
+  // ===== MONTHLY STATS =====
+  const monthlyStats = MONTHS.map((monthName, i) => {
+    const monthReservations = reservations.filter(r => {
+      const d = new Date(r.startDate);
+      return (
+        d.getFullYear() === selectedYear &&
+        d.getMonth() === i &&
+        VALID_STATS_STATUSES.includes(r.status)
+      );
+    });
+
+    const totalGuests = monthReservations.reduce(
+      (sum, r) => sum + (r.adults || 0) + (r.children || 0),
+      0
+    );
+
+    return {
+      Year: selectedYear,
+      Month: monthName,
+      MonthIndex: i + 1,
+      TotalGuests: totalGuests,
+      TotalReservations: monthReservations.length,
+      CompletedReservations: monthReservations.filter(r => r.status === "Completed").length,
+      ConfirmedReservations: monthReservations.filter(r => r.status === "Confirmed").length,
+      PendingReservations: monthReservations.filter(r => r.status === "Pending").length,
+      AvgGuestsPerReservation:
+        monthReservations.length > 0
+          ? (totalGuests / monthReservations.length).toFixed(2)
+          : 0
+    };
+  });
+
+  // ===== COUNTRY STATS =====
+  const countryMap = {};
+
+  reservations.forEach(r => {
+    if (!VALID_STATS_STATUSES.includes(r.status)) return;
+
+    const country = r.person?.country || "Unknown";
+    const guests = (r.adults || 0) + (r.children || 0);
+
+    if (!countryMap[country]) {
+      countryMap[country] = {
+        Country: country,
+        TotalGuests: 0,
+        TotalReservations: 0,
+        CompletedReservations: 0,
+        ConfirmedReservations: 0,
+        PendingReservations: 0
+      };
+    }
+
+    countryMap[country].TotalGuests += guests;
+    countryMap[country].TotalReservations += 1;
+    if (r.status === "Completed") countryMap[country].CompletedReservations += 1;
+    if (r.status === "Confirmed") countryMap[country].ConfirmedReservations += 1;
+    if (r.status === "Pending") countryMap[country].PendingReservations += 1;
+  });
+
+  const countryStats = Object.values(countryMap).map(c => ({
+    ...c,
+    AvgGuestsPerReservation:
+      c.TotalReservations > 0
+        ? (c.TotalGuests / c.TotalReservations).toFixed(2)
+        : 0
+  }));
+
+  // ===== COMBINED XML =====
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<root>\n`;
+
+  xml += `  <monthlyStats>\n`;
+  monthlyStats.forEach(item => {
+    xml += `    <item>\n`;
+    Object.entries(item).forEach(([k, v]) => {
+      xml += `      <${k}>${v}</${k}>\n`;
+    });
+    xml += `    </item>\n`;
+  });
+  xml += `  </monthlyStats>\n`;
+
+  xml += `  <countryStats>\n`;
+  countryStats.forEach(item => {
+    xml += `    <item>\n`;
+    Object.entries(item).forEach(([k, v]) => {
+      xml += `      <${k}>${v}</${k}>\n`;
+    });
+    xml += `    </item>\n`;
+  });
+  xml += `  </countryStats>\n`;
+
+  xml += `</root>`;
+
+  const blob = new Blob([xml], { type: "application/xml" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `analytics_${selectedYear}.xml`;
+  link.click();
+};
+
+
 
   // NADOPUNJENO: Gumb Complete je disabled i prozirniji ako gost nije prenoćio
   const renderActionButtons = (r) => {

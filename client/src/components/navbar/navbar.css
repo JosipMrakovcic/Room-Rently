@@ -133,4 +133,155 @@
 
 .save-country-btn:disabled {
   background: #ccc;
+}/* --- Postojeći stilovi uz male preinake --- */
+.navbar {
+  min-height: 60px; /* Promijenjeno iz height u min-height */
+  height: auto; 
+  background: linear-gradient(90deg, #0077ff, #00c6ff);
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 10px 0; /* Dodan padding za vertikalni prostor na mobitelu */
+}
+
+.navContainer {
+  width: 100%;
+  max-width: 1100px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex-wrap: wrap; /* Omogućuje elementima da odu u novi red ako nema mjesta */
+}
+
+.logo {
+  font-weight: 600;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: transform 0.3s ease, color 0.3s ease;
+  white-space: nowrap;
+}
+
+.navItems {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navUserActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap; /* Ključno za mobitele */
+  justify-content: flex-end;
+}
+
+.navProfileImg {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  object-fit: cover;
+}
+
+.userName {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.navButton {
+  border: none;
+  padding: 6px 12px; /* Malo smanjen padding */
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #0077ff;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+  font-size: 13px; /* Malo manji font za bolji fit */
+  white-space: nowrap; /* Sprečava pucanje teksta u gumbu */
+}
+
+.navButton:hover {
+  background-color: #e0f7ff;
+  transform: translateY(-1px);
+}
+
+.logoutBtn {
+  background-color: #ff4757;
+  color: white;
+}
+
+/* --- RESPONZIVNOST (Media Queries) --- */
+
+@media (max-width: 768px) {
+  .navContainer {
+    flex-direction: column; /* Stavlja logo iznad gumba na jako malim ekranima */
+    gap: 15px;
+  }
+
+  .navUserActions {
+    justify-content: center; /* Centriranje gumba na mobitelu */
+    gap: 8px;
+  }
+
+  .userName {
+    display: none; /* Sakrivamo ime na mobitelu da uštedimo prostor (ostaje slika) */
+  }
+
+  .navButton {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navUserActions {
+    display: grid; /* Na najmanjim ekranima gumbi idu u 2 stupca */
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .navProfileImg {
+    grid-column: span 2; /* Slika na vrhu */
+    margin: 0 auto;
+  }
+
+  .navButton {
+    width: 100%; /* Gumbi se rastežu */
+    text-align: center;
+  }
+}
+
+/* --- Modal stilovi (ostaju isti) --- */
+.country-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.country-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+  width: 100%;
+  max-width: 350px;
 }

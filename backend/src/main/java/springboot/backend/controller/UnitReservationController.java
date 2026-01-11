@@ -25,7 +25,6 @@ import java.io.IOException;
 import springboot.backend.service.EmailService;
 
 @RestController
-@CrossOrigin(origins = "${frontend.url}")
 @RequestMapping("/unitReservation")
 public class UnitReservationController {
 

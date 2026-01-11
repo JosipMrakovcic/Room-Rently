@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 const Propertylist = () => {
   const navigate = useNavigate();
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+  const API_URL = process.env.REACT_APP_API_URL;
   const [bedData, setBedData] = useState([]);
 
   useEffect(() => {
@@ -47,8 +47,10 @@ const Propertylist = () => {
     <div className="pList">
       {bedCategories.map((item) => {
         const data = getDataForBeds(item.beds);
-        // Ako backend vrati sliku, koristi nju, inače koristi tvoju defaultnu
-        const displayImg = data.image ? `${API_URL}${data.image}` : item.defaultImg;
+        // Provjeravamo je li slika s backenda (S3/Supabase) potpuni URL ili relativna putanja
+        const displayImg = data.image 
+          ? (data.image.startsWith("http") ? data.image : `${API_URL}${data.image}`) 
+          : item.defaultImg;
 
         return (
           <div 

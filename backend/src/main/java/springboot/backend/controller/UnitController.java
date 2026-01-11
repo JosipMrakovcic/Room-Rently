@@ -259,7 +259,6 @@ public class UnitController {
     @GetMapping("/counts-by-view")
     public ResponseEntity<List<java.util.Map<String, Object>>> getCountsByView() {
         List<Unit> allUnits = repo.findAll();
-        String API_URL = ""; // Možeš ostaviti prazno jer frontend dodaje base URL
 
         String[] viewTypes = {"sea", "village", "lake"};
         List<java.util.Map<String, Object>> result = new ArrayList<>();

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 const Featured = () => {
   const navigate = useNavigate();
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+  const API_URL = process.env.REACT_APP_API_URL;
   const [viewData, setViewData] = useState([]);
 
   useEffect(() => {
@@ -45,7 +45,10 @@ const Featured = () => {
     <div className="featured">
       {categories.map((cat) => {
         const data = getDataFor(cat.id);
-        const displayImg = data.image ? `${API_URL}${data.image}` : cat.defaultImg;
+        // Provjeravamo počinje li data.image s "http" (S3 link) ili je relativna putanja
+        const displayImg = data.image 
+          ? (data.image.startsWith("http") ? data.image : `${API_URL}${data.image}`) 
+          : cat.defaultImg;
 
         return (
           <div key={cat.id} className="featureditem" onClick={() => handleViewSearch(cat.id)}>

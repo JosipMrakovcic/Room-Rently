@@ -90,13 +90,13 @@ const ApartmentForm = () => {
 
           if (data.images && data.images.length > 0) {
             const existingImages = data.images.map((img, idx) => {
-              // Ako URL sadrži /cover/, taj index postavljamo kao aktivni coverIndex
               if (img.url.includes("/cover/")) {
                 setCoverIndex(idx);
               }
               return {
                 file: null,
-                url: `${process.env.REACT_APP_API_URL}${img.url}`,
+                // PROMJENA: Provjeravamo je li URL već potpun (Cloud) ili relativan (Stari lokalni)
+                url: img.url.startsWith("http") ? img.url : `${process.env.REACT_APP_API_URL}${img.url}`,
                 id: img.id
               };
             });
@@ -225,9 +225,9 @@ const ApartmentForm = () => {
       });
 
       if (!response.ok) {
-        const errorMessage = await response.text(); // Čita tekst koji smo poslali iz Jave
+        const errorMessage = await response.text(); 
         alert(errorMessage);
-        return; // Prekida daljnje izvođenje funkcije
+        return; 
       }
 
       if (response.ok) {
@@ -250,6 +250,7 @@ const ApartmentForm = () => {
             imageFormData.append("isCover", isCover);
             await fetch(`${process.env.REACT_APP_API_URL}/unitImg/upload/${unitId}`, { method: "POST", body: imageFormData });
           } else if (imageObj.id) {
+            // PROMJENA: Prosljeđujemo isCover kao query parametar jer Java kontroler koristi @RequestParam
             await fetch(`${process.env.REACT_APP_API_URL}/unitImg/update-status/${imageObj.id}?isCover=${isCover}`, { method: "PUT" });
           }
         }
@@ -347,7 +348,7 @@ const ApartmentForm = () => {
                 <img 
                   src={img.url} 
                   alt={`Image ${index}`} 
-                  onClick={() => handleSetCover(index)} // Samo postavlja index kao cover
+                  onClick={() => handleSetCover(index)} 
                   style={{ 
                     cursor: "pointer", 
                     border: index === coverIndex ? "3px solid #007bff" : "1px solid #ddd" 

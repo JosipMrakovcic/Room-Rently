@@ -8,7 +8,7 @@ const Featuredproperties = () => {
   const [units, setUnits] = useState([]);
   const [globalAddress, setGlobalAddress] = useState(""); // Dodano stanje za globalnu adresu
   const [loading, setLoading] = useState(true);
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,7 +51,7 @@ const Featuredproperties = () => {
           >
             {coverImg ? (
               <img 
-                src={`${API_URL}${coverImg.url}`} 
+                src={coverImg.url.startsWith("http") ? coverImg.url : `${API_URL}${coverImg.url}`} 
                 alt={unit.unitName} 
                 className="fpimg" 
                 onError={(e) => { e.target.src = "/default_image.jpg"; }}

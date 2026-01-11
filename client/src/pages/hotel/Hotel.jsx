@@ -47,10 +47,11 @@ const Hotel = () => {
 
   // Filtriramo slike tako da se u galeriji prikazuju samo one iz "other" foldera
 const unitPhotos = unit?.images
-  ?.sort((a, b) => (a.url.includes("cover") ? -1 : 1)) // Cover ide na prvo mjesto
-  .map((img) => ({
-    src: `${API_URL}${img.url}`
-  })) || [];
+    ?.sort((a, b) => (a.url.includes("cover") ? -1 : 1)) // Cover ide na prvo mjesto
+    .map((img) => ({
+      // KLJUČNA PROVJERA: Ako je S3 link, ostavi ga. Ako je relativan, dodaj API_URL.
+      src: img.url.startsWith("http") ? img.url : `${API_URL}${img.url}`
+    })) || [];
 
   const handlemove = (direction) => {
     let newslidenumber;

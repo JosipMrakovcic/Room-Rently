@@ -7,32 +7,29 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springboot.backend.model.Unit;
 import springboot.backend.model.UnitImg;
+import springboot.backend.model.UnitReservation;
 import springboot.backend.repository.UnitImgRepo;
 import springboot.backend.repository.UnitRepo;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.*;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Stream;
-
 import springboot.backend.repository.UnitReservationRepo;
 import springboot.backend.service.EmailService;
 import springboot.backend.service.FileCleanupService;
+import springboot.backend.service.FileService;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
-@CrossOrigin(origins = "${frontend.url}")
 @RequestMapping("/unitImg")
 public class UnitImgController {
 
+    @Autowired
+    private UnitReservationRepo reservationRepo;
 
     @Autowired
-    private UnitReservationRepo reservationRepo; // Treba nam za nalazak rezervacija
-
-    @Autowired
-    private EmailService emailService; // Treba nam za slanje PDF-a
+    private EmailService emailService;
 
     @Autowired
     private UnitImgRepo repo;
@@ -40,11 +37,13 @@ public class UnitImgController {
     @Autowired
     private UnitRepo unitRepo;
 
-    // Osnovna putanja unutar projekta
-    private final String BASE_UPLOAD_DIR = "uploads/units/";
+    @Autowired
+    private FileService fileService;
 
     @Autowired
     private FileCleanupService cleanupService;
+
+    private final String BASE_S3_DIR = "";
 
     @PostMapping("/upload/{unitId}")
     @Transactional
@@ -61,30 +60,22 @@ public class UnitImgController {
             Unit unit = unitRepo.findById(unitId)
                     .orElseThrow(() -> new RuntimeException("Unit not found with ID: " + unitId));
 
-            // Određivanje foldera na temelju isCover (i === 0 iz Reacta)
             String subFolder = isCover ? "cover/" : "other/";
-            String unitFolderRelative = BASE_UPLOAD_DIR + unitId + "/" + subFolder;
-            Path uploadPath = Paths.get(unitFolderRelative);
-
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
             String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            Path filePath = uploadPath.resolve(fileName);
+            String s3Path = BASE_S3_DIR + unitId + "/" + subFolder + fileName;
 
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            // Puni URL iz Clouda
+            String publicUrl = fileService.upload(s3Path, file);
 
             UnitImg img = new UnitImg();
-            // URL spremamo s vodećim slashom za React frontend
-            img.setUrl("/" + unitFolderRelative + fileName);
+            img.setUrl(publicUrl);
             img.setUnit(unit);
 
             UnitImg saved = repo.save(img);
             return ResponseEntity.ok(saved);
 
         } catch (IOException e) {
-            return ResponseEntity.status(500).body("Error writing to disk:" + e.getMessage());
+            return ResponseEntity.status(500).body("Error writing to Cloud:" + e.getMessage());
         }
     }
 
@@ -95,45 +86,27 @@ public class UnitImgController {
             UnitImg img = repo.findById(id)
                     .orElseThrow(() -> new RuntimeException("Image not found with ID: " + id));
 
-            String dbPath = img.getUrl();
-            if (dbPath.startsWith("/")) {
-                dbPath = dbPath.substring(1);
-            }
-
-            // Koristi user.dir da osiguraš točnu lokaciju na disku
-            Path filePath = Paths.get(System.getProperty("user.dir")).resolve(dbPath);
-
-            System.out.println("Trying to delete image: " + filePath);
-
-            if (Files.exists(filePath)) {
-                Files.delete(filePath);
-                System.out.println("Image deleted successfully.");
-            }
+            // Brišemo s Clouda
+            fileService.deleteFile(img.getUrl());
 
             repo.delete(img);
-            System.out.println("Deleted from base.");
-
             return ResponseEntity.ok("Image successfully deleted.");
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Erorr while deleting: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error while deleting: " + e.getMessage());
         }
     }
 
     @PutMapping("/set-cover/{unitId}/{imgId}")
     @Transactional
     public ResponseEntity<?> setCover(@PathVariable Long unitId, @PathVariable Long imgId) {
-        // 1. Pronađi sve slike koje pripadaju tom unitu
         List<UnitImg> images = repo.findAll().stream()
                 .filter(i -> i.getUnit().getIdUnit().equals(unitId))
                 .toList();
 
         for (UnitImg img : images) {
             if (img.getId().equals(imgId)) {
-                // Koristimo tvoju postojeću metodu iz kontrolera da je stavimo u cover/
                 updateImageStatus(img.getId(), true);
             } else if (img.getUrl().contains("/cover/")) {
-                // Sve ostale koje su bile cover vraćamo u other/
                 updateImageStatus(img.getId(), false);
             }
         }
@@ -148,48 +121,23 @@ public class UnitImgController {
                     .orElseThrow(() -> new RuntimeException("Image not found."));
 
             String currentUrl = img.getUrl();
-            // Definiramo gdje slika TREBA biti
             String targetSubFolder = isCover ? "cover/" : "other/";
-            String expectedPathPart = "/" + targetSubFolder;
 
-            // Ako je slika već u ispravnom folderu, samo potvrdi i izađi
-            if (currentUrl.contains(expectedPathPart)) {
+            if (currentUrl.contains("/" + targetSubFolder)) {
                 return ResponseEntity.ok("Status already valid.");
             }
 
-            // 1. Priprema putanja
-            String relativeOldPath = currentUrl.startsWith("/") ? currentUrl.substring(1) : currentUrl;
-            Path source = Paths.get(System.getProperty("user.dir")).resolve(relativeOldPath);
+            String fileName = currentUrl.substring(currentUrl.lastIndexOf("/") + 1);
+            String newS3Path = BASE_S3_DIR + img.getUnit().getIdUnit() + "/" + targetSubFolder + fileName;
 
-            if (Files.exists(source)) {
-                String fileName = source.getFileName().toString();
+            String newUrl = fileService.moveFile(currentUrl, newS3Path);
 
-                // 2. Kreiranje novog foldera
-                String newFolderRelative = BASE_UPLOAD_DIR + img.getUnit().getIdUnit() + "/" + targetSubFolder;
-                Path targetDir = Paths.get(System.getProperty("user.dir")).resolve(newFolderRelative);
+            img.setUrl(newUrl);
+            repo.save(img);
 
-                if (!Files.exists(targetDir)) {
-                    Files.createDirectories(targetDir);
-                }
-
-                Path targetFile = targetDir.resolve(fileName);
-
-                // 3. Premještanje datoteke (REPLACE_EXISTING je ključno ako se nešto "zaglavilo")
-                Files.move(source, targetFile, StandardCopyOption.REPLACE_EXISTING);
-
-                // 4. Ažuriranje baze podataka s novim URL-om
-                img.setUrl("/" + newFolderRelative + fileName);
-                repo.save(img);
-
-                return ResponseEntity.ok("Image sucessfully transfered to:  " + targetSubFolder);
-            } else {
-                // Ako datoteke nema, možda je već netko ručno obrisao ili premjestio
-                return ResponseEntity.status(404).body("File not found on disc: " + source.toString());
-            }
-
+            return ResponseEntity.ok("Image successfully transfered to: " + targetSubFolder);
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500).body("Error while updating image on disc:  " + e.getMessage());
+            return ResponseEntity.status(500).body("Error while updating image on Cloud: " + e.getMessage());
         }
     }
 
@@ -198,57 +146,40 @@ public class UnitImgController {
     public ResponseEntity<?> deleteUnit(@PathVariable Long id) {
         System.out.println(">>> Zahtjev za potpuno brisanje Unita ID: " + id);
 
-        // 1. Pronađi Unit (glavni objekt)
         Unit unit = unitRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Unit not found with ID: " + id));
 
         try {
-            // --- NOVO: LOGIKA ZA REZERVACIJE I EMAIL ---
-
-            // Skupi sve povezane unute (on + sobe)
-            List<springboot.backend.model.Unit> allUnits = new java.util.ArrayList<>();
+            // --- VRACEENA TVOJA KOMPLETNA LOGIKA ---
+            List<Unit> allUnits = new ArrayList<>();
             allUnits.add(unit);
             if (unit.getListOfRooms() != null) {
                 allUnits.addAll(unit.getListOfRooms());
             }
 
-            // Nađi sve aktivne rezervacije (Pending i Confirmed)
-            java.util.List<String> activeStatuses = java.util.Arrays.asList("Pending", "Confirmed");
-            java.util.List<springboot.backend.model.UnitReservation> affectedReservations =
+            List<String> activeStatuses = Arrays.asList("Pending", "Confirmed");
+            List<UnitReservation> affectedReservations =
                     reservationRepo.findByUnitInAndStatusIn(allUnits, activeStatuses);
 
-            System.out.println(">>> Broj pronađenih rezervacija za obavijest: " + affectedReservations.size());
-
-            // Pošalji mailove
-            for (springboot.backend.model.UnitReservation res : affectedReservations) {
+            for (UnitReservation res : affectedReservations) {
                 res.setStatus("Cancelled");
-
-                // ZAMIJENI STARO SLANJE S OVIM:
                 emailService.sendSimpleStatusEmail(
                         res,
                         "Important: Reservation Cancelled",
                         "We regret to inform you that the property '" + unit.getUnitName() + "' is no longer available. Your reservation has been cancelled."
                 );
             }
-            // --- KRAJ NOVE LOGIKE ---
+            // --- KRAJ TVOJE LOGIKE ---
 
-            // 2. BRIŠEMO IZ BAZE (tek nakon što su mailovi poslani!)
             unitRepo.delete(unit);
             unitRepo.flush();
-            System.out.println(">>> Unit " + id + " uspješno uklonjen iz baze.");
 
-            // 3. OTPUŠTANJE FILE-HANDLERA (Windows cleanup)
-            System.gc();
-
-            // 4. POKRETANJE CLEANUP-A DISKA
+            // Na Cloudu nema file locka, ali pozivamo cleanup da obriše Bucket folder
             cleanupService.runFullCleanup();
 
             return ResponseEntity.ok("Unit ID: " + id + " i " + affectedReservations.size() + " rezervacija su obrađeni.");
-
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(500).body("Critical error while deleting: " + e.getMessage());
         }
     }
-
 }

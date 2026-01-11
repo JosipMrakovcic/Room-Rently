@@ -7,8 +7,6 @@ const Searchitem = ({ unit }) => {
   const navigate = useNavigate();
   const API_URL = process.env.REACT_APP_API_URL;
   const [globalAddress, setGlobalAddress] = useState("Loading address...");
-
-  // --- 1. DODAJ STANJE ZA UČITAVANJE ---
   const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
@@ -27,26 +25,27 @@ const Searchitem = ({ unit }) => {
     fetchLocation();
   }, [API_URL]);
 
+  const getCoverImage = () => {
+    // 1. Ako nema podataka o slikama, vrati default
+    if (!unit || !unit.images || unit.images.length === 0) {
+      return "/default_room.jpg";
+    }
 
-  // --- OVAKO IZMIJENI FUNKCIJU ---
-const getCoverImage = () => {
-  // Ako unit još nije učitan ili nema images niz
-  if (!unit || !unit.images || unit.images.length === 0) {
-    return "/default_room.jpg";
-  }
+    // 2. Pronađi cover sliku
+    const coverImg = unit.images.find((img) => img.url && img.url.includes("/cover/"));
+    
+    if (coverImg && coverImg.url) {
+      // 3. LOGIKA: Ako URL počinje s http, vrati ga samog. 
+      // Ako ne (lokalno), dodaj API_URL.
+      return coverImg.url.startsWith("http") 
+        ? coverImg.url 
+        : `${API_URL}${coverImg.url}`;
+    }
 
-  const coverImg = unit.images.find((img) => img.url && img.url.includes("/cover/"));
-  
-  if (coverImg && coverImg.url) {
-    return `${API_URL}${coverImg.url}`;
-  }
+    // 4. Ako postoji niz slika, ali nijedna nije cover, vrati prvu ili default
+    return "/default_room.jpg"; 
+  };
 
-  return "/default_room.jpg"; 
-};
-
-
-
-  // Pomoćna funkcija za dinamički tekst ocjene na temelju tvog izračunatog prosjeka
   const getRatingLabel = (rating) => {
     if (!rating) return "No reviews yet";
     if (rating >= 9.5) return "Exceptional";
@@ -56,32 +55,23 @@ const getCoverImage = () => {
     return "Good";
   };
 
-  const coverImg = unit.images?.find((img) => img.url && img.url.includes("/cover/"));
-  const fullCoverUrl = coverImg ? `${API_URL}${coverImg.url}` : null;
+  // UKLONJENI su coverImg i fullCoverUrl varijable koje su bile ovdje
 
   return (
     <div className="searchitem" onClick={() => navigate(`/hotels/${unit.idUnit}`)}>
     
-    {/* --- OVAKO IZMIJENI CIJELI KONTEJNER SLIKE --- */}
     <div className="siimgContainer">
-      {fullCoverUrl ? (
-        <img 
-          src={fullCoverUrl} 
-          alt="" 
-          className="siimg" 
-          onLoad={() => setImageLoaded(true)}
-          onError={(e) => { e.target.style.display = 'none'; }} 
-          style={{ opacity: imageLoaded ? 1 : 0 }}
-        />
-      ) : (
-        /* Ovaj blok se prikazuje AKO NEMA cover slike - nema <img> taga, nema titranja */
-        <div className="siNoPhoto">
-          <span className="noPhotoIcon">📷</span>
-          <span className="noPhotoText">No photo available</span>
-        </div>
-      )}
+      {/* Pozivamo funkciju direktno u src bez API_URL-a */}
+      <img 
+        src={getCoverImage()} 
+        alt={unit.unitName} 
+        className="siimg" 
+        onLoad={() => setImageLoaded(true)}
+        onError={(e) => { e.target.src = "/default_room.jpg"; }} 
+        style={{ opacity: imageLoaded ? 1 : 0 }}
+      />
     </div>
-      {/* 2. OPIS (Sredina) */}
+
       <div className="sidesc">
         <h1 className="siTitle">{unit.unitName}</h1>
         <span className="siLocation">📍 {globalAddress}</span>
@@ -104,12 +94,9 @@ const getCoverImage = () => {
         <span className="siCancelOpSubtitle">You can cancel later, so lock in this great price today!</span>
       </div>
 
-      {/* 3. DETALJI (Desno) */}
       <div className="sidetails">
         <div className="sirating">
-          {/* Koristimo getRatingLabel da automatski ispiše kategoriju */}
           <span>{getRatingLabel(unit.rating)}</span>
-          {/* Ako unit.rating postoji (nije null), prikazujemo ga zaokruženog, inače stavljamo n/a ili tvoj default */}
           <button>{unit.rating ? unit.rating.toFixed(1) : "n/a"}</button>
         </div>
         <div className="sidetailtexts">

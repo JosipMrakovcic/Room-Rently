@@ -9,6 +9,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // Ovo ostavljamo samo ako još uvijek imaš stare slike u lokalnoj mapi /uploads/
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:uploads/");
     }

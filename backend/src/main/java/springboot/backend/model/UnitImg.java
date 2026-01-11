@@ -8,28 +8,20 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "unitImg")
-@Getter // automatski generira sve gettere
-@Setter // automatski generira sve settere
+@Table(name = "unit_img") // Promijenjeno u snake_case (standard za baze)
+@Getter
+@Setter
 public class UnitImg {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // ID za JPA
+    private Long id;
 
     @Column(name = "url", nullable = false)
-    private String url; // URL slike
+    private String url;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unit_id", nullable = false)
+    @JoinColumn(name = "id_unit", nullable = false) // OVDJE JE BILA GREŠKA - mora biti id_unit
     @JsonBackReference
     private Unit unit;
-
-    /*public String getURL() {
-        return URL;
-    }
-
-    public void setURL(String URL) {
-        this.URL = URL;
-    }*/
 }

@@ -116,25 +116,26 @@ const AdminDashboard = () => {
   };
 
   const fetchUnits = async () => {
-    try {
-      // Koristimo novi /summary endpoint
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/unit/summary`);
-      if (!response.ok) throw new Error("Failed to fetch units");
-      
-      const data = await response.json();
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/unit/summary`);
+    if (!response.ok) throw new Error("Failed to fetch units");
+    
+    const data = await response.json();
 
-      // Podaci su već filtrirani na backendu (nema pod-soba)
-      setUnits(
-        data.map((u) => ({
-          id: u.idUnit,
-          name: u.unitName,
-          type: u.isApartment ? "Apartment" : `Room (${u.numSameRooms || 0} units)`,
-        }))
-      );
-    } catch (err) {
-      console.error("Error fetching units:", err);
-    }
-  };
+    setUnits(
+      data.map((u) => ({
+        id: u.idUnit,
+        name: u.unitName,
+        // PROVJERI OBOJE (za svaki slučaj):
+        type: (u.apartment === true || u.isApartment === true) 
+              ? "Apartment" 
+              : `Room (${u.numSameRooms || 0} units)`,
+      }))
+    );
+  } catch (err) {
+    console.error("Error fetching units:", err);
+  }
+};
 
   const fetchUsers = async () => {
     try {

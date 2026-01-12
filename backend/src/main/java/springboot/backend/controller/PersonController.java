@@ -146,15 +146,19 @@ public class PersonController {
         if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         String email = jwt.getClaimAsString("email");
-        Optional<Person> person = repo.findByEmail(email);
+        String country = payload.get("country");
+        String city = payload.get("city");
 
-        if (person.isPresent()) {
-            Person p = person.get();
-            p.setCountry(payload.get("country"));
-            repo.save(p);
-            return ResponseEntity.ok("Country updated");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        if (email == null) {
+            return ResponseEntity.badRequest().body("Invalid token: no email found.");
         }
+
+        // 2. Koristimo 'repo' (naziv koji si definirao na vrhu klase kod @Autowired)
+        return repo.findByEmail(email).map(person -> {
+            person.setCountry(country);
+            person.setCity(city);
+            repo.save(person);
+            return ResponseEntity.ok("Country updated successfully");
+        }).orElse(ResponseEntity.status(404).body("User not found"));
     }
 }

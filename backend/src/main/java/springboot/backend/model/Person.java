@@ -42,14 +42,19 @@ public class Person {
     @Column(columnDefinition = "text")
     private String country;
 
+    // NOVO POLJE
+    @Column(columnDefinition = "text")
+    private String city;
+
     // Ažuriran konstruktor
-    public Person(String email, boolean isAdmin, boolean isUser, boolean isOwner, String name, String country) {
+    public Person(String email, boolean isAdmin, boolean isUser, boolean isOwner, String name, String country, String city) {
         this.email = email;
         this.isAdmin = isAdmin;
         this.isUser = isUser;
         this.isOwner = isOwner;
         this.name = name;
         this.country = country;
+        this.city=city;
     }
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)

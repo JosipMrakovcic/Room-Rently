@@ -27,7 +27,18 @@ const UserReservations = () => {
           `${process.env.REACT_APP_API_URL}/unitReservation/my-reservations`, 
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setReservations(response.data);
+
+        // SORTIRANJE:
+        const sortedData = response.data.sort((a, b) => {
+          // Prvo gledamo status - želimo da 'Cancelled' bude na samom dnu
+          if (a.status === "Cancelled" && b.status !== "Cancelled") return 1;
+          if (a.status !== "Cancelled" && b.status === "Cancelled") return -1;
+
+          // Zatim unutar toga sortiramo po datumu (najbliži datumi prvi)
+          return new Date(a.startDate) - new Date(b.startDate);
+        });
+
+        setReservations(sortedData);
       } catch (err) {
         console.error("Greška pri dohvaćanju:", err);
       } finally {
@@ -46,11 +57,20 @@ const UserReservations = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setReservations((prev) =>
-        prev.map((r) => 
+      setReservations((prev) => {
+        // 1. Prvo ažuriramo status
+        const updated = prev.map((r) =>
           r.idUnitReservation === cancelModal ? { ...r, status: "Cancelled" } : r
-        )
-      );
+        );
+
+        // 2. Ponovno sortiramo da Cancelled ode na dno odmah!
+        return [...updated].sort((a, b) => {
+          if (a.status === "Cancelled" && b.status !== "Cancelled") return 1;
+          if (a.status !== "Cancelled" && b.status === "Cancelled") return -1;
+          return new Date(a.startDate) - new Date(b.startDate);
+        });
+      });
+
       setConfirmedCancel(cancelModal);
       setCancelModal(null);
     } catch (err) {

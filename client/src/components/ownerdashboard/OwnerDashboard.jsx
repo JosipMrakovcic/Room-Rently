@@ -128,22 +128,31 @@ export default function OwnerDashboard() {
   };
 
   const topRatedStats = useMemo(() => {
-    const unitRatings = {};
-    filteredReservations.forEach(res => {
-      if (res.status === "Completed" && res.rating && res.unit?.unitName) {
-        const name = res.unit.unitName;
-        if (!unitRatings[name]) unitRatings[name] = { sum: 0, count: 0 };
-        unitRatings[name].sum += res.rating;
-        unitRatings[name].count += 1;
+  const unitRatings = {};
+  filteredReservations.forEach(res => {
+    if (res.status === "Completed" && res.rating && res.unit) {
+      // LOGIKA ZA GRUPIRANJE:
+      let name = res.unit.parentUnit?.unitName || res.unit.unitName;
+      
+      // Ako ime sadrži crticu, uzmi samo ime objekta
+      if (name.includes(" - ")) {
+        name = name.split(" - ")[0];
       }
-    });
-    const averages = Object.keys(unitRatings).map(name => ({
-      name,
-      avg: unitRatings[name].sum / unitRatings[name].count
-    }));
-    const sorted = averages.sort((a, b) => b.avg - a.avg).slice(0, 10);
-    return { labels: sorted.map(i => i.name), data: sorted.map(i => i.avg.toFixed(1)) };
-  }, [filteredReservations]);
+      
+      if (!unitRatings[name]) unitRatings[name] = { sum: 0, count: 0 };
+      unitRatings[name].sum += res.rating;
+      unitRatings[name].count += 1;
+    }
+  });
+  
+  const averages = Object.keys(unitRatings).map(name => ({
+    name,
+    avg: unitRatings[name].sum / unitRatings[name].count
+  }));
+  
+  const sorted = averages.sort((a, b) => b.avg - a.avg).slice(0, 10);
+  return { labels: sorted.map(i => i.name), data: sorted.map(i => i.avg.toFixed(1)) };
+}, [filteredReservations]);
 
   const monthlyStats = useMemo(() => {
     const monthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -177,15 +186,21 @@ export default function OwnerDashboard() {
   }, [filteredReservations]);
 
   const unitStats = useMemo(() => {
-    const counts = {};
-    filteredReservations.forEach(res => {
-      if (VALID_STATS_STATUSES.includes(res.status)) {
-        const name = res.unit?.unitName || "Unknown";
-        counts[name] = (counts[name] || 0) + 1;
+  const counts = {};
+  filteredReservations.forEach(res => {
+    if (VALID_STATS_STATUSES.includes(res.status)) {
+      let name = res.unit?.unitName || "Unknown";
+      
+      // Dosljedno razdvajanje kao i u gornjem grafikonu
+      if (name.includes(" - ")) {
+        name = name.split(" - ")[0];
       }
-    });
-    return { labels: Object.keys(counts), data: Object.values(counts) };
-  }, [filteredReservations]);
+      
+      counts[name] = (counts[name] || 0) + 1;
+    }
+  });
+  return { labels: Object.keys(counts), data: Object.values(counts) };
+}, [filteredReservations]);
 
   const countryStats = useMemo(() => {
     const counts = {};

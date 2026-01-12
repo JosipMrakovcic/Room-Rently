@@ -57,11 +57,6 @@ public class UnitReservationController {
                 return ResponseEntity.badRequest().body("Departure date must be at least one day after arrival.");
             }
 
-            boolean isTaken = repo.isUnitOccupied(req.getUnitId(), req.getStartDate(), req.getEndDate());
-            if (isTaken) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("These dates are already taken.");
-            }
-
             Unit selectedUnit = unitRepo.findById(req.getUnitId()).orElseThrow(() -> new RuntimeException("Accommodation not found"));
 
             Unit unitToReserve = null;
@@ -218,14 +213,38 @@ public class UnitReservationController {
     @Transactional(readOnly = true)
     @GetMapping("/occupied-dates/{unitId}")
     public ResponseEntity<List<OccupiedDateDTO>> getOccupiedDates(@PathVariable Long unitId) {
-        // 1. Dohvaćamo rezervacije iz baze (već si dodao metodu u Repo)
+        // 1. Dohvati glavni Unit da znamo koliki mu je kapacitet (broj soba)
+        Unit unit = unitRepo.findById(unitId)
+                .orElseThrow(() -> new RuntimeException("Unit not found"));
+
+        // Ako je apartman, kapacitet je 1. Ako ima više soba, gledamo numSameRooms.
+        int totalCapacity = (unit.isApartment() || unit.getNumSameRooms() == null || unit.getNumSameRooms() == 0)
+                ? 1
+                : unit.getNumSameRooms();
+
+        // 2. Dohvati sve rezervacije za taj tip smještaja (tvoja postojeća metoda u Repo)
         List<UnitReservation> reservations = repo.findOccupiedDatesByUnitId(unitId);
 
-        // 2. Pretvaramo ih u listu laganih DTO objekata
-        List<OccupiedDateDTO> occupiedDates = reservations.stream()
-                .map(res -> new OccupiedDateDTO(res.getStartDate(), res.getEndDate()))
-                .toList();
+        // 3. Izbroji zauzetost po danima (ovo je munjevito brzo)
+        java.util.Map<LocalDate, Integer> dailyCount = new java.util.HashMap<>();
+        for (UnitReservation res : reservations) {
+            LocalDate current = res.getStartDate();
+            // Prolazimo kroz sve noći rezervacije
+            while (current.isBefore(res.getEndDate())) {
+                dailyCount.put(current, dailyCount.getOrDefault(current, 0) + 1);
+                current = current.plusDays(1);
+            }
+        }
 
-        return ResponseEntity.ok(occupiedDates);
+        // 4. Kreiraj listu samo za one dane koji su STVARNO puni
+        List<OccupiedDateDTO> fullyOccupied = new ArrayList<>();
+        for (java.util.Map.Entry<LocalDate, Integer> entry : dailyCount.entrySet()) {
+            if (entry.getValue() >= totalCapacity) {
+                // Šaljemo dan kao interval [dan, dan+1] jer to React DateRange najbolje razumije
+                fullyOccupied.add(new OccupiedDateDTO(entry.getKey(), entry.getKey().plusDays(1)));
+            }
+        }
+
+        return ResponseEntity.ok(fullyOccupied);
     }
 }

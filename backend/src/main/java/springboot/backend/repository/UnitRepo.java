@@ -165,4 +165,5 @@ public interface UnitRepo extends JpaRepository<Unit, Long> {
     @Query("SELECT new springboot.backend.dto.UnitSummaryDTO(u.idUnit, u.unitName, u.apartment, u.numSameRooms) " +
             "FROM Unit u WHERE u.parentUnit IS NULL")
     List<UnitSummaryDTO> findAllSummaries();
+
 }

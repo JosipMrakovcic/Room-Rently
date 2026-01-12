@@ -31,8 +31,10 @@ const Propertylist = () => {
   };
 
   // Pomoćna funkcija za izvlačenje podataka za određeni broj kreveta
+  // Propertylist.jsx - promijeni ovo:
   const getDataForBeds = (num) => {
-    return bedData.find(item => item.beds === num) || { count: 0, image: null };
+    // backend šalje broj kreveta kao String u polju "label"
+    return bedData.find(item => item.label === String(num)) || { count: 0, image: null };
   };
 
   const bedCategories = [

@@ -12,6 +12,9 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import springboot.backend.dto.UnitFilterDTO;
+import springboot.backend.dto.UnitCountDTO;
+import springboot.backend.dto.UnitSummaryDTO;
 import springboot.backend.model.Unit;
 import springboot.backend.model.UnitReservation;
 import springboot.backend.repository.UnitRepo;
@@ -26,6 +29,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.domain.PageRequest;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/unit")
@@ -191,155 +198,73 @@ public class UnitController {
     }
 
     @GetMapping("/top-rated")
-    public ResponseEntity<List<Unit>> getTopRated() {
-        List<Unit> allUnits = repo.findAll();
-
-        List<Unit> topRated = allUnits.stream()
-                .filter(u -> u.getParentUnit() == null)
-                .sorted((u1, u2) -> {
-                    // Sigurna provjera za null vrijednosti
-                    Double r1 = (u1.getAverageRating() != null) ? u1.getAverageRating() : 0.0;
-                    Double r2 = (u2.getAverageRating() != null) ? u2.getAverageRating() : 0.0;
-                    return r2.compareTo(r1);
-                })
-                .limit(4)
-                .toList();
-
-        return ResponseEntity.ok(topRated);
+    public ResponseEntity<List<springboot.backend.dto.UnitTopRatedDTO>> getTopRated() {
+        // Vraća 4 najbolje ocijenjena apartmana direktno iz baze
+        return ResponseEntity.ok(repo.findTopRatedSimple(PageRequest.of(0, 4)));
     }
 
     @GetMapping("/counts-by-beds")
-    public ResponseEntity<List<java.util.Map<String, Object>>> getCountsByBeds() {
-        List<Unit> allUnits = repo.findAll();
-        List<java.util.Map<String, Object>> result = new ArrayList<>();
-
+    public ResponseEntity<List<UnitCountDTO>> getCountsByBeds() {
+        List<UnitCountDTO> result = new ArrayList<>();
         for (int i = 1; i <= 5; i++) {
-            final int bedThreshold = i;
-
-            // 1. Filtriramo jedinice koje imaju barem ovoliko kreveta
-            List<Unit> unitsWithBeds = allUnits.stream()
-                    .filter(u -> u.getParentUnit() == null)
-                    .filter(u -> u.getNumBeds() != null && u.getNumBeds() >= bedThreshold)
-                    .toList();
-
-            // 2. Računamo ukupan broj dostupnih jedinica
-            long totalCount = unitsWithBeds.stream().mapToLong(u -> {
-                if (u.isApartment()) return 1L;
-                return (u.getNumSameRooms() != null && u.getNumSameRooms() > 0) ? u.getNumSameRooms() : 1L;
-            }).sum();
-
-            // 3. Pronalazimo najbolje ocijenjenu jedinicu za sliku u ovoj kategoriji
-            String bestImageUrl = null;
-            Optional<Unit> bestUnit = unitsWithBeds.stream()
-                    .sorted((u1, u2) -> {
-                        Double r1 = (u1.getAverageRating() != null) ? u1.getAverageRating() : 0.0;
-                        Double r2 = (u2.getAverageRating() != null) ? u2.getAverageRating() : 0.0;
-                        return r2.compareTo(r1);
-                    })
-                    .findFirst();
-
-            if (bestUnit.isPresent()) {
-                bestImageUrl = bestUnit.get().getImages().stream()
-                        .filter(img -> img.getUrl().contains("/cover/"))
-                        .map(img -> img.getUrl())
-                        .findFirst()
-                        .orElse(bestUnit.get().getImages().isEmpty() ? null : bestUnit.get().getImages().get(0).getUrl());
-            }
-
-            java.util.Map<String, Object> map = new java.util.HashMap<>();
-            map.put("beds", i);
-            map.put("count", totalCount);
-            map.put("image", bestImageUrl);
-            result.add(map);
+            result.add(new UnitCountDTO(
+                    String.valueOf(i), // Broj kreveta kao label
+                    repo.countTotalAvailableUnitsByBeds(i),
+                    repo.findFirstImageUrlByBeds(i)
+            ));
         }
-
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/counts-by-view")
-    public ResponseEntity<List<java.util.Map<String, Object>>> getCountsByView() {
-        List<Unit> allUnits = repo.findAll();
-
+    public ResponseEntity<List<UnitCountDTO>> getCountsByView() {
         String[] viewTypes = {"sea", "village", "lake"};
-        List<java.util.Map<String, Object>> result = new ArrayList<>();
-
+        List<UnitCountDTO> result = new ArrayList<>();
         for (String type : viewTypes) {
-            // Filtriramo sve glavne objekte koji imaju taj pogled
-            List<Unit> unitsWithView = allUnits.stream()
-                    .filter(u -> u.getParentUnit() == null)
-                    .filter(u -> {
-                        if (type.equals("sea")) return u.isSeaView();
-                        if (type.equals("village")) return u.isVillageView();
-                        if (type.equals("lake")) return u.isLakeView();
-                        return false;
-                    })
-                    .toList();
-
-            // Izračunavamo ukupni broj (uključujući numSameRooms)
-            long count = unitsWithView.stream().mapToLong(u -> {
-                if (u.isApartment()) return 1L;
-                return (u.getNumSameRooms() != null && u.getNumSameRooms() > 0) ? u.getNumSameRooms() : 1L;
-            }).sum();
-
-            // Pronalazimo najbolje ocijenjenog za sliku
-            String bestImageUrl = null;
-            Optional<Unit> bestUnit = unitsWithView.stream()
-                    .sorted((u1, u2) -> {
-                        Double r1 = (u1.getAverageRating() != null) ? u1.getAverageRating() : 0.0;
-                        Double r2 = (u2.getAverageRating() != null) ? u2.getAverageRating() : 0.0;
-                        return r2.compareTo(r1);
-                    })
-                    .findFirst();
-
-            if (bestUnit.isPresent()) {
-                // Tražimo sliku koja sadrži "/cover/"
-                bestImageUrl = bestUnit.get().getImages().stream()
-                        .filter(img -> img.getUrl().contains("/cover/"))
-                        .map(img -> img.getUrl())
-                        .findFirst()
-                        .orElse(bestUnit.get().getImages().isEmpty() ? null : bestUnit.get().getImages().get(0).getUrl());
-            }
-
-            java.util.Map<String, Object> map = new java.util.HashMap<>();
-            map.put("type", type);
-            map.put("count", count);
-            map.put("image", bestImageUrl);
-            result.add(map);
+            result.add(new UnitCountDTO(
+                    type,
+                    repo.countTotalAvailableUnitsByView(type),
+                    repo.findFirstImageUrlByView(type)
+            ));
         }
-
         return ResponseEntity.ok(result);
+    }
+    @GetMapping("/summary")
+    public ResponseEntity<List<UnitSummaryDTO>> getUnitSummaries() {
+        // Ovo će biti munjevito brzo jer prenosi minimalno bajtova
+        return ResponseEntity.ok(repo.findAllSummaries());
     }
 
 
     @GetMapping("/filter")
-    public List<Unit> filterUnits(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) Integer adults,
-            @RequestParam(required = false) Integer children,
-            @RequestParam(required = false) Integer rooms,
-            @RequestParam(required = false) Integer beds,
-            @RequestParam(required = false) Boolean isApartment,
-            @RequestParam(required = false) Boolean seaView,
-            @RequestParam(required = false) Boolean lakeView,
-            @RequestParam(required = false) Boolean villageView,
-            @RequestParam(required = false) Boolean hasParking,
-            @RequestParam(required = false) Boolean hasWifi,
-            @RequestParam(required = false) Boolean hasBreakfast,
-            @RequestParam(required = false) Boolean hasTowels,
-            @RequestParam(required = false) Boolean hasShampoo,
-            @RequestParam(required = false) Boolean hasHairDryer,
-            @RequestParam(required = false) Boolean hasHeater,
-            @RequestParam(required = false) Boolean hasAirConditioning,
-            @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    public List<UnitFilterDTO> filterUnits( // PROMIJENJEN TIP IZ List<Unit> U List<UnitFilterDTO>
+                                            @RequestParam(required = false) String name,
+                                            @RequestParam(required = false) Integer adults,
+                                            @RequestParam(required = false) Integer children,
+                                            @RequestParam(required = false) Integer rooms,
+                                            @RequestParam(required = false) Integer beds,
+                                            @RequestParam(required = false) Boolean isApartment,
+                                            @RequestParam(required = false) Boolean seaView,
+                                            @RequestParam(required = false) Boolean lakeView,
+                                            @RequestParam(required = false) Boolean villageView,
+                                            @RequestParam(required = false) Boolean hasParking,
+                                            @RequestParam(required = false) Boolean hasWifi,
+                                            @RequestParam(required = false) Boolean hasBreakfast,
+                                            @RequestParam(required = false) Boolean hasTowels,
+                                            @RequestParam(required = false) Boolean hasShampoo,
+                                            @RequestParam(required = false) Boolean hasHairDryer,
+                                            @RequestParam(required = false) Boolean hasHeater,
+                                            @RequestParam(required = false) Boolean hasAirConditioning,
+                                            @RequestParam(required = false) Double minPrice,
+                                            @RequestParam(required = false) Double maxPrice,
+                                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         BigDecimal bdMinPrice = minPrice != null ? BigDecimal.valueOf(minPrice) : null;
         BigDecimal bdMaxPrice = maxPrice != null ? BigDecimal.valueOf(maxPrice) : null;
 
-        // POZIV MORA PRATITI REDOSLIJED IZ UnitService.java
-        return unitService.filterUnits(
+        // POZIVAMO NOVU METODU U SERVISU
+        return unitService.filterUnitsDTO(
                 name,
                 adults,
                 children,

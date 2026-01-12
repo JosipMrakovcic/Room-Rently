@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import "./searchitem.css";
 
@@ -8,16 +8,16 @@ const Searchitem = ({ unit }) => {
   const API_URL = process.env.REACT_APP_API_URL;
   const [globalAddress, setGlobalAddress] = useState("Loading address...");
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isError, setIsError] = useState(false); // Novo stanje za grešku
+  const isFetching = useRef(false);
 
   useEffect(() => {
+    if (isFetching.current) return;
     const fetchLocation = async () => {
+      isFetching.current = true;
       try {
         const res = await axios.get(`${API_URL}/api/location`);
-        if (res.data && res.data.address) {
-          setGlobalAddress(res.data.address);
-        } else {
-          setGlobalAddress("Zagreb, Croatia");
-        }
+        if (res.data?.address) setGlobalAddress(res.data.address);
       } catch (err) {
         setGlobalAddress("Zagreb, Croatia");
       }
@@ -26,24 +26,12 @@ const Searchitem = ({ unit }) => {
   }, [API_URL]);
 
   const getCoverImage = () => {
-    // 1. Ako nema podataka o slikama, vrati default
-    if (!unit || !unit.images || unit.images.length === 0) {
-      return "/default_room.jpg";
+    if (unit.coverImage) {
+      return unit.coverImage.startsWith("http") 
+        ? unit.coverImage 
+        : `${API_URL}${unit.coverImage}`;
     }
-
-    // 2. Pronađi cover sliku
-    const coverImg = unit.images.find((img) => img.url && img.url.includes("/cover/"));
-    
-    if (coverImg && coverImg.url) {
-      // 3. LOGIKA: Ako URL počinje s http, vrati ga samog. 
-      // Ako ne (lokalno), dodaj API_URL.
-      return coverImg.url.startsWith("http") 
-        ? coverImg.url 
-        : `${API_URL}${coverImg.url}`;
-    }
-
-    // 4. Ako postoji niz slika, ali nijedna nije cover, vrati prvu ili default
-    return "/default_room.jpg"; 
+    return null; // Vraćamo null ako nema slike u bazi
   };
 
   const getRatingLabel = (rating) => {
@@ -55,29 +43,40 @@ const Searchitem = ({ unit }) => {
     return "Good";
   };
 
-  // UKLONJENI su coverImg i fullCoverUrl varijable koje su bile ovdje
+  // Base64 za prozirni pixel (sigurno protiv loop-a)
+  const transparentPixel = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
   return (
     <div className="searchitem" onClick={() => navigate(`/hotels/${unit.idUnit}`)}>
-    
-    <div className="siimgContainer">
-      {/* Pozivamo funkciju direktno u src bez API_URL-a */}
-      <img 
-        src={getCoverImage()} 
-        alt={unit.unitName} 
-        className="siimg" 
-        onLoad={() => setImageLoaded(true)}
-        onError={(e) => { e.target.src = "/default_room.jpg"; }} 
-        style={{ opacity: imageLoaded ? 1 : 0 }}
-      />
-    </div>
+      <div className="siimgContainer">
+        {/* Prikazujemo "No Photo" div ako slika nije nađena ili je nema */}
+        {(isError || !getCoverImage()) ? (
+          <div className="siNoPhoto">
+             <span>📷 No Photo Found</span>
+          </div>
+        ) : (
+          <img 
+            src={getCoverImage()} 
+            alt={unit.unitName} 
+            className="siimg" 
+            onLoad={() => setImageLoaded(true)}
+            onError={(e) => { 
+              e.target.onerror = null; 
+              e.target.src = transparentPixel; // Postavlja prozirno umjesto slike
+              setIsError(true); // Prikazuje "No Photo" overlay
+            }} 
+            style={{ opacity: imageLoaded ? 1 : 0 }}
+          />
+        )}
+        {!imageLoaded && !isError && getCoverImage() && <div className="siImgPlaceholder"></div>}
+      </div>
 
       <div className="sidesc">
         <h1 className="siTitle">{unit.unitName}</h1>
-        <span className="siLocation">📍 {globalAddress}</span>
+        <span className="siLocation">📍 {unit.location || globalAddress}</span>
         
         <span className="siSubtitle">
-          {unit.isApartment ? "Entire Apartment" : "Private Room"} • {unit.numRooms} {unit.numRooms === 1 ? "Bedroom" : "Bedrooms"} • {unit.numBeds} {unit.numBeds === 1 ? "Bed" : "Beds"}
+          {unit.apartment ? "Entire Apartment" : "Private Room"} • {unit.numRooms} {unit.numRooms === 1 ? "Bedroom" : "Bedrooms"} • {unit.numBeds} {unit.numBeds === 1 ? "Bed" : "Beds"}
         </span>
         
         <span className="siFeaturesText">
@@ -96,8 +95,8 @@ const Searchitem = ({ unit }) => {
 
       <div className="sidetails">
         <div className="sirating">
-          <span>{getRatingLabel(unit.rating)}</span>
-          <button>{unit.rating ? unit.rating.toFixed(1) : "n/a"}</button>
+          <span>{getRatingLabel(unit.averageRating)}</span>
+          <button>{unit.averageRating ? unit.averageRating.toFixed(1) : "n/a"}</button>
         </div>
         <div className="sidetailtexts">
           <span className="siprice">€{unit.price}</span>

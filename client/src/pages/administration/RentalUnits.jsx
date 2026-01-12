@@ -117,14 +117,15 @@ const AdminDashboard = () => {
 
   const fetchUnits = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/unit/all`);
+      // Koristimo novi /summary endpoint
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/unit/summary`);
       if (!response.ok) throw new Error("Failed to fetch units");
+      
       const data = await response.json();
 
-      const mainUnits = data.filter(u => u.parentUnit === null);
-
+      // Podaci su već filtrirani na backendu (nema pod-soba)
       setUnits(
-        mainUnits.map((u) => ({
+        data.map((u) => ({
           id: u.idUnit,
           name: u.unitName,
           type: u.isApartment ? "Apartment" : `Room (${u.numSameRooms || 0} units)`,
@@ -137,15 +138,27 @@ const AdminDashboard = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/allPersons`);
+      // 1. Dohvati token iz localStorage-a
+      const token = localStorage.getItem("access_token");
+
+      // 2. Pošalji token u Authorization zaglavlju
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/allPersons`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+      });
+
       if (!response.ok) throw new Error("Failed to fetch users");
       const data = await response.json();
 
       setUsers(
         data.map((u) => {
           let role = "User";
-          if (u.is_admin) role = "Admin";
-          else if (u.is_owner) role = "Owner";
+          // Provjeravamo ispravna polja (isAdmin, isOwner) kako su definirana u Person modelu
+          if (u.admin) role = "Admin";
+          else if (u.owner) role = "Owner";
           return {
             id: u.id,
             name: u.name,
@@ -302,6 +315,8 @@ const AdminDashboard = () => {
                     style={{ border: 0, borderRadius: '4px' }}
                     loading="lazy"
                     allowFullScreen
+                    referrerPolicy="no-referrer-when-downgrade"
+                    /* Ovo je najstabilniji URL za embedanje prema adresi */
                     src={`https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                   ></iframe>
                 </div>

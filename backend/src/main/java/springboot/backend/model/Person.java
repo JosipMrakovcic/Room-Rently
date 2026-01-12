@@ -1,6 +1,7 @@
 package springboot.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "person")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // DODAJ OVO
 public class Person {
 
     @Id

@@ -5,9 +5,9 @@ import Header from "../../components/header/Header";
 import { useLocation, useNavigate } from "react-router-dom";
 import Searchitem from "../../components/searchitem/searchitem";
 import axios from "axios";
-import { format, differenceInCalendarDays, addDays} from "date-fns"; 
-import { DateRange } from "react-date-range"; 
-import "react-date-range/dist/styles.css"; 
+import { format, differenceInCalendarDays, addDays } from "date-fns";
+import { DateRange } from "react-date-range";
+import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 
 const List = () => {
@@ -32,7 +32,6 @@ const List = () => {
     savedSearch?.options?.room ?? location.state?.options?.room ?? 1
   );
 
-  // Ovdje hvatamo 'location.state.beds' koji dolazi s početne stranice
   const [beds, setBeds] = useState(
     savedSearch?.options?.beds ?? location.state?.beds ?? 1
   );
@@ -40,11 +39,6 @@ const List = () => {
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(false);
   const [openDate, setOpenDate] = useState(false);
-
-  //Ako dolazimo preko filtera za krevete, pretpostavljamo da tražimo Apartman
-  /*const [isApartment, setIsApartment] = useState(
-      savedSearch?.isApartment ?? (location.state?.beds ? true : null)
-  );*/
 
   // Dodatni filteri
   const [isApartment, setIsApartment] = useState(savedSearch?.isApartment ?? null);
@@ -66,39 +60,39 @@ const List = () => {
   const [maxPrice, setMaxPrice] = useState(savedSearch?.maxPrice ?? null);
 
   const [dates, setDates] = useState(() => {
-    // 1. Ako je korisnik došao preko glavne tražilice (ima odabrane datume)
     if (location.state?.date) return location.state.date;
 
-    // NOVO: Ako dolazimo preko "Featured" pogleda (Sea/Lake/Village), ne stavljamo datume
     if (location.state?.seaView || location.state?.lakeView || location.state?.villageView) {
-        return [{ startDate: null, endDate: null, key: "selection" }];
+      return [{ startDate: null, endDate: null, key: "selection" }];
     }
 
-    // 2. Ako postoji spremljena pretraga u sesiji
-    if (savedSearch?.dates) return savedSearch.dates;
+    if (savedSearch?.dates) {
+      // Re-konverzija string datuma iz session storage-a natrag u Date objekte
+      return savedSearch.dates.map(d => ({
+        startDate: d.startDate ? new Date(d.startDate) : null,
+        endDate: d.endDate ? new Date(d.endDate) : null,
+        key: d.key
+      }));
+    }
 
-    // 3. Ako dolazimo preko "Propertylist" (klik na krevete) ili je prvi posjet
-    // Postavljamo automatski: Danas -> Sutra (1 noćenje)
     return [
       {
         startDate: new Date(),
-        endDate: addDays(new Date(), 1), // Ovo osigurava da je uvijek +1 dan
+        endDate: addDays(new Date(), 1),
         key: "selection",
       },
     ];
   });
 
-  // --- LOGIKA ZA IZRAČUN NOĆENJA ---
-  // Dodana provjera postojanja datuma prije računanja
-  const nightCount = (dates[0].startDate && dates[0].endDate) 
-    ? differenceInCalendarDays(dates[0].endDate, dates[0].startDate) 
+  const nightCount = (dates[0].startDate && dates[0].endDate)
+    ? differenceInCalendarDays(dates[0].endDate, dates[0].startDate)
     : 0;
 
   // 3. SPREMANJE U SESSION STORAGE
   useEffect(() => {
     const searchData = {
       destination,
-      options: { adult: adults, children, room , beds},
+      options: { adult: adults, children, room, beds },
       isApartment,
       seaView,
       lakeView,
@@ -113,7 +107,7 @@ const List = () => {
       hasHeater,
       minPrice,
       maxPrice,
-      dates 
+      dates
     };
     sessionStorage.setItem("lastSearch", JSON.stringify(searchData));
   }, [destination, adults, children, room, beds, isApartment, seaView, lakeView, villageView, hasParking, hasWifi, hasBreakfast, hasAirConditioning, hasTowels, hasShampoo, hasHairDryer, hasHeater, minPrice, maxPrice, dates]);
@@ -132,7 +126,6 @@ const List = () => {
   };
 
   const handleSearch = async () => {
-    // --- VALIDACIJA: Sprječavanje pretrage ako je 0 noćenja (ali samo ako su datumi uneseni) ---
     if (dates[0].startDate && dates[0].endDate && nightCount <= 0) {
       alert("Please select at least one night. Departure date must be after arrival date.");
       return;
@@ -140,21 +133,20 @@ const List = () => {
 
     setLoading(true);
     try {
-      // Formatiramo datume samo ako nisu null
       const startDateStr = dates[0].startDate ? format(dates[0].startDate, "yyyy-MM-dd") : null;
       const endDateStr = dates[0].endDate ? format(dates[0].endDate, "yyyy-MM-dd") : null;
-      
+
       const parsedMinPrice = minPrice ? parseFloat(minPrice) : null;
       const parsedMaxPrice = maxPrice ? parseFloat(maxPrice) : null;
-      
+
+      // PROMJENA: Očišćen poziv, samo jedan axios.get
       const res = await axios.get(`${API_URL}/unit/filter`, {
         params: {
           name: destination.trim() === '' ? null : destination,
           adults,
           children,
-          //rooms: isApartment === false ? 1 : room,
           isApartment: isApartment,
-          rooms: room,//isApartment === true ? room : (isApartment === false ? null : null),
+          rooms: room,
           beds: beds,
           seaView: seaView || null,
           lakeView: lakeView || null,
@@ -173,8 +165,9 @@ const List = () => {
           endDate: endDateStr,
         },
       });
-      const finalUnits = res.data.filter(unit => unit.parentUnit === null);
-      setUnits(finalUnits);
+      
+      // PROMJENA: Direktno setiranje podataka bez dodatnog filtera u Reactu
+      setUnits(res.data); 
     } catch (err) {
       console.error("Search failed:", err);
     } finally {
@@ -183,7 +176,6 @@ const List = () => {
   };
 
   useEffect(() => {
-    // Pokreni pretragu čak i ako su datumi null (Explorer mode)
     handleSearch();
   }, []);
 
@@ -220,7 +212,7 @@ const List = () => {
       <div className="listcontainer">
         <div className="listwrapper">
           <div className="listsearch">
-            <button 
+            <button
               onClick={handleBack}
               style={{
                 width: "100%", padding: "10px", marginBottom: "20px", backgroundColor: "#fff",
@@ -246,17 +238,16 @@ const List = () => {
 
             <div className="lsitem">
               <label>Check-in Date</label>
-              <span onClick={() => setOpenDate(!openDate)} className="lsDateDisplay" style={{backgroundColor:"white", padding:"8px", cursor:"pointer", borderRadius:"3px"}}>
-                {dates[0].startDate && dates[0].endDate 
+              <span onClick={() => setOpenDate(!openDate)} className="lsDateDisplay" style={{ backgroundColor: "white", padding: "8px", cursor: "pointer", borderRadius: "3px" }}>
+                {dates[0].startDate && dates[0].endDate
                   ? `${format(dates[0].startDate, "dd/MM/yyyy")} to ${format(dates[0].endDate, "dd/MM/yyyy")}`
                   : "Select Dates (Optional)"}
               </span>
-              
-              {/* Vizualni indikator broja noćenja */}
+
               <div style={{ textAlign: "center", fontSize: "12px", marginTop: "5px", color: (dates[0].startDate && nightCount <= 0) ? "red" : "#0071c2", fontWeight: "bold" }}>
-                 {dates[0].startDate 
-                   ? (nightCount > 0 ? `Selected: ${nightCount} night(s)` : "Departure must be at least 1 day after arrival") 
-                   : "Explore all units"}
+                {dates[0].startDate
+                  ? (nightCount > 0 ? `Selected: ${nightCount} night(s)` : "Departure must be at least 1 day after arrival")
+                  : "Explore all units"}
               </div>
 
               {openDate && (
@@ -290,10 +281,10 @@ const List = () => {
 
             <div className="lsitem">
               <label>Accommodation Type</label>
-              <select 
+              <select
                 style={{ height: '38px', padding: '0 10px', backgroundColor: '#fff', border: 'none', borderRadius: '6px' }}
                 onChange={(e) => handleAccommodationChange(e.target.value)}
-                value={isApartment === null ? 'null' : (isApartment ? 'true' : 'false')} 
+                value={isApartment === null ? 'null' : (isApartment ? 'true' : 'false')}
               >
                 <option value="null">Any</option>
                 <option value="true">Apartment</option>
@@ -322,7 +313,7 @@ const List = () => {
                 onChange={(e) => setBeds(parseInt(e.target.value) || 1)}
               />
             </div>
-            
+
             <div className="lsitem">
               <label>Price Range (€)</label>
               <div style={{ display: 'flex', gap: '10px' }}>
@@ -332,7 +323,7 @@ const List = () => {
                   value={minPrice || ""}
                   min={0}
                   style={{ width: '50%', height: '38px', padding: '8px 10px' }}
-                  onChange={(e) => setMinPrice(e.target.value)} 
+                  onChange={(e) => setMinPrice(e.target.value)}
                 />
                 <input
                   type="number"
@@ -344,18 +335,18 @@ const List = () => {
                 />
               </div>
             </div>
-            
+
             <div className="lsitem">
-              <label 
+              <label
                 onClick={() => setOpenViews(prev => !prev)}
                 className={`amenitiesToggle ${openViews ? "active" : ""}`}
               >
                 Views
                 <span className="arrowIcon">{openViews ? "▲" : "▼"}</span>
               </label>
-                
+
               {openViews && (
-                <div className="amenitiesDropdown"> 
+                <div className="amenitiesDropdown">
                   <div className="amenityItem">
                     <input type="checkbox" id="seaView" checked={seaView} onChange={() => handleViewChange('sea')} />
                     <label htmlFor="seaView">Sea View</label>
@@ -373,16 +364,16 @@ const List = () => {
             </div>
 
             <div className="lsitem">
-              <label 
+              <label
                 onClick={() => setOpenAmenities(prev => !prev)}
                 className={`amenitiesToggle ${openAmenities ? "active" : ""}`}
               >
-                Amenities 
+                Amenities
                 <span className="arrowIcon">{openAmenities ? "▲" : "▼"}</span>
               </label>
-                
+
               {openAmenities && (
-                <div className="amenitiesDropdown"> 
+                <div className="amenitiesDropdown">
                   <div className="amenityItem">
                     <input type="checkbox" id="parking" checked={hasParking} onChange={() => setHasParking(prev => !prev)} />
                     <label htmlFor="parking">Parking</label>
@@ -419,7 +410,7 @@ const List = () => {
               )}
             </div>
 
-            <button 
+            <button
               onClick={handleSearch}
               disabled={loading}
             >

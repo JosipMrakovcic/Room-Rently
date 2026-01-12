@@ -15,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "unit")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // DODAJ OVO
 public class Unit {
 
     @Id
@@ -51,40 +52,14 @@ public class Unit {
     @Column(nullable = false)
     private Integer numBeds;
 
-    @Transient // Ovo polje se ne sprema u bazu, već se računa
-    public Double getAverageRating() {
-        List<UnitReservation> allRelevantReservations = new ArrayList<>();
+    @Column(name = "average_rating")
+    private Double averageRating = 0.0; // Stvarni stupac u bazi
 
-        // 1. Ako je ovo soba
-        if (this.listOfRooms != null && !this.listOfRooms.isEmpty()) {
-            for (Unit room : this.listOfRooms) {
-                if (room.getUnitReservations() != null) {
-                    allRelevantReservations.addAll(room.getUnitReservations());
-                }
-            }
-        }
-        // 2. Dodaj i rezervacije izravno na ovaj unit (za apartmane koji nemaju podsobe)
-        if (this.unitReservations != null) {
-            allRelevantReservations.addAll(this.unitReservations);
-        }
-
-
-        // Filtriramo rezervacije koje su Completed i imaju rating, pa računamo prosjek
-        return allRelevantReservations.stream()
-                .filter(res -> "Completed".equalsIgnoreCase(res.getStatus()))
-                .filter(res -> res.getRating() != null)
-                .mapToDouble(UnitReservation::getRating)
-                .average()
-                .orElse(0.0);
-    }
-
-    // Kako bi Jackson (JSON) vidio ovo polje kao "rating"
+    // Ovu metodu ostavljamo za Jackson (JSON), ali sada čita iz polja, ne računa ništa
     @JsonProperty("rating")
     public Double getRating() {
-        Double avg = getAverageRating();
-        if (avg == null || avg == 0.0) return null;
-        // Zaokruživanje na jednu decimalu (npr. 8.6666 -> 8.7)
-        return Math.round(avg * 10.0) / 10.0;
+        if (averageRating == null || averageRating == 0.0) return null;
+        return Math.round(averageRating * 10.0) / 10.0;
     }
 
     @Column(nullable = false)

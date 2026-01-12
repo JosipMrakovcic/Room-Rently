@@ -3,7 +3,7 @@ package springboot.backend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional; // Preporuka za sigurnost baze
+import org.springframework.transaction.annotation.Transactional;
 import springboot.backend.model.UnitReservation;
 import springboot.backend.repository.UnitReservationRepo;
 
@@ -16,21 +16,26 @@ public class ReservationTask {
     @Autowired
     private UnitReservationRepo repo;
 
-    // Cron "0 0 0 * * *" znači svaki dan u ponoć.
-    // Za testiranje možeš staviti "0 */1 * * * *" (svake minute)
+    // Svaki dan u ponoć
     @Scheduled(cron = "0 0 0 * * *")
-    @Transactional // Osigurava da se promjene ispravno upišu u bazu
+    @Transactional
     public void autoCloseReservations() {
-        String todayStr = LocalDate.now().toString(); // Prevarimo u String "yyyy-MM-dd"
+        // PROMJENA: Koristimo LocalDate direktno, ne String
+        LocalDate today = LocalDate.now();
 
-        // Uzimamo samo one koje stvarno treba mijenjati
-        List<UnitReservation> expired = repo.findExpiredConfirmedReservations(todayStr);
+        // Pozivamo repo koji smo ranije definirali da prima LocalDate
+        List<UnitReservation> expired = repo.findExpiredConfirmedReservations(today);
 
         if (!expired.isEmpty()) {
             for (UnitReservation res : expired) {
                 res.setStatus("Completed");
+                // Hibernate će automatski spremiti promjene zbog @Transactional,
+                // ali repo.save(res) je u redu radi jasnoće.
                 repo.save(res);
-                System.out.println("Sustav: Rezervacija #" + res.getIdUnitReservation() + " za jedinicu " + res.getUnit().getUnitName() + " je postavljena na Completed.");
+
+                // Pazi: res.getUnit() radi jer smo unutar @Transactional
+                System.out.println("Sustav: Rezervacija #" + res.getIdUnitReservation() +
+                        " je automatski dovršena.");
             }
             System.out.println("Automatska obrada završena. Broj ažuriranih rezervacija: " + expired.size());
         }

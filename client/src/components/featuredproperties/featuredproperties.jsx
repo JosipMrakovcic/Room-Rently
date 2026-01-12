@@ -6,7 +6,7 @@ import "./featuredproperties.css";
 const Featuredproperties = () => {
   const navigate = useNavigate();
   const [units, setUnits] = useState([]);
-  const [globalAddress, setGlobalAddress] = useState(""); // Dodano stanje za globalnu adresu
+  const [globalAddress, setGlobalAddress] = useState("");
   const [loading, setLoading] = useState(true);
   const API_URL = process.env.REACT_APP_API_URL;
 
@@ -14,11 +14,9 @@ const Featuredproperties = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // 1. Dohvaćamo najbolje ocijenjene jedinice
         const response = await axios.get(`${API_URL}/unit/top-rated`);
         setUnits(response.data);
 
-        // 2. Dohvaćamo globalnu adresu lokacije (isto kao u Hotel.jsx)
         const locationRes = await axios.get(`${API_URL}/api/location`);
         if (locationRes.data) {
           setGlobalAddress(locationRes.data.address);
@@ -38,7 +36,8 @@ const Featuredproperties = () => {
   return (
     <div className="fp">
       {units.map((unit) => {
-        const coverImg = unit.images?.find((img) => img.url.includes("/cover/"));
+        // Promjena: Koristimo imageUrl iz DTO-a umjesto pretrage po unit.images
+        const displayImg = unit.imageUrl;
 
         return (
           <div 
@@ -49,9 +48,9 @@ const Featuredproperties = () => {
               window.scrollTo(0, 0);
             }}
           >
-            {coverImg ? (
+            {displayImg ? (
               <img 
-                src={coverImg.url.startsWith("http") ? coverImg.url : `${API_URL}${coverImg.url}`} 
+                src={displayImg.startsWith("http") ? displayImg : `${API_URL}${displayImg}`} 
                 alt={unit.unitName} 
                 className="fpimg" 
                 onError={(e) => { e.target.src = "/default_image.jpg"; }}
@@ -65,14 +64,14 @@ const Featuredproperties = () => {
 
             <span className="fpname">{unit.unitName}</span>
             
-            {/* Logika za adresu: Prioritet ima globalAddress, pa unit.location, pa unit.address */}
             <span className="fploc">
-              📍 {globalAddress || unit.location || unit.address || "Croatia"}
+              📍 {globalAddress || unit.location || "Croatia"}
             </span>
 
             <span className="fpprice">From {unit.price}€</span>
             
             <div className="fprating">
+              {/* Napomena: Ako želiš rating, moramo ga dodati u DTO na backendu */}
               <button>{unit.rating ? unit.rating.toFixed(1) : "NEW"}</button>
               <span>{unit.rating >= 9.5 ? "Excellent" : "Very Good"}</span>
             </div>

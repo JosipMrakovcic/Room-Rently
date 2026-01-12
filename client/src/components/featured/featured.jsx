@@ -30,10 +30,10 @@ const Featured = () => {
     window.scrollTo(0, 0);
   };
 
-  // Pomoćna funkcija za pronalaženje podataka za određeni tip
   const getDataFor = (type) => {
-    return viewData.find(item => item.type === type) || { count: 0, image: null };
-  };
+  // item.label je ono što tvoj DTO šalje ("sea", "village", "lake")
+  return viewData.find(item => item.label === type) || { count: 0, image: null };
+};
 
   const categories = [
     { id: "sea", title: "Sea view", defaultImg: "/pogledmore.jpg" },

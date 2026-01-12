@@ -1,10 +1,12 @@
 package springboot.backend.controller;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import springboot.backend.dto.OccupiedDateDTO;
 import springboot.backend.dto.ReservationRequest;
 import springboot.backend.model.Person;
 import springboot.backend.model.Unit;
@@ -13,6 +15,7 @@ import springboot.backend.repository.PersonRepo;
 import springboot.backend.repository.UnitRepo;
 import springboot.backend.repository.UnitReservationRepo;
 import org.springframework.http.HttpStatus;
+
 
 import java.util.ArrayList;
 import java.time.LocalDate;
@@ -34,6 +37,7 @@ public class UnitReservationController {
     @Autowired private EmailService emailService;
     @Autowired private PdfService pdfService;
 
+    @Transactional
     @PostMapping("/add")
     public ResponseEntity<?> addReservation(@RequestBody ReservationRequest req, @AuthenticationPrincipal Jwt jwt) {
         try {
@@ -53,7 +57,7 @@ public class UnitReservationController {
                 return ResponseEntity.badRequest().body("Departure date must be at least one day after arrival.");
             }
 
-            boolean isTaken = repo.existsOverlapping(req.getUnitId(), req.getStartDate(), req.getEndDate());
+            boolean isTaken = repo.isUnitOccupied(req.getUnitId(), req.getStartDate(), req.getEndDate());
             if (isTaken) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("These dates are already taken.");
             }
@@ -99,15 +103,29 @@ public class UnitReservationController {
         }
     }
 
+    @Transactional(readOnly = true) // Sada radi jer koristimo Spring import
     @GetMapping("/all")
-    public List<UnitReservation> getAll() {
-        return repo.findAll();
+    public ResponseEntity<?> getAll(@AuthenticationPrincipal Jwt jwt) {
+        if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        String email = jwt.getClaimAsString("email");
+        Person p = personRepo.findByEmail(email).orElse(null);
+
+        if (p == null || !p.isOwner()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied. Owners only.");
+        }
+
+        return ResponseEntity.ok(repo.findAll());
     }
 
+    @Transactional(readOnly = true) // Dodajemo i ovdje da popravimo 500 Error
     @GetMapping("/my-reservations")
     public ResponseEntity<List<UnitReservation>> getMyReservations(@AuthenticationPrincipal Jwt jwt) {
         if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        return ResponseEntity.ok(repo.findByPersonEmail(jwt.getClaimAsString("email")));
+
+        String email = jwt.getClaimAsString("email");
+        // Vraćamo listu filtriranu po emailu korisnika
+        return ResponseEntity.ok(repo.findByPersonEmail(email));
     }
 
     @PutMapping("/cancel/{id}")
@@ -170,13 +188,20 @@ public class UnitReservationController {
         int rating = body.get("rating");
 
         return repo.findById(id).map(res -> {
+            // Provjere (sigurnost)
             if (!res.getPerson().getEmail().equals(jwt.getClaimAsString("email"))) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             if (!"Completed".equalsIgnoreCase(res.getStatus())) return ResponseEntity.badRequest().body("Not completed.");
             if (res.getRating() != null) return ResponseEntity.badRequest().body("Already rated.");
 
+            // 1. Spremi ocjenu u rezervaciju
             res.setRating(rating);
             res.setRatingDate(LocalDate.now());
             repo.save(res);
+
+            // 2. KLJUČNI DIO: Osvježi stupac average_rating u tablici UNIT
+            // Ovo radi onaj brzi SQL koji smo ranije definirali u UnitRepo
+            unitRepo.refreshUnitRating(res.getUnit().getIdUnit());
+
             return ResponseEntity.ok("Rated!");
         }).orElse(ResponseEntity.notFound().build());
     }
@@ -189,5 +214,18 @@ public class UnitReservationController {
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=Reservation_Summary.pdf");
         pdfService.generateReservationPdf(response.getOutputStream(), res);
+    }
+    @Transactional(readOnly = true)
+    @GetMapping("/occupied-dates/{unitId}")
+    public ResponseEntity<List<OccupiedDateDTO>> getOccupiedDates(@PathVariable Long unitId) {
+        // 1. Dohvaćamo rezervacije iz baze (već si dodao metodu u Repo)
+        List<UnitReservation> reservations = repo.findOccupiedDatesByUnitId(unitId);
+
+        // 2. Pretvaramo ih u listu laganih DTO objekata
+        List<OccupiedDateDTO> occupiedDates = reservations.stream()
+                .map(res -> new OccupiedDateDTO(res.getStartDate(), res.getEndDate()))
+                .toList();
+
+        return ResponseEntity.ok(occupiedDates);
     }
 }

@@ -99,9 +99,8 @@ public class UnitImgController {
     @PutMapping("/set-cover/{unitId}/{imgId}")
     @Transactional
     public ResponseEntity<?> setCover(@PathVariable Long unitId, @PathVariable Long imgId) {
-        List<UnitImg> images = repo.findAll().stream()
-                .filter(i -> i.getUnit().getIdUnit().equals(unitId))
-                .toList();
+        // VIŠE NE KORISTIMO repo.findAll().stream()
+        List<UnitImg> images = repo.findByUnitIdUnit(unitId);
 
         for (UnitImg img : images) {
             if (img.getId().equals(imgId)) {

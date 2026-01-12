@@ -40,6 +40,7 @@ export default function OwnerDashboard() {
 
   const occupancyRef = useRef(null);
   const countryRef = useRef(null);
+  const cityRef = useRef(null);
   const servicesRef = useRef(null);
   const amenitiesRef = useRef(null);
   const topRatedRef = useRef(null);
@@ -198,6 +199,20 @@ export default function OwnerDashboard() {
     return { labels: Object.keys(counts), data: Object.values(counts) };
   }, [filteredReservations]);
 
+  const cityStats = useMemo(() => {
+  const counts = {};
+
+  filteredReservations.forEach(res => {
+    if (VALID_STATS_STATUSES.includes(res.status)) {
+      const city = res.person.city;
+      counts[city] = (counts[city] || 0) + 1;
+    }
+  });
+
+  return { labels: Object.keys(counts), data: Object.values(counts) };
+}, [filteredReservations]);
+
+
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: true,
@@ -209,6 +224,7 @@ export default function OwnerDashboard() {
   const monthlyGuestsData = { labels: monthlyStats.labels, datasets: [{ label: "Total Guests", data: monthlyStats.data, backgroundColor: "#004080" }] };
   const amenitiesData = { labels: amenitiesStats.labels, datasets: [{ label: "Requests", data: amenitiesStats.data, backgroundColor: "rgba(75, 192, 192, 0.6)" }] };
   const guestsByCountryData = { labels: countryStats.labels, datasets: [{ label: "Guests", data: countryStats.data, backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"] }] };
+  const guestsByCityData = { labels: cityStats.labels, datasets: [{label: "Guests",data: cityStats.data, backgroundColor: ["#1abc9c", "#3498db", "#9b59b6", "#e67e22", "#e74c3c", "#2ecc71"]}]};
   const popularServicesData = { labels: unitStats.labels, datasets: [{ label: "Reservations", data: unitStats.data, backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"] }] };
 
   // NADOPUNJENO: Error handling sa alertom koji pokazuje poruku s backenda
@@ -281,7 +297,13 @@ export default function OwnerDashboard() {
     if (countryStats.data.length > 0) {
         if (currentY > 200) { doc.addPage(); currentY = 20; }
         doc.text("5. Guests by Country", 20, currentY - 5);
-        addChartToPDF(doc, countryRef, 20, currentY);
+        currentY = addChartToPDF(doc, countryRef, 20, currentY);
+    }
+
+    if (cityStats.data.length > 0) {
+      if (currentY > 300) { doc.addPage(); currentY = 20; }
+        doc.text("6. Guests by City", 20, currentY - 5);
+        addChartToPDF(doc, cityRef, 20, currentY);
     }
 
     doc.save(`full_analytics_${getReportTitle().replace(" ", "_")}.pdf`);
@@ -445,7 +467,6 @@ export default function OwnerDashboard() {
     if (r.status === "Confirmed") countryMap[country].ConfirmedReservations += 1;
     if (r.status === "Pending") countryMap[country].PendingReservations += 1;
   });
-
   const countryRows = Object.values(countryMap).map(c => ({
     ...c,
     AvgGuestsPerReservation:
@@ -454,11 +475,49 @@ export default function OwnerDashboard() {
         : 0
   }));
 
+  // ===== CITY STATS =====
+  const cityMap = {};
+
+  reservations.forEach(r => {
+    if (!VALID_STATS_STATUSES.includes(r.status)) return;
+
+    const city = r.person?.city || "Unknown";
+    const guests = (r.adults || 0) + (r.children || 0);
+
+    if (!cityMap[city]) {
+      cityMap[city] = {
+        City: city,
+        TotalGuests: 0,
+        TotalReservations: 0,
+        CompletedReservations: 0,
+        ConfirmedReservations: 0,
+        PendingReservations: 0
+      };
+    }
+
+    cityMap[city].TotalGuests += guests;
+    cityMap[city].TotalReservations += 1;
+    if (r.status === "Completed") cityMap[city].CompletedReservations += 1;
+    if (r.status === "Confirmed") cityMap[city].ConfirmedReservations += 1;
+    if (r.status === "Pending") cityMap[city].PendingReservations += 1;
+  });
+
+  const cityRows = Object.values(cityMap).map(c => ({
+    ...c,
+    AvgGuestsPerReservation:
+      c.TotalReservations > 0
+        ? (c.TotalGuests / c.TotalReservations).toFixed(2)
+        : 0
+  }));
+
+
   const countryWS = XLSX.utils.json_to_sheet(countryRows);
   XLSX.utils.book_append_sheet(wb, countryWS, `CountryStatistics_${selectedYear}`);
+  const cityWS = XLSX.utils.json_to_sheet(cityRows);
+  XLSX.utils.book_append_sheet(wb, cityWS, `CityStatistics_${selectedYear}`);
 
   XLSX.writeFile(wb, `analytics_${selectedYear}.xlsx`);
-};
+}
 
 
 
@@ -530,6 +589,41 @@ export default function OwnerDashboard() {
         : 0
   }));
 
+  // ===== CITY STATS =====
+  const cityMap = {};
+
+  reservations.forEach(r => {
+    if (!VALID_STATS_STATUSES.includes(r.status)) return;
+
+    const city = r.person?.city || "Unknown";
+    const guests = (r.adults || 0) + (r.children || 0);
+
+    if (!cityMap[city]) {
+      cityMap[city] = {
+        City: city,
+        TotalGuests: 0,
+        TotalReservations: 0,
+        CompletedReservations: 0,
+        ConfirmedReservations: 0,
+        PendingReservations: 0
+      };
+    }
+
+    cityMap[city].TotalGuests += guests;
+    cityMap[city].TotalReservations += 1;
+    if (r.status === "Completed") cityMap[city].CompletedReservations += 1;
+    if (r.status === "Confirmed") cityMap[city].ConfirmedReservations += 1;
+    if (r.status === "Pending") cityMap[city].PendingReservations += 1;
+  });
+
+  const cityStats = Object.values(cityMap).map(c => ({
+    ...c,
+    AvgGuestsPerReservation:
+      c.TotalReservations > 0
+        ? (c.TotalGuests / c.TotalReservations).toFixed(2)
+        : 0
+  }));
+
   // ===== COMBINED XML =====
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<root>\n`;
 
@@ -552,6 +646,17 @@ export default function OwnerDashboard() {
     xml += `    </item>\n`;
   });
   xml += `  </countryStats>\n`;
+
+  xml += `  <cityStats>\n`;
+  cityStats.forEach(item => {
+    xml += `    <item>\n`;
+    Object.entries(item).forEach(([k, v]) => {
+      xml += `      <${k}>${v}</${k}>\n`;
+    });
+    xml += `    </item>\n`;
+  });
+  xml += `  </cityStats>\n`;
+
 
   xml += `</root>`;
 
@@ -660,6 +765,10 @@ export default function OwnerDashboard() {
             <div className="chart-container">
                 <h3>Guests by Country ({getReportTitle()})</h3>
                 <Pie ref={countryRef} data={countryStats.data.length > 0 ? guestsByCountryData : {labels:[], datasets:[]}} options={chartOptions} />
+            </div>
+            <div className="chart-container">
+              <h3>Guests by City ({getReportTitle()})</h3>
+              <Pie ref={cityRef} data={cityStats.data.length > 0 ? guestsByCityData : { labels: [], datasets: [] }} options={chartOptions}/>
             </div>
           </div>
           <div className="export-buttons-group">

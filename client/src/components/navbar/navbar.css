@@ -121,6 +121,18 @@
   border-radius: 5px;
 }
 
+.custom-input{
+  width: 90%;
+  padding: 10px;
+  margin: 20px 0;
+  border-radius: 5px;
+}
+
+#city{
+  margin-top: 0px;
+  display: block;
+}
+
 .save-country-btn {
   background: #004080;
   color: white;

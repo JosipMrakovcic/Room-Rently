@@ -1,10 +1,18 @@
 package springboot.backend.dto;
 
-import java.util.List;
+import java.math.BigDecimal;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record UnitTopRatedDTO(
-        Long idUnit,
-        String unitName,
-        Integer price,
-        String imageUrl // Šaljemo samo jednu sliku, ne cijelu listu
-) {}
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class UnitTopRatedDTO {
+    private Long idUnit;
+    private String unitName;
+    private BigDecimal price;
+    private String imageUrl;
+    private Double rating; // <-- Mora postojati
+
+}

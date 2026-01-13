@@ -129,12 +129,19 @@ public class UnitReservationController {
         String email = jwt.getClaimAsString("email");
 
         return repo.findById(id).map(res -> {
+            // Provjera vlasništva rezervacije
             if (!res.getPerson().getEmail().equals(email)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+            // 1. Ažuriraj status u bazi
             res.setStatus("Cancelled");
             repo.save(res);
 
-            // 🟢 ASINKRONO: Simple notification
-            emailService.sendSimpleStatusEmail(res, "Booking Cancelled", "Your reservation #" + id + " has been successfully cancelled as per your request.");
+            // 2. POZIV SERVISA (Ovo će se izvršiti u pozadini zahvaljujući @Async)
+            emailService.sendSimpleStatusEmail(
+                    res,
+                    "Booking Cancelled",
+                    "Your reservation #" + id + " has been successfully cancelled as per your request."
+            );
 
             return ResponseEntity.ok("Cancelled.");
         }).orElse(ResponseEntity.notFound().build());

@@ -123,6 +123,7 @@ public class UnitReservationController {
         return ResponseEntity.ok(repo.findByPersonEmail(email));
     }
 
+    @Transactional
     @PutMapping("/cancel/{id}")
     public ResponseEntity<?> cancelReservation(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
         if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -130,11 +131,16 @@ public class UnitReservationController {
 
         return repo.findById(id).map(res -> {
             if (!res.getPerson().getEmail().equals(email)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
             res.setStatus("Cancelled");
             repo.save(res);
 
-            // 🟢 ASINKRONO: Simple notification
-            emailService.sendSimpleStatusEmail(res, "Booking Cancelled", "Your reservation #" + id + " has been successfully cancelled as per your request.");
+            // OVO JE TRIK: Prisilno učitaj unit ime dok si unutar @Transactional
+            // To puni "proxy" objekt podacima pa Async dretva neće imati problem
+            String dummy = res.getUnit().getUnitName();
+
+            emailService.sendSimpleStatusEmail(res, "Booking Cancelled",
+                    "Your reservation #" + id + " has been successfully cancelled.");
 
             return ResponseEntity.ok("Cancelled.");
         }).orElse(ResponseEntity.notFound().build());

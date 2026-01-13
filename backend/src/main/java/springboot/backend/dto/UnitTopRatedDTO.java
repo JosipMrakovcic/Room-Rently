@@ -6,5 +6,6 @@ public record UnitTopRatedDTO(
         Long idUnit,
         String unitName,
         Integer price,
-        String imageUrl // Šaljemo samo jednu sliku, ne cijelu listu
+        String imageUrl,
+        Double rating // DODANO
 ) {}

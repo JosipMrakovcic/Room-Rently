@@ -85,7 +85,7 @@ public class PersonController {
     }
 
     @Transactional(readOnly = true)
-    @GetMapping("/{id}")
+    @GetMapping("/{id:[0-9]+}")
     public ResponseEntity<?> getPersonById(@PathVariable Long id) {
         Optional<Person> person = repo.findById(id);
 

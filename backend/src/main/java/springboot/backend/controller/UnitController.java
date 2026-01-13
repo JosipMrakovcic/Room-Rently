@@ -10,13 +10,17 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import springboot.backend.dto.UnitFilterDTO;
 import springboot.backend.dto.UnitCountDTO;
 import springboot.backend.dto.UnitSummaryDTO;
+import springboot.backend.model.Person;
 import springboot.backend.model.Unit;
 import springboot.backend.model.UnitReservation;
+import springboot.backend.repository.PersonRepo;
 import springboot.backend.repository.UnitRepo;
 import springboot.backend.repository.UnitReservationRepo;
 import springboot.backend.service.EmailService;
@@ -42,6 +46,9 @@ public class UnitController {
     private UnitRepo repo;
 
     @Autowired
+    private PersonRepo personRepo;
+
+    @Autowired
     private UnitReservationRepo reservationRepo;
 
     @Autowired
@@ -56,7 +63,21 @@ public class UnitController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> addUnit(@RequestBody Unit unit) {
+    public ResponseEntity<?> addUnit(@RequestBody Unit unit, @AuthenticationPrincipal Jwt jwt) {
+        // 1. Provjera je li token tu
+        if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        // 2. Izvlačenje emaila
+        String email = jwt.getClaimAsString("email");
+        if (email == null) return ResponseEntity.badRequest().body("No email in token.");
+
+        // 3. Traženje osobe u Person tablici pomoću personRepo-a
+        Optional<Person> caller = personRepo.findByEmail(email);
+
+        // 4. Provjera je li osoba admin
+        if (caller.isEmpty() || !caller.get().isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admins can add units.");
+        }
         if (unit.getPrice() != null && unit.getPrice() < 1) {
             return ResponseEntity.badRequest().body("Price must be a positive number.");
         }
@@ -105,7 +126,14 @@ public class UnitController {
 
     @Transactional
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateUnit(@PathVariable Long id, @RequestBody Unit unitPayload) {
+    public ResponseEntity<?> updateUnit(@PathVariable Long id, @RequestBody Unit unitPayload, @AuthenticationPrincipal Jwt jwt) {
+        // --- DODAJ OVU PROVJERU ---
+        if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        String email = jwt.getClaimAsString("email");
+        Optional<Person> caller = personRepo.findByEmail(email);
+        if (caller.isEmpty() || !caller.get().isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admins can update units.");
+        }
         try {
             if (unitPayload.getPrice() != null && unitPayload.getPrice() < 1) {
                 return ResponseEntity.badRequest().body("Price can't be negative.");
@@ -142,7 +170,6 @@ public class UnitController {
                     if (!busyRooms.isEmpty()) {
                         // Ako nismo mogli obrisati sve, ažuriramo barem ono što je ostalo
                         syncSubRoomsAndSort(existingUnit, ignoreProperties);
-                        int numOfRooms= existingUnit.getNumSameRooms();
                         existingUnit.setNumSameRooms(currentRooms.size());
                         repo.save(existingUnit);
                         return ResponseEntity.badRequest().body(

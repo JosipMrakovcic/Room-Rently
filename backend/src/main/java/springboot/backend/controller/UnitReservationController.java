@@ -201,15 +201,6 @@ public class UnitReservationController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/download-pdf/{id}")
-    public void downloadPdf(@PathVariable Long id, HttpServletResponse response, @AuthenticationPrincipal Jwt jwt) throws IOException {
-        if (jwt == null) { response.sendError(401); return; }
-        UnitReservation res = repo.findById(id).orElseThrow();
-
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=Reservation_Summary.pdf");
-        pdfService.generateReservationPdf(response.getOutputStream(), res);
-    }
     @Transactional(readOnly = true)
     @GetMapping("/occupied-dates/{unitId}")
     public ResponseEntity<List<OccupiedDateDTO>> getOccupiedDates(@PathVariable Long unitId) {

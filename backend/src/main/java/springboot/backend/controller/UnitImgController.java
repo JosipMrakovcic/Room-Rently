@@ -2,12 +2,16 @@ package springboot.backend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import springboot.backend.model.Person;
 import springboot.backend.model.Unit;
 import springboot.backend.model.UnitImg;
 import springboot.backend.model.UnitReservation;
+import springboot.backend.repository.PersonRepo;
 import springboot.backend.repository.UnitImgRepo;
 import springboot.backend.repository.UnitRepo;
 import springboot.backend.repository.UnitReservationRepo;
@@ -16,10 +20,7 @@ import springboot.backend.service.FileCleanupService;
 import springboot.backend.service.FileService;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/unitImg")
@@ -30,6 +31,9 @@ public class UnitImgController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private PersonRepo personRepo;
 
     @Autowired
     private UnitImgRepo repo;
@@ -50,7 +54,16 @@ public class UnitImgController {
     public ResponseEntity<?> uploadImage(
             @PathVariable Long unitId,
             @RequestParam("file") MultipartFile file,
-            @RequestParam("isCover") boolean isCover) {
+            @RequestParam("isCover") boolean isCover,
+            @AuthenticationPrincipal Jwt jwt) { // DODAJ PARAMETAR
+
+        // PROVJERA ADMINA (Isto kao u delete-full)
+        if (jwt == null) return ResponseEntity.status(401).build();
+        String email = jwt.getClaimAsString("email");
+        Optional<Person> caller = personRepo.findByEmail(email);
+        if (caller.isEmpty() || !caller.get().isAdmin()) {
+            return ResponseEntity.status(403).body("Only admins can upload images.");
+        }
 
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("File is empty.");
@@ -81,7 +94,14 @@ public class UnitImgController {
 
     @DeleteMapping("/delete/{id}")
     @Transactional
-    public ResponseEntity<?> deleteImage(@PathVariable Long id) {
+    public ResponseEntity<?> deleteImage(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) { // DODAJ PARAMETAR
+        // PROVJERA ADMINA
+        if (jwt == null) return ResponseEntity.status(401).build();
+        String email = jwt.getClaimAsString("email");
+        Optional<Person> caller = personRepo.findByEmail(email);
+        if (caller.isEmpty() || !caller.get().isAdmin()) {
+            return ResponseEntity.status(403).body("Only admins can delete images.");
+        }
         try {
             UnitImg img = repo.findById(id)
                     .orElseThrow(() -> new RuntimeException("Image not found with ID: " + id));
@@ -98,51 +118,97 @@ public class UnitImgController {
 
     @PutMapping("/set-cover/{unitId}/{imgId}")
     @Transactional
-    public ResponseEntity<?> setCover(@PathVariable Long unitId, @PathVariable Long imgId) {
-        // VIŠE NE KORISTIMO repo.findAll().stream()
-        List<UnitImg> images = repo.findByUnitIdUnit(unitId);
+    public ResponseEntity<?> setCover(
+            @PathVariable Long unitId,
+            @PathVariable Long imgId,
+            @AuthenticationPrincipal Jwt jwt) {
 
-        for (UnitImg img : images) {
-            if (img.getId().equals(imgId)) {
-                updateImageStatus(img.getId(), true);
-            } else if (img.getUrl().contains("/cover/")) {
-                updateImageStatus(img.getId(), false);
-            }
+        // 1. PROVJERA ADMINA
+        if (jwt == null) return ResponseEntity.status(401).build();
+        String email = jwt.getClaimAsString("email");
+        Optional<Person> caller = personRepo.findByEmail(email);
+        if (caller.isEmpty() || !caller.get().isAdmin()) {
+            return ResponseEntity.status(403).body("Only admins can set cover image.");
         }
-        return ResponseEntity.ok("Cover updated successfully");
+
+        try {
+            List<UnitImg> images = repo.findByUnitIdUnit(unitId);
+
+            for (UnitImg img : images) {
+                // Koristimo Objects.equals da izbjegnemo NullPointerException i probleme s tipovima
+                boolean isCurrentTarget = Objects.equals(img.getId(), imgId);
+
+                if (isCurrentTarget) {
+                    // Postavi novu sliku kao cover
+                    performImageStatusUpdate(img.getId(), true);
+                }
+                else if (img.getUrl().contains("/cover/")) {
+                    // Ako NIJE trenutna slika, a već je bila cover, vrati je u 'other'
+                    performImageStatusUpdate(img.getId(), false);
+                }
+            }
+            return ResponseEntity.ok("Cover updated successfully and old cover moved to other.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error updating cover: " + e.getMessage());
+        }
     }
 
+    // 1. OVA METODA JE ZA VANJSKI POZIV (API)
     @PutMapping("/update-status/{imgId}")
     @Transactional
-    public ResponseEntity<?> updateImageStatus(@PathVariable Long imgId, @RequestParam boolean isCover) {
-        try {
-            UnitImg img = repo.findById(imgId)
-                    .orElseThrow(() -> new RuntimeException("Image not found."));
-
-            String currentUrl = img.getUrl();
-            String targetSubFolder = isCover ? "cover/" : "other/";
-
-            if (currentUrl.contains("/" + targetSubFolder)) {
-                return ResponseEntity.ok("Status already valid.");
-            }
-
-            String fileName = currentUrl.substring(currentUrl.lastIndexOf("/") + 1);
-            String newS3Path = BASE_S3_DIR + img.getUnit().getIdUnit() + "/" + targetSubFolder + fileName;
-
-            String newUrl = fileService.moveFile(currentUrl, newS3Path);
-
-            img.setUrl(newUrl);
-            repo.save(img);
-
-            return ResponseEntity.ok("Image successfully transfered to: " + targetSubFolder);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error while updating image on Cloud: " + e.getMessage());
+    public ResponseEntity<?> updateImageStatusApi(@PathVariable Long imgId, @RequestParam boolean isCover, @AuthenticationPrincipal Jwt jwt) {
+        if (jwt == null) return ResponseEntity.status(401).build();
+        String email = jwt.getClaimAsString("email");
+        Optional<Person> caller = personRepo.findByEmail(email);
+        if (caller.isEmpty() || !caller.get().isAdmin()) {
+            return ResponseEntity.status(403).body("Only admins can update status.");
         }
+
+        try {
+            performImageStatusUpdate(imgId, isCover);
+            return ResponseEntity.ok("Image status updated successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
+    }
+
+    private void performImageStatusUpdate(Long imgId, boolean isCover) throws Exception {
+        UnitImg img = repo.findById(imgId)
+                .orElseThrow(() -> new RuntimeException("Image not found."));
+
+        String currentUrl = img.getUrl();
+        // Koristimo dosljedno 'targetSubFolder'
+        String targetSubFolder = isCover ? "cover/" : "other/";
+
+        // 1. ISPRAVLJENA PROVJERA: Provjeravamo točnu varijablu
+        if (currentUrl.contains("/" + targetSubFolder)) {
+            System.out.println(">>> S3 SKIP: Slika ID " + imgId + " je već u folderu: " + targetSubFolder);
+            return;
+        }
+
+        // 2. Izdvajanje imena datoteke
+        String fileName = currentUrl.substring(currentUrl.lastIndexOf("/") + 1);
+
+        // 3. Generiranje nove putanje
+        String newS3Path = BASE_S3_DIR + img.getUnit().getIdUnit() + "/" + targetSubFolder + fileName;
+
+        // 4. Cloud premještanje
+        System.out.println(">>> S3 MOVING: Iz " + currentUrl + " u " + newS3Path);
+        String newUrl = fileService.moveFile(currentUrl, newS3Path);
+
+        img.setUrl(newUrl);
+        repo.save(img);
     }
 
     @DeleteMapping("/delete-full/{id}")
     @Transactional
-    public ResponseEntity<?> deleteUnit(@PathVariable Long id) {
+    public ResponseEntity<?> deleteUnit(@PathVariable Long id, @AuthenticationPrincipal Jwt jwt) {
+        if (jwt == null) return ResponseEntity.status(401).build();
+        String email = jwt.getClaimAsString("email");
+        Optional<Person> caller = personRepo.findByEmail(email);
+        if (caller.isEmpty() || !caller.get().isAdmin()) {
+            return ResponseEntity.status(403).body("Only admins can delete units.");
+        }
         System.out.println(">>> Zahtjev za potpuno brisanje Unita ID: " + id);
 
         Unit unit = unitRepo.findById(id)

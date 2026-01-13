@@ -186,6 +186,9 @@ const ApartmentForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // 1. Dohvati token (isto kao u OwnerDashboard)
+    const token = localStorage.getItem("access_token");
+
     const unitPayload = {
       unitName: formData.unitName,
       mainDescName: formData.mainDescriptionTitle,
@@ -220,7 +223,8 @@ const ApartmentForm = () => {
     try {
       const response = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}`},
+        
         body: JSON.stringify(unitPayload),
       });
 
@@ -234,25 +238,48 @@ const ApartmentForm = () => {
         const savedUnit = await response.json();
         const unitId = id || savedUnit.idUnit;
 
+        // 1. Prvo obriši slike koje su označene za brisanje
         if (imagesToDelete.length > 0) {
           for (const imgId of imagesToDelete) {
-            await fetch(`${process.env.REACT_APP_API_URL}/unitImg/delete/${imgId}`, { method: "DELETE" });
+            await fetch(`${process.env.REACT_APP_API_URL}/unitImg/delete/${imgId}`, { 
+              method: "DELETE", 
+              headers: { "Authorization": `Bearer ${token}` } 
+            });
           }
         }
 
+        // 2. Uploadaj NOVE datoteke (one koje imaju .file objekt)
+        let finalCoverImageId = null;
+
         for (let i = 0; i < images.length; i++) {
           const imageObj = images[i];
-          const isCover = (i === coverIndex); 
+          const isCover = (i === coverIndex);
 
           if (imageObj.file) {
             const imageFormData = new FormData();
             imageFormData.append("file", imageObj.file);
             imageFormData.append("isCover", isCover);
-            await fetch(`${process.env.REACT_APP_API_URL}/unitImg/upload/${unitId}`, { method: "POST", body: imageFormData });
-          } else if (imageObj.id) {
-            // PROMJENA: Prosljeđujemo isCover kao query parametar jer Java kontroler koristi @RequestParam
-            await fetch(`${process.env.REACT_APP_API_URL}/unitImg/update-status/${imageObj.id}?isCover=${isCover}`, { method: "PUT" });
+            
+            const imgRes = await fetch(`${process.env.REACT_APP_API_URL}/unitImg/upload/${unitId}`, { 
+              method: "POST", 
+              body: imageFormData, 
+              headers: { "Authorization": `Bearer ${token}` },
+            });
+            
+            const uploadedImg = await imgRes.json();
+            if (isCover) finalCoverImageId = uploadedImg.id; // Spremi ID ako je to novi cover
+          } else if (imageObj.id && isCover) {
+            // Ako je slika već postojala i postala je cover
+            finalCoverImageId = imageObj.id;
           }
+        }
+
+        // 3. NAJVAŽNIJE: Jedan poziv da potvrdiš tko je cover (pokreće tvoju pametnu logiku na backendu)
+        if (finalCoverImageId) {
+          await fetch(`${process.env.REACT_APP_API_URL}/unitImg/set-cover/${unitId}/${finalCoverImageId}`, {
+            method: "PUT",
+            headers: { "Authorization": `Bearer ${token}` }
+          });
         }
 
         alert("Unit and images updated successfully!");

@@ -108,17 +108,16 @@ public interface UnitRepo extends JpaRepository<Unit, Long> {
     long countTotalAvailableUnitsByView(@Param("type") String type);
 
     @Query("""
-    SELECT new springboot.backend.dto.UnitTopRatedDTO(
-        u.idUnit, 
-        u.unitName, 
-        u.price, 
-        (SELECT i.url FROM UnitImg i WHERE i.unit = u ORDER BY i.id ASC LIMIT 1),
-        u.averageRating  -- <-- DODANO OVDJE
-    )
-    FROM Unit u 
-    WHERE u.parentUnit IS NULL 
-    ORDER BY u.averageRating DESC NULLS LAST, u.idUnit DESC
-""")
+        SELECT new springboot.backend.dto.UnitTopRatedDTO(
+            u.idUnit, 
+            u.unitName, 
+            u.price, 
+            (SELECT i.url FROM UnitImg i WHERE i.unit = u ORDER BY i.id ASC LIMIT 1)
+        )
+        FROM Unit u 
+        WHERE u.parentUnit IS NULL 
+        ORDER BY u.averageRating DESC NULLS LAST, u.idUnit DESC
+    """)
     List<springboot.backend.dto.UnitTopRatedDTO> findTopRatedSimple(Pageable pageable);
 
     // 2. BEDS IMAGE: Slika najbolje ocijenjenog apartmana s tim brojem kreveta

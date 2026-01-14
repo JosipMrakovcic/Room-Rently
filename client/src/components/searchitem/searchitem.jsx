@@ -24,7 +24,7 @@ const Searchitem = ({ unit }) => {
     };
     fetchLocation();
   }, [API_URL]);
-
+// Funkcija koja pametno spaja URL slike
   const getCoverImage = () => {
     if (unit.coverImage) {
       return unit.coverImage.startsWith("http") 

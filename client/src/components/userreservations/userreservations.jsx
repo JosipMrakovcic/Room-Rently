@@ -105,12 +105,13 @@ const UserReservations = () => {
 
   // Pomalo komplicirana provjera: je li status Completed, nije ocijenjeno i je li unutar 3 dana od endDate
   const canUserRate = (res) => {
+    // 1. Status mora biti "Completed" i ne smije već postojati ocjena
     if (res.status !== "Completed" || res.rating) return false;
     
     const endDate = new Date(res.endDate);
     const deadline = addDays(endDate, 3); // Datum završetka + 3 dana
     const now = new Date();
-    
+    // 2. Provjera je li trenutni trenutak unutar roka
     return !isAfter(now, deadline); // Vraća true ako "sada" nije nakon "deadlinea"
   };
 

@@ -20,54 +20,67 @@ public interface UnitRepo extends JpaRepository<Unit, Long> {
     Optional<Unit> findByUnitName(String unitName);
 
     @Query("""
-    SELECT new springboot.backend.dto.UnitFilterDTO(
-        u.idUnit, 
-        u.unitName, 
-        u.price, 
-        u.averageRating, 
-        (SELECT img.url FROM UnitImg img WHERE img.unit = u ORDER BY img.id ASC LIMIT 1),
-        u.location,
-        u.apartment,
-        u.numRooms,
-        u.numBeds,
-        u.capAdults,
-        u.capChildren,
-        u.hasWifi,
-        u.hasParking,
-        u.hasAirConditioning
-    )
-    FROM Unit u
-    WHERE u.parentUnit IS NULL
-    AND (:name IS NULL OR :name = '' OR LOWER(u.unitName) LIKE LOWER(CONCAT('%', :name, '%')))
-    AND (:adults IS NULL OR u.capAdults >= :adults) 
-    AND (:children IS NULL OR u.capChildren >= :children)
-    AND (:rooms IS NULL OR u.numRooms >= :rooms)
-    AND (:beds IS NULL OR u.numBeds >= :beds)
-    AND (:isApartment IS NULL OR u.apartment = :isApartment)
-    AND (:seaView IS NULL OR u.seaView = :seaView)
-    AND (:lakeView IS NULL OR u.lakeView = :lakeView)
-    AND (:villageView IS NULL OR u.villageView = :villageView)
-    AND (:hasParking IS NULL OR u.hasParking = :hasParking)
-    AND (:hasWifi IS NULL OR u.hasWifi = :hasWifi)
-    AND (:hasBreakfast IS NULL OR u.hasBreakfast = :hasBreakfast)
-    AND (:hasTowels IS NULL OR u.hasTowels = :hasTowels)
-    AND (:hasShampoo IS NULL OR u.hasShampoo = :hasShampoo)
-    AND (:hasHairDryer IS NULL OR u.hasHairDryer = :hasHairDryer)
-    AND (:hasHeater IS NULL OR u.hasHeater = :hasHeater)
-    AND (:hasAirConditioning IS NULL OR u.hasAirConditioning = :hasAirConditioning)
-    AND (:minPrice IS NULL OR u.price >= :minPrice)
-    AND (:maxPrice IS NULL OR u.price <= :maxPrice)
-    AND (
-        CAST(:startDate AS date) IS NULL OR 
-        CAST(:endDate AS date) IS NULL OR 
-        NOT EXISTS (
-            SELECT r FROM UnitReservation r
-            WHERE r.unit = u
-            AND r.status IN ('Confirmed', 'Pending')
-            AND (r.startDate < :endDate AND r.endDate > :startDate)
+        SELECT new springboot.backend.dto.UnitFilterDTO(
+            u.idUnit, 
+            u.unitName, 
+            u.price, 
+            u.averageRating, 
+            (SELECT img.url FROM UnitImg img WHERE img.unit = u ORDER BY img.id ASC LIMIT 1),
+            u.location,
+            u.apartment,
+            u.numRooms,
+            u.numBeds,
+            u.capAdults,
+            u.capChildren,
+            u.hasWifi,
+            u.hasParking,
+            u.hasAirConditioning
         )
-    )
-""")
+        FROM Unit u
+        WHERE u.parentUnit IS NULL
+        AND (:name IS NULL OR :name = '' OR LOWER(u.unitName) LIKE LOWER(CONCAT('%', :name, '%')))
+        AND (:adults IS NULL OR u.capAdults >= :adults) 
+        AND (:children IS NULL OR u.capChildren >= :children)
+        AND (:rooms IS NULL OR u.numRooms >= :rooms)
+        AND (:beds IS NULL OR u.numBeds >= :beds)
+        AND (:isApartment IS NULL OR u.apartment = :isApartment)
+        AND (:seaView IS NULL OR u.seaView = :seaView)
+        AND (:lakeView IS NULL OR u.lakeView = :lakeView)
+        AND (:villageView IS NULL OR u.villageView = :villageView)
+        AND (:hasParking IS NULL OR u.hasParking = :hasParking)
+        AND (:hasWifi IS NULL OR u.hasWifi = :hasWifi)
+        AND (:hasBreakfast IS NULL OR u.hasBreakfast = :hasBreakfast)
+        AND (:hasTowels IS NULL OR u.hasTowels = :hasTowels)
+        AND (:hasShampoo IS NULL OR u.hasShampoo = :hasShampoo)
+        AND (:hasHairDryer IS NULL OR u.hasHairDryer = :hasHairDryer)
+        AND (:hasHeater IS NULL OR u.hasHeater = :hasHeater)
+        AND (:hasAirConditioning IS NULL OR u.hasAirConditioning = :hasAirConditioning)
+        AND (:minPrice IS NULL OR u.price >= :minPrice)
+        AND (:maxPrice IS NULL OR u.price <= :maxPrice)
+        AND (
+            CAST(:startDate AS date) IS NULL OR 
+            CAST(:endDate AS date) IS NULL OR 
+            (
+                (u.listOfRooms IS EMPTY AND NOT EXISTS (
+                    SELECT r FROM UnitReservation r
+                    WHERE r.unit = u
+                    AND r.status IN ('Confirmed', 'Pending')
+                    AND (r.startDate < :endDate AND r.endDate > :startDate)
+                ))
+                OR
+                (u.listOfRooms IS NOT EMPTY AND EXISTS (
+                    SELECT child FROM Unit child 
+                    WHERE child.parentUnit = u 
+                    AND NOT EXISTS (
+                        SELECT r2 FROM UnitReservation r2 
+                        WHERE r2.unit = child 
+                        AND r2.status IN ('Confirmed', 'Pending')
+                        AND (r2.startDate < :endDate AND r2.endDate > :startDate)
+                    )
+                ))
+            )
+        )
+    """)
     List<UnitFilterDTO> filterUnitsDTO(
             @Param("name") String name,
             @Param("adults") Integer adults,

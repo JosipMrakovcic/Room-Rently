@@ -10,7 +10,7 @@ const Maillist = () => {
       </span>
 
       <br />
-
+      {/* Dinamički prikaz godine i informacija o autorskim pravima */}
       <span className="maildesc copyright">
         © {new Date().getFullYear()} Room Rently. All rights reserved.
       </span>

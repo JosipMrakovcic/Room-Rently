@@ -37,7 +37,7 @@ export default function OwnerDashboard() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
+  // Refovi za grafikone ključni za izvoz u PDF jer omogućuju pretvaranje platna (canvas) u sliku
   const occupancyRef = useRef(null);
   const countryRef = useRef(null);
   const cityRef = useRef(null);
@@ -82,7 +82,8 @@ export default function OwnerDashboard() {
       console.error("Greška pri dohvaćanju rezervacija:", err);
     }
   };
-
+  // --- POSLOVNA LOGIKA: FILTERI ---
+  // useMemo optimizira performanse; filtriranje se vrši samo kada se promijene rezervacije, godina ili mjesec
   const filteredReservations = useMemo(() => {
     const filtered = reservations.filter(res => {
         const date = new Date(res.startDate);
@@ -127,7 +128,8 @@ export default function OwnerDashboard() {
     const monthName = selectedMonth === "all" ? "" : MONTHS[selectedMonth];
     return `${monthName} ${selectedYear}`.trim();
   };
-
+  // --- ANALITIKA: STATISTIČKI PODACI ---
+  // Izračun prosječnih ocjena po objektima za bar chart
   const topRatedStats = useMemo(() => {
   const unitRatings = {};
   filteredReservations.forEach(res => {
@@ -277,7 +279,8 @@ export default function OwnerDashboard() {
     doc.addImage(image, "PNG", x, y, width, height);
     return y + height + 20;
   };
-
+  // --- IZVOZ PODATAKA (Export) ---
+  // Funkcija koja uzima grafikone (Chart.js) i slaže ih u PDF dokument
   const exportStatsPDF = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -370,7 +373,7 @@ export default function OwnerDashboard() {
     link.download = fileName;
     link.click();
   };
-
+// Izvoz u Excel format koristeći XLSX biblioteku
   const exportReservationsXLSX = () => {
   const ws = XLSX.utils.json_to_sheet(
     filteredReservations.map((r) => ({

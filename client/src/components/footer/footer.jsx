@@ -1,4 +1,5 @@
 import "./footer.css";
+// Ne koristi se, služio kao placeholder za moguće proširenje informacija o stranici ali se ne koristi.
 const Footer = () => {
   return (
     <div className="footer">

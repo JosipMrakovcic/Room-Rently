@@ -6,8 +6,9 @@ import { useEffect, useState } from "react";
 const Propertylist = () => {
   const navigate = useNavigate();
   const API_URL = process.env.REACT_APP_API_URL;
+  // State za pohranu podataka o jedinicama (broj kreveta, broj jedinica, slika)
   const [bedData, setBedData] = useState([]);
-
+  // Dohvaćanje statistike s backenda pri učitavanju komponente
   useEffect(() => {
     const fetchCounts = async () => {
       try {
@@ -19,7 +20,7 @@ const Propertylist = () => {
     };
     fetchCounts();
   }, [API_URL]);
-
+  // Funkcija za navigaciju na rezultate pretrage s unaprijed postavljenim brojem kreveta
   const handleSearch = (numBeds) => {
     navigate("/hotels", { 
       state: { 

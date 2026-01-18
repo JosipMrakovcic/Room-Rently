@@ -20,6 +20,7 @@ const countriesData = {
 
 const Navbar = () => {
   const navigate = useNavigate();
+  // Inicijalizacija korisnika iz localStorage pri prvom učitavanju
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("googleUser");
     return savedUser ? JSON.parse(savedUser) : null;
@@ -35,7 +36,7 @@ const Navbar = () => {
   // Vrijednosti za ručni unos (ako je odabrano "Other")
   const [customCountry, setCustomCountry] = useState("");
   const [customCity, setCustomCity] = useState("");
-
+  // useEffect: Provjera valjanosti sesije i dopunjenih podataka pri svakom osvježavanju
   useEffect(() => {
     const verifyUser = async () => {
       const token = localStorage.getItem("access_token");
@@ -70,7 +71,7 @@ const Navbar = () => {
     setSelectedCity("");
     setCustomCity("");
   }, [selectedCountry]);
-
+// handleSaveLocation: Logika za obradu standardnog odabira ili ručnog unosa lokacije
   const handleSaveLocation = async () => {
     // Logika: Koju vrijednost šaljemo?
     // Ako je država "Other", šaljemo customCountry. Inače selectedCountry.
@@ -91,7 +92,7 @@ const Navbar = () => {
         { country: finalCountry, city: finalCity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+      // Ažuriranje lokalnog stanja i zatvaranje modala nakon uspješnog spremanja
       const updatedUser = { ...user, country: finalCountry, city: finalCity };
       setUser(updatedUser);
       localStorage.setItem("googleUser", JSON.stringify(updatedUser));
@@ -102,7 +103,7 @@ const Navbar = () => {
       alert("Error while saving location.");
     }
   };
-
+// logout: Čišćenje svih tokena i stanja korisnika
   const logout = () => {
     googleLogout();
     setUser(null);
@@ -121,6 +122,7 @@ const Navbar = () => {
         <div className="navItems">
           {!user ? (
             <div className="custom-google-login">
+              {/* Google login , logika za prijavu, provjeru baze, jwt dekodiranja i prikazi panela ovisno o ulogi */}
               <GoogleLogin
                 onSuccess={async (credentialResponse) => {
                   try {

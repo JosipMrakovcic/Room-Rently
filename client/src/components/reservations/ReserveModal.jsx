@@ -7,6 +7,7 @@ import { format, differenceInCalendarDays, eachDayOfInterval } from "date-fns";
 import axios from "axios";
 
 const ReserveModal = ({ setOpenReserve, unit }) => {
+  // State za selektirane dodatne opcije
   const [options, setOptions] = useState({
     parking: false,
     wifi: false,
@@ -17,7 +18,7 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
     heater: false,
     airConditioning: false,
   });
-
+// State za odabrani raspon datuma u kalendaru
   const [dates, setDates] = useState([
     {
       startDate: new Date(),
@@ -36,7 +37,7 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
 
   const token = localStorage.getItem("access_token");
 
-  // --- NOVI DOHVAT ZAUZETIH DATUMA ---
+  // --- DOHVAT ZAUZETIH DATUMA ---
   useEffect(() => {
     const getDisabledDates = async () => {
       try {

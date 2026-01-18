@@ -288,6 +288,15 @@ padding: 20px;
   .userReservationsPage .unitNameTitle {
     font-size: 1.1rem;
   }
+  .userReservationsPage .rateBtn {
+    min-width: 40px; /* Malo veći gumbi za "debele" prste */
+    height: 40px;
+    font-size: 14px;
+  }
+  
+  .userReservationsPage .ratingButtons {
+    gap: 8px; /* Veći razmak između gumba da se ne klikne krivi broj */
+  }
 }
 /* Stilovi za Completed i Rejected statuse */
 
@@ -348,4 +357,50 @@ padding: 20px;
     font-weight: bold;
     color: #00509e;
     margin-left: 5px;
+}
+/* Smanjujemo prozirnost kartica koje više nisu aktivne */
+.userReservationsPage .reservationCard:has(.cancelled),
+.userReservationsPage .reservationCard:has(.completed),
+.userReservationsPage .reservationCard:has(.rejected) {
+  opacity: 0.85;
+  background-color: #fafafa;
+}
+
+/* Dodajemo mali hover efekt za sve kartice da se osjeti interakcija */
+.userReservationsPage .reservationCard {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.userReservationsPage .reservationCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  opacity: 1; /* Vraća punu prozirnost na hover čak i ako je otkazana */
+}
+.userReservationsPage .rateBtn {
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  border: 1px solid #007bff;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.userReservationsPage .rateBtn:hover:not(:disabled) {
+  transform: scale(1.1);
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+.userReservationsPage .rateBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #ccc;
+  color: #ccc;
+}
+.userReservationsPage .reserveOverlay {
+  position: fixed;
+  inset: 0; /* Modernija zamjena za top:0, left:0, width:100%, height:100% */
+  background-color: rgba(0, 31, 63, 0.6); /* Tamnija plava prozirnost umjesto čiste crne */
+  backdrop-filter: blur(3px); /* Blago zamućenje pozadine za bolji fokus na modal */
 }

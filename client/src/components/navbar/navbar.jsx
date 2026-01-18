@@ -5,18 +5,38 @@ import { googleLogout, GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 
+// Definiramo podatke izvan komponente da ne stvaramo objekt pri svakom renderu
+const countriesData = {
+  Croatia: ["Zagreb", "Split", "Rijeka", "Osijek", "Zadar", "Other"],
+  Germany: ["Berlin", "Munich", "Hamburg", "Frankfurt", "Other"],
+  Austria: ["Vienna", "Salzburg", "Graz", "Innsbruck", "Other"],
+  Slovenia: ["Ljubljana", "Maribor", "Koper", "Other"],
+  Italy: ["Rome", "Milan", "Naples", "Turin", "Other"],
+  Hungary: ["Budapest", "Debrecen", "Szeged", "Miskolc", "Other"],
+  Serbia: ["Belgrade", "Novi Sad", "Niš", "Kragujevac", "Other"],
+  BiH: ["Sarajevo", "Banja Luka", "Zenica","Tuzla", "Other"],
+  Montenegro : ["Podgorica", "Nikšić", "Herceg Novi", "Pljevlja", "Other"],
+};
+
 const Navbar = () => {
   const navigate = useNavigate();
+  // Inicijalizacija korisnika iz localStorage pri prvom učitavanju
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("googleUser");
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  // --- NOVO: State za državu ---
+  // --- STATE ZA LOKACIJU ---
   const [showCountryModal, setShowCountryModal] = useState(false);
+  
+  // Odabrane vrijednosti iz dropdowna
   const [selectedCountry, setSelectedCountry] = useState("");
-  const countries = ["Croatia", "Germany", "Austria", "Slovenia", "Italy", "Other"];
+  const [selectedCity, setSelectedCity] = useState("");
 
+  // Vrijednosti za ručni unos (ako je odabrano "Other")
+  const [customCountry, setCustomCountry] = useState("");
+  const [customCity, setCustomCity] = useState("");
+  // useEffect: Provjera valjanosti sesije i dopunjenih podataka pri svakom osvježavanju
   useEffect(() => {
     const verifyUser = async () => {
       const token = localStorage.getItem("access_token");
@@ -26,55 +46,70 @@ const Navbar = () => {
             `${process.env.REACT_APP_API_URL}/me`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
-          
+
           const decoded = jwtDecode(token);
           const finalUser = { ...decoded, ...verifiedUser };
-          
+
           setUser(finalUser);
           localStorage.setItem("googleUser", JSON.stringify(finalUser));
 
-          // PROVJERA: Ako u bazi nema države, prikaži modal
-          if (!verifiedUser.country) {
+          // Ako u bazi nema države ILI grada, prikaži modal
+          if (!verifiedUser.country || !verifiedUser.city) {
             setShowCountryModal(true);
           }
         } catch (err) {
           console.error("Session expired or invalid");
-          logout(); 
+          logout();
         }
       }
     };
     verifyUser();
   }, []);
 
-  // --- NOVO: Funkcija za spremanje države ---
-  const handleSaveCountry = async () => {
-    if (!selectedCountry) return;
+  // Resetiraj grad ako korisnik promijeni državu
+  useEffect(() => {
+    setSelectedCity("");
+    setCustomCity("");
+  }, [selectedCountry]);
+// handleSaveLocation: Logika za obradu standardnog odabira ili ručnog unosa lokacije
+  const handleSaveLocation = async () => {
+    // Logika: Koju vrijednost šaljemo?
+    // Ako je država "Other", šaljemo customCountry. Inače selectedCountry.
+    const finalCountry = selectedCountry === "Other" ? customCountry : selectedCountry;
+    
+    // Ako je država "Other" ILI grad "Other", šaljemo customCity. Inače selectedCity.
+    const finalCity = (selectedCountry === "Other" || selectedCity === "Other") ? customCity : selectedCity;
+
+    if (!finalCountry || !finalCity) {
+        alert("Please fill in all fields.");
+        return;
+    }
+
     try {
       const token = localStorage.getItem("access_token");
       await axios.put(
-        `${process.env.REACT_APP_API_URL}/updateCountry`,
-        { country: selectedCountry },
+        `${process.env.REACT_APP_API_URL}/updateCountry`, // Endpoint se i dalje zove isto (ili promijeni u controlleru)
+        { country: finalCountry, city: finalCity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
-      // Osvježi lokalne podatke i zatvori modal
-      const updatedUser = { ...user, country: selectedCountry };
+      // Ažuriranje lokalnog stanja i zatvaranje modala nakon uspješnog spremanja
+      const updatedUser = { ...user, country: finalCountry, city: finalCity };
       setUser(updatedUser);
       localStorage.setItem("googleUser", JSON.stringify(updatedUser));
       setShowCountryModal(false);
-      window.location.reload(); 
+      window.location.reload();
     } catch (err) {
-      console.error("Error updating country", err);
-      alert("Greška pri spremanju države.");
+      console.error("Error updating location", err);
+      alert("Error while saving location.");
     }
   };
-
+// logout: Čišćenje svih tokena i stanja korisnika
   const logout = () => {
     googleLogout();
     setUser(null);
     localStorage.removeItem("googleUser");
     localStorage.removeItem("access_token");
-    window.location.reload(); 
+    window.location.reload();
   };
 
   return (
@@ -87,6 +122,7 @@ const Navbar = () => {
         <div className="navItems">
           {!user ? (
             <div className="custom-google-login">
+              {/* Google login , logika za prijavu, provjeru baze, jwt dekodiranja i prikazi panela ovisno o ulogi */}
               <GoogleLogin
                 onSuccess={async (credentialResponse) => {
                   try {
@@ -114,12 +150,12 @@ const Navbar = () => {
                     setUser(finalUser);
                     localStorage.setItem("googleUser", JSON.stringify(finalUser));
                     localStorage.setItem("access_token", idToken);
-                    
-                    // Ako je novi korisnik bez države, upali modal odmah nakon login-a
-                    if(!userFromDB.country) {
-                        setShowCountryModal(true);
+
+                    // Provjera kod logina: fali li country ili city?
+                    if (!userFromDB.country || !userFromDB.city) {
+                      setShowCountryModal(true);
                     } else {
-                        window.location.reload(); 
+                      window.location.reload();
                     }
                   } catch (err) {
                     console.error("Login Error:", err.message);
@@ -166,26 +202,89 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* --- NOVO: Modal za odabir države (prikazuje se samo ako country fali) --- */}
+      {/* --- MODAL ZA ODABIR LOKACIJE --- */}
       {showCountryModal && (
         <div className="country-modal-overlay">
           <div className="country-modal">
-            <h3>Dobrodošli! 👋</h3>
-            <p>Molimo odaberite svoju državu kako biste nastavili:</p>
-            <select 
-              value={selectedCountry} 
+            <h3>Welcome! 👋</h3>
+            <p>Please complete your profile to continue:</p>
+            
+            {/* 1. Odabir države */}
+            <label>Country:</label>
+            <select
+              value={selectedCountry}
               onChange={(e) => setSelectedCountry(e.target.value)}
               className="country-select"
             >
-              <option value="">-- Odaberi državu --</option>
-              {countries.map(c => <option key={c} value={c}>{c}</option>)}
+              <option value="">-- Select Country --</option>
+              {Object.keys(countriesData).map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+              <option value="Other">Other</option>
             </select>
-            <button 
-              onClick={handleSaveCountry} 
-              disabled={!selectedCountry}
+
+            {/* Ako je odabrano 'Other' za državu, prikaži input za ručni unos */}
+            {selectedCountry === "Other" && (
+                <input 
+                    type="text" 
+                    placeholder="Type your country..." 
+                    value={customCountry}
+                    onChange={(e) => setCustomCountry(e.target.value)}
+                    className="custom-input"
+                    //style={{marginTop: "10px", width: "100%", padding: "8px"}}
+                />
+            )}
+
+            {/* 2. Odabir grada (prikazuje se samo ako je država odabrana i nije Other) */}
+            {selectedCountry && selectedCountry !== "Other" && (
+                <>
+                <label id="city">City:</label>
+                <select
+                    value={selectedCity}
+                    onChange={(e) => setSelectedCity(e.target.value)}
+                    className="country-select"
+                >
+                    <option value="">-- Select City --</option>
+                    {countriesData[selectedCountry]?.map((city) => (
+                    <option key={city} value={city}>
+                        {city}
+                    </option>
+                    ))}
+                </select>
+                </>
+            )}
+
+            {/* Prikaz inputa za grad ako je:
+                a) Država "Other" (tada uvijek ručno pišemo grad)
+                b) Država odabrana, ali je grad "Other" 
+            */}
+            {(selectedCountry === "Other" || selectedCity === "Other") && (
+                 <input 
+                 type="text" 
+                 placeholder="Type your city..." 
+                 value={customCity}
+                 onChange={(e) => setCustomCity(e.target.value)}
+                 className="custom-input"
+                 //style={{marginTop: "10px", width: "100%", padding: "8px"}}
+             />
+            )}
+
+            <button
+              onClick={handleSaveLocation}
+              // Disable ako bilo što fali
+              disabled={
+                // Ako je država standardna, mora biti odabran grad (ili upisan ako je Other)
+                (selectedCountry !== "Other" && !selectedCity) ||
+                (selectedCountry !== "Other" && selectedCity === "Other" && !customCity) ||
+                // Ako je država Other, moraju biti upisani i država i grad
+                (selectedCountry === "Other" && (!customCountry || !customCity))
+              }
               className="save-country-btn"
+              style={{marginTop: "20px"}}
             >
-              Potvrdi
+              Confirm
             </button>
           </div>
         </div>

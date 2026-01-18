@@ -93,3 +93,32 @@
     flex: 1 1 100%;
   }
 }
+
+
+/* ... tvoj postojeći kod za .fp, .fpitem, .fpimg ... */
+
+.fpNoPhoto {
+  width: 100%;
+  height: 200px;
+  background-color: #f2f2f2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+  gap: 12px;
+  border-bottom: 1px solid #eee;
+  
+  /* NOVO: Full Caps i veći, deblji font */
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+.cameraIcon {
+  /* NOVO: Još veća ikona */
+  font-size: 60px;
+  opacity: 0.5;
+  margin-bottom: 5px;
+}

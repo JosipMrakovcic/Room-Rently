@@ -1,5 +1,6 @@
 package springboot.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -7,25 +8,20 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "unitImg")
-@Getter // automatski generira sve gettere
-@Setter // automatski generira sve settere
+@Table(name = "unit_img") // Promijenjeno u snake_case (standard za baze)
+@Getter
+@Setter
 public class UnitImg {
 
     @Id
-    @Column(columnDefinition = "text", nullable = false)
-    private String URL;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "idUnit", nullable = false)
+    @Column(name = "url", nullable = false)
+    private String url;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_unit", nullable = false) // OVDJE JE BILA GREŠKA - mora biti id_unit
+    @JsonBackReference
     private Unit unit;
-
-
-    public String getURL() {
-        return URL;
-    }
-
-    public void setURL(String URL) {
-        this.URL = URL;
-    }
 }

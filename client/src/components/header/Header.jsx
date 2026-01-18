@@ -7,6 +7,7 @@ import { format, differenceInCalendarDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
 
 const Header = ({ type }) => {
+  // State za kontrolu vidljivosti kalendara i unos destinacije
   const [opendate, setOpendate] = useState(false);
   const [destination, setdestination] = useState("");
   
@@ -15,7 +16,7 @@ const Header = ({ type }) => {
     const savedUser = localStorage.getItem("googleUser");
     return savedUser ? JSON.parse(savedUser) : null;
   });
-
+  // State za raspon datuma: inicijalno postavljeno na današnji dan
   const [date, setDate] = useState([
     {
       startDate: new Date(),
@@ -23,7 +24,7 @@ const Header = ({ type }) => {
       key: "selection",
     },
   ]);
-
+  // State za broj osoba i soba
   const [openOptions, setopenOptions] = useState(false);
   const [options, setoptions] = useState({
     adult: 1,
@@ -32,23 +33,23 @@ const Header = ({ type }) => {
   });
 
   const navigate = useNavigate();
-
+// Glavna funkcija za pretragu i validaciju
   const handleSearch = () => {
-    // --- DODANA VALIDACIJA ZA BAREM JEDNU NOĆ ---
+    // Izračun broja noćenja pomoću date-fns biblioteke
     const nightCount = differenceInCalendarDays(date[0].endDate, date[0].startDate);
-    
+    // Validacija: korisnik mora odabrati barem jedno noćenje
     if (nightCount <= 0) {
       alert("Please select at least one night. Your departure date must be at least one day after arrival.");
       return;
     }
 
-    // Spremamo u sessionStorage prije navigacije
+    // Pohrana podataka u sessionStorage kako bi se pretraga "zapamtila" tijekom sesije
     const searchData = { destination, options, dates: date };
     sessionStorage.setItem("lastSearch", JSON.stringify(searchData));
-    
+    // Navigacija na stranicu s rezultatima uz prosljeđivanje parametara kroz state
     navigate("/hotels", { state: { destination, options, date } });
   };
-
+  // Pomoćna funkcija za inkrement/dekrement broja gostiju i soba
   const handleoption = (name, operation) => {
     setoptions((prev) => {
       return {
@@ -60,6 +61,7 @@ const Header = ({ type }) => {
 
   return (
     <div className="header">
+      {/* Uvjetno dodavanje klase ovisno o tome je li header na početnoj ili listi hotela */}
       <div
         className={
           type === "list" ? "headerContainer listmode" : "headerContainer"
@@ -87,7 +89,7 @@ const Header = ({ type }) => {
                 />
               </div>
 
-              {/* Kalendar */}
+             {/* Sekcija za odabir datuma s prikazom odabranog raspona */}
               <div className="headerSearchItem">
                 <span
                   onClick={() => setOpendate(!opendate)}

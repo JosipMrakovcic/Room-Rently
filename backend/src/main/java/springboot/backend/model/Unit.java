@@ -1,10 +1,13 @@
 package springboot.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -12,6 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "unit")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // DODAJ OVO
 public class Unit {
 
     @Id
@@ -25,6 +29,20 @@ public class Unit {
     @Column
     private Integer numRooms;
 
+    @Column
+    private Integer numSameRooms;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_unit_id")
+    @JsonIgnoreProperties("listOfRooms")
+    private Unit parentUnit;
+
+    @OneToMany(mappedBy = "parentUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore // Ovo sprječava da glavni unit povlači sve svoje sobe u JSON-u pri pretrazi
+    @OrderBy("unitName ASC")
+    private List<Unit> listOfRooms = new ArrayList<>();
+
+
     @Column(nullable = false)
     private Integer capAdults;
 
@@ -34,29 +52,24 @@ public class Unit {
     @Column(nullable = false)
     private Integer numBeds;
 
-    @Transient // Ovo polje se ne sprema u bazu, već se računa
-    public Double getAverageRating() {
-        if (unitReservations == null || unitReservations.isEmpty()) {
-            return null; // Ili npr. 0.0 ako želiš početnu vrijednost
-        }
+    @Column(name = "average_rating")
+    private Double averageRating = 0.0; // Stvarni stupac u bazi
 
-        // Filtriramo rezervacije koje su Completed i imaju rating, pa računamo prosjek
-        return unitReservations.stream()
-                .filter(res -> "Completed".equalsIgnoreCase(res.getStatus()))
-                .filter(res -> res.getRating() != null)
-                .mapToDouble(UnitReservation::getRating)
-                .average()
-                .orElse(0.0);
-    }
-
-    // Kako bi Jackson (JSON) vidio ovo polje kao "rating"
+    // Ovu metodu ostavljamo za Jackson (JSON), ali sada čita iz polja, ne računa ništa
     @JsonProperty("rating")
     public Double getRating() {
-        Double avg = getAverageRating();
-        if (avg == null || avg == 0.0) return null;
-        // Zaokruživanje na jednu decimalu (npr. 8.6666 -> 8.7)
-        return Math.round(avg * 10.0) / 10.0;
+        if (averageRating == null || averageRating == 0.0) return null;
+        return Math.round(averageRating * 10.0) / 10.0;
     }
+
+    @Column(nullable = false)
+    private boolean seaView;
+
+    @Column(nullable = false)
+    private boolean lakeView;
+
+    @Column(nullable = false)
+    private boolean villageView;
 
     @Column(nullable = false)
     private boolean hasParking;
@@ -104,11 +117,16 @@ public class Unit {
     @Column(columnDefinition = "text", nullable = false)
     private String secDescContent;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<UnitImg> images;
+    private List<UnitImg> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<UnitReservation> unitReservations;
+    private List<UnitReservation> unitReservations = new ArrayList<>();
+
+    public void addRoom(Unit room) {
+        this.listOfRooms.add(room);
+        room.setParentUnit(this);
+    }
 }

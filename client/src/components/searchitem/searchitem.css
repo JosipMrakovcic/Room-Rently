@@ -153,3 +153,57 @@
   .sidetailtexts { text-align: left; width: 100%; }
   .sicheckbutton { width: 100%; }
 }
+
+
+/* Kontejner slike koji sprječava titranje i layout shift */
+.siimgContainer {
+  width: 200px;
+  height: 200px;
+  background-color: #f5f5f5; /* Blaga siva pozadina */
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Osiguraj da slika ispunjava kontejner */
+.siimg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Stil za Placeholder kada slike nema */
+.siNoPhoto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+  text-align: center;
+  padding: 10px;
+}
+
+.noPhotoIcon {
+  font-size: 55px;
+  margin-bottom: 8px;
+  opacity: 0.6;
+}
+
+.noPhotoText {
+  text-transform: uppercase;
+  font-weight: 1000;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+/* Responsive prilagodba */
+@media (max-width: 768px) {
+  .siimgContainer {
+    width: 100%;
+    height: 220px;
+  }
+}

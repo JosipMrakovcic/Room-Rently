@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/location")
-@CrossOrigin(origins = "${frontend.url}")
 public class LocationController {
 
     @Autowired
@@ -32,12 +31,12 @@ public class LocationController {
     public ResponseEntity<?> saveLocation(@RequestBody LocationSettings settings, @AuthenticationPrincipal Jwt jwt) {
         // FIX ZA 401: Provjeravamo je li token prisutan
         if (jwt == null) {
-            return ResponseEntity.status(401).body("Niste autorizovani!");
+            return ResponseEntity.status(401).body("You are not authorized!");
         }
 
         // Ovdje osiguravamo da se uvijek sprema pod ID 1 (jedna globalna adresa)
         settings.setId(1L);
         repo.save(settings);
-        return ResponseEntity.ok("Adresa uspješno ažurirana u bazi!");
+        return ResponseEntity.ok("Address succesfully! added to the database!");
     }
 }

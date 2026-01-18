@@ -1,243 +1,688 @@
 .owner-dashboard {
-padding: 20px;
-font-family: Arial, sans-serif;
-background: #f0f8ff;
-color: #333;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background: #f0f8ff;
+  color: #333;
 }
 
 .owner-dashboard .return-btn {
-background: #007bff;
-color: white;
-border: none;
-padding: 8px 15px;
-border-radius: 5px;
-cursor: pointer;
-margin-bottom: 15px;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 15px;
 }
 
 .owner-dashboard .return-btn:hover {
-background: #0056b3;
+  background: #0056b3;
 }
 
 .owner-dashboard h1,
 .owner-dashboard h2 {
-color: #004080;
+  color: #004080;
 }
 
 .owner-dashboard .statistics,
 .owner-dashboard .reservations {
-background: #ffffff;
-padding: 20px;
-margin-bottom: 20px;
-border-radius: 10px;
-box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+  background: #ffffff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
 }
 
 .owner-dashboard .charts {
-display: flex;
-flex-wrap: wrap;
-gap: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .owner-dashboard .chart-container {
-flex: 1;
-min-width: 250px;
-max-width: 500px;
-background: white;
-padding: 15px;
-border-radius: 8px;
-box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  flex: 1;
+  min-width: 250px;
+  max-width: 500px;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Desktop table */
 .owner-dashboard .reservation-table {
-width: 100%;
-border-collapse: collapse;
-margin-top: 15px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
 }
+
 .owner-dashboard .reservation-table th,
 .owner-dashboard .reservation-table td {
-padding: 12px;
-border-bottom: 1px solid #ddd;
-text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
 }
+
 .owner-dashboard .reservation-table th {
-background-color: #cce6ff;
-color: #004080;
+  background-color: #cce6ff;
+  color: #004080;
 }
+
 .owner-dashboard .reservation-table tr:nth-child(even) {
-background: #f2f2f2;
+  background: #f2f2f2;
 }
 
 /* Mobile cards */
 .owner-dashboard .reservation-cards {
-display: none;
-}
-.owner-dashboard .reservation-card {
-background: #fff;
-border-radius: 10px;
-box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-padding: 15px;
-margin-bottom: 15px;
-}
-.owner-dashboard .card-buttons {
-display: flex;
-justify-content: center;
-gap: 10px;
-margin-top: 10px;
+  display: none;
 }
 
-.owner-dashboard button {
-padding: 8px 12px;
-border: none;
-border-radius: 5px;
-cursor: pointer;
+.owner-dashboard .reservation-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 15px;
+  margin-bottom: 15px;
 }
-.owner-dashboard .confirm-btn {
-background: #4caf50;
-color: white;
-margin-right: 5px;
+
+.owner-dashboard .card-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
 }
-.owner-dashboard .reject-btn {
-background: #f44336;
-color: white;
+
+.owner-dashboard .action-buttons-flex {
+  display: flex;
+  gap: 8px; /* Razmak između gumba */
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  max-width: 200px; /* Ograničavamo širinu ćelije */
+}
+
+.owner-dashboard .confirm-btn,
+.owner-dashboard .reject-btn,
+.owner-dashboard .complete-btn,
+.owner-dashboard .cancel-btn {
+  /* Osnovni reset i dimenzije */
+  flex: 1; /* Svaki gumb uzima jednako mjesta u flexu */
+  min-width: 90px; /* Minimalna širina da tekst stane */
+  height: 36px; /* Fiksna visina za sve */
+  
+  /* Tipografija */
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1; /* Centriranje teksta vertikalno */
+  
+  /* Stil */
+  padding: 0 10px !important;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  transition: background 0.2s ease, transform 0.1s ease;
+  
+  /* Resetiramo margine koje su možda ostale od prije */
+  margin: 0 !important; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Boje */
+.owner-dashboard .confirm-btn,
+.owner-dashboard .complete-btn {
+  background: #4caf50 !important;
+}
+
+.owner-dashboard .reject-btn,
+.owner-dashboard .cancel-btn {
+  background: #f44336 !important;
+}
+
+/* Hover efekti */
+.owner-dashboard .confirm-btn:hover, 
+.owner-dashboard .complete-btn:hover { 
+  background: #43a047 !important; 
+}
+
+.owner-dashboard .reject-btn:hover, 
+.owner-dashboard .cancel-btn:hover { 
+  background: #e53935 !important; 
+}
+
+/* Aktivni efekt (klik) */
+.owner-dashboard .confirm-btn:active, 
+.owner-dashboard .reject-btn:active {
+  transform: scale(0.95);
+}
+
+/* Tekst kad nema akcija */
+.no-actions-text {
+  color: #6c757d;
+  font-size: 13px;
+  font-style: italic;
+  padding-left: 5px;
 }
 
 /* Export buttons */
 .owner-dashboard .export-buttons {
-margin-top: 15px;
-display: flex;
-flex-wrap: wrap;
-gap: 10px;
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
+
 .owner-dashboard .export-buttons button {
-background: #4a6fa5;
-color: white;
+  background: #4a6fa5;
+  color: white;
 }
+
 .owner-dashboard .export-buttons button:hover {
-background: #385d8a;
+  background: #385d8a;
 }
 
 /* Popup overlay */
 .owner-dashboard .popup-overlay {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background-color: rgba(0,0,0,0.5);
-display: flex;
-justify-content: center;
-align-items: center;
-z-index: 999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
 }
+
 .owner-dashboard .popup {
-background: white;
-padding: 20px 30px;
-border-radius: 10px;
-text-align: center;
+  background: white;
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
 }
+
 .owner-dashboard .popup-buttons {
-margin-top: 15px;
-display: flex;
-justify-content: center;
-gap: 15px;
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
 }
 
-/* Stil za kontejner tagova unutar ćelije tablice */
+/* Amenities Tags */
 .owner-dashboard .amenitiesTags {
-    display: flex;
-    flex-wrap: wrap;       /* Ključno: omogućuje prelazak u novi red */
-    gap: 6px;              /* Razmak između tagova */
-    padding: 5px 0;
-    max-width: 250px;      /* Ograničavamo širinu da potaknemo prelamanje */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 5px 0;
+  max-width: 250px;
 }
 
-/* Stil za pojedinačni tag */
 .owner-dashboard .amenityTag {
-    background-color: #e2e8f0;
-    color: #4a5568;
-    padding: 3px 10px;
-    border-radius: 15px;    /* Zaobljen izgled pilule */
-    font-size: 12px;
-    border: 1px solid #cbd5e0;
-    white-space: nowrap;    /* Sprječava da se jedna riječ prepolovi */
-    display: inline-block;
+  background-color: #e2e8f0;
+  color: #4a5568;
+  padding: 3px 10px;
+  border-radius: 15px;
+  font-size: 12px;
+  border: 1px solid #cbd5e0;
+  white-space: nowrap;
+  display: inline-block;
 }
 
-/* Osiguraj da ćelije tablice ne limitiraju visinu */
 .owner-dashboard .reservation-table td {
-    vertical-align: middle;
-    height: auto;           /* Dozvoljava rast retka */
+  vertical-align: middle;
+  height: auto;
 }
+
+/* --- NOVO: Popravljeni Year Selector (Pill Style) --- */
+
+.owner-dashboard .year-selector {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #ffffff;
+  padding: 5px;
+  border-radius: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e6ed;
+}
+
+.owner-dashboard .year-nav-btn {
+  background: #004080;
+  color: white;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  padding: 0;
+}
+
+.owner-dashboard .year-nav-btn:hover {
+  background: #0056b3;
+  transform: scale(1.1);
+}
+
+.owner-dashboard .year-display {
+  padding: 0 5px;
+}
+
+.owner-dashboard .year-select-dropdown {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: transparent;
+  border: none;
+  color: #004080;
+  font-size: 18px;
+  font-weight: 800;
+  padding: 5px 35px 5px 15px;
+  cursor: pointer;
+  outline: none;
+  text-align: center;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23004080' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.owner-dashboard .year-select-dropdown:hover {
+  color: #007bff;
+}
+
+/* --- Status Badges --- */
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  display: inline-block;
+  text-align: center;
+}
+
+.status-badge.pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+.status-badge.confirmed { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.status-badge.rejected, .status-badge.cancelled { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.status-badge.completed { 
+  background-color: #e2e3e5; 
+  color: #383d41; 
+  border: 1px solid #d6d8db;
+  font-weight: bold;
+}
+.status-badge.completed::before { content: "✔️ "; }
 
 /* Responsiveness */
 @media (max-width: 768px) {
-.owner-dashboard .reservation-table {
-display: none;
+  .owner-dashboard .reservation-table { display: none; }
+  .owner-dashboard .reservation-cards { display: block; }
 }
-.owner-dashboard .reservation-cards {
-display: block;
-}
+
+@media (max-width: 600px) {
+  .owner-dashboard .statistics div[style*="display: flex"] {
+    flex-direction: column;
+    align-items: center !important;
+    gap: 15px;
+  }
 }
 
 @media (max-width: 480px) {
-.owner-dashboard .charts {
-flex-direction: column;
-gap: 15px;
+  .owner-dashboard .charts { flex-direction: column; gap: 15px; }
+  .owner-dashboard .chart-container { max-width: 100%; }
+  .owner-dashboard .export-buttons { flex-direction: column; }
+  .owner-dashboard .popup-buttons { flex-direction: column; }
 }
-.owner-dashboard .chart-container {
-max-width: 100%;
-}
-.owner-dashboard .export-buttons {
-flex-direction: column;
-gap: 10px;
-}
-.owner-dashboard .popup-buttons {
-flex-direction: column;
-}
+/* Header & Navigation */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
-/* Dodaj ovo na kraj CSS-a */
-
-/* Osnovni stil za badge (ako ga već nemaš definiranog pod tim imenom) */
-.status-badge {
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 13px;
-    display: inline-block;
-    text-align: center;
+.tab-navigation .tab-btn {
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    color: white;
+    background: #4a6fa5;
 }
 
-/* Specifične boje za statuse */
-.status-badge.pending { 
-    background-color: #fff3cd; 
-    color: #856404; 
-    border: 1px solid #ffeeba;
+.tab-navigation .tab-btn.active {
+    background: #004080;
 }
 
-.status-badge.confirmed { 
-    background-color: #d4edda; 
-    color: #155724; 
-    border: 1px solid #c3e6cb;
+.tab-navigation .tab-btn:first-child {
+    margin-right: 10px;
 }
 
-.status-badge.rejected, 
-.status-badge.cancelled { 
-    background-color: #f8d7da; 
-    color: #721c24; 
-    border: 1px solid #f5c6cb;
+/* Year Selector */
+.stats-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
-/* NOVO: Stil za Completed status */
-.status-badge.completed { 
-    background-color: #e2e3e5; 
-    color: #383d41; 
-    border: 1px solid #d6d8db;
+.year-select-dropdown {
+    min-width: 100px;
+}
+
+.year-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.year-nav-btn:not(:disabled) {
+    opacity: 1;
+    cursor: pointer;
+}
+
+/* Charts Grid */
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+/* Export Buttons */
+.export-buttons-group {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.export-pdf-btn {
+    background: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.export-xlsx-btn {
+    background: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Table Specifics */
+.reservations-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.guest-name-cell {
     font-weight: bold;
 }
 
-/* Ako želiš ikonicu kvačice uz Completed (opcionalno) */
-.status-badge.completed::before {
-    content: "✔️ ";
+.guest-country-cell {
+    font-size: 12px;
+    color: #666;
+}
+
+.rating-cell {
+    font-weight: bold;
+    color: #f1c40f;
+}
+
+.no-data-cell {
+    text-align: center;
+}
+
+.title-row-global {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e6ed;
+}
+
+@media (max-width: 600px) {
+    .title-row-global {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+
+.export-xml-btn {
+    background: #6f42c1; /* Ljubičasta boja za XML */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.export-xml-btn:hover {
+    background: #59359a;
+}
+.filters-container-global {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin-top: 30px;
+  padding: 10px;
+}
+
+.pagination-btn {
+  padding: 8px 16px;
+  border: none;
+  background-color: #004080;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.pagination-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 1rem;
+  color: #333;
+}/* ============================= */
+/* 📱 MOBILE & RESPONSIVE FIXES */
+/* ============================= */
+
+/* Global touch optimizations */
+@media (max-width: 768px) {
+  button {
+    min-height: 44px; /* Apple touch guideline */
+    font-size: 15px;
+  }
+}
+
+/* ============================= */
+/* 📊 Charts – always visible */
+/* ============================= */
+
+@media (max-width: 900px) {
+  .charts-grid {
+    grid-template-columns: 1fr; /* 1 chart per row */
+  }
+
+  .chart-container {
+    max-width: 100%;
+    width: 100%;
+    padding: 15px;
+  }
+
+  .chart-container canvas {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/* Prevent chart clipping */
+.chart-container {
+  overflow-x: auto;
+}
+
+/* ============================= */
+/* 📤 Export buttons */
+/* ============================= */
+
+@media (max-width: 768px) {
+  .export-buttons-group {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .export-buttons-group button {
+    width: 100%;
+    font-size: 16px;
+    padding: 14px;
+  }
+}
+
+/* ============================= */
+/* 📅 Filters (Year + Month) */
+/* ============================= */
+
+@media (max-width: 768px) {
+  .filters-container-global {
+    flex-direction: column;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .year-selector,
+  .month-selector {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .year-select-dropdown {
+    width: 100%;
+    text-align: center;
+    font-size: 18px;
+  }
+}
+
+/* ============================= */
+/* 🧭 Header & Tabs */
+/* ============================= */
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+
+  .tab-navigation {
+    display: flex;
+    width: 100%;
+  }
+
+  .tab-navigation .tab-btn {
+    flex: 1;
+    font-size: 16px;
+    padding: 14px 0;
+  }
+
+  .return-btn {
+    width: 100%;
+  }
+}
+
+/* ============================= */
+/* 📋 Reservation cards */
+/* ============================= */
+
+@media (max-width: 768px) {
+  .reservation-card {
+    padding: 18px;
+  }
+
+  .card-buttons button {
+    width: 100%;
+    min-height: 44px;
+    font-size: 15px;
+  }
+
+  .card-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* ============================= */
+/* ✅ Action buttons */
+/* ============================= */
+
+@media (max-width: 768px) {
+  .action-buttons-flex {
+    flex-direction: column;
+    max-width: 100%;
+  }
+
+  .confirm-btn,
+  .reject-btn,
+  .complete-btn,
+  .cancel-btn {
+    width: 100%;
+    min-height: 44px;
+    font-size: 15px;
+  }
+}
+
+/* ============================= */
+/* 📄 Pagination */
+/* ============================= */
+
+@media (max-width: 600px) {
+  .pagination-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pagination-btn {
+    width: 100%;
+    font-size: 16px;
+    padding: 14px;
+  }
+}
+
+/* ============================= */
+/* 📦 Popup */
+/* ============================= */
+
+@media (max-width: 480px) {
+  .popup {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .popup-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .popup-buttons button {
+    width: 100%;
+    min-height: 44px;
+  }
 }

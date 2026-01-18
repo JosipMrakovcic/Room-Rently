@@ -7,6 +7,7 @@ import { format, differenceInCalendarDays, eachDayOfInterval } from "date-fns";
 import axios from "axios";
 
 const ReserveModal = ({ setOpenReserve, unit }) => {
+  // State za selektirane dodatne opcije
   const [options, setOptions] = useState({
     parking: false,
     wifi: false,
@@ -17,7 +18,7 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
     heater: false,
     airConditioning: false,
   });
-
+// State za odabrani raspon datuma u kalendaru
   const [dates, setDates] = useState([
     {
       startDate: new Date(),
@@ -36,40 +37,32 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
 
   const token = localStorage.getItem("access_token");
 
-  // --- DOHVAĆANJE I FILTRIRANJE ZAUZETIH DATUMA ---
+  // --- DOHVAT ZAUZETIH DATUMA ---
   useEffect(() => {
     const getDisabledDates = async () => {
       try {
-        // Dohvaćamo sve rezervacije za ovaj specifični unit
+        // Pozivamo novu javnu rutu koja ne zahtijeva Owner privilegije
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/unitReservation/all`
+          `${process.env.REACT_APP_API_URL}/unitReservation/occupied-dates/${unit.idUnit}`
         );
         
-        const allReservations = response.data;
-        let datesToDisable = [];
+        const occupiedIntervals = response.data; // Lista OccupiedDateDTO objekata
+        const allDisabled = [];
 
-        // Filtriramo: samo za ovaj unit i samo statusi koji znače "zauzeto"
-        const occupiedStatuses = ["Pending", "Confirmed", "Completed"];
+        occupiedIntervals.forEach((interval) => {
+          const start = new Date(interval.startDate);
+          const end = new Date(interval.endDate);
 
-        allReservations.forEach((res) => {
-          if (res.unit?.idUnit === unit.idUnit && occupiedStatuses.includes(res.status)) {
-            // Kreiramo Date objekte (dodajemo sate da izbjegnemo timezone probleme)
-            const start = new Date(res.startDate);
-            const end = new Date(res.endDate);
+          // Generiramo niz datuma između starta i kraja
+          const days = eachDayOfInterval({ start, end });
 
-            if (start && end) {
-              const interval = eachDayOfInterval({ start, end });
-              
-              // Logika: Zadnji dan (Check-out) mora biti slobodan za novi Check-in
-              // Ako je boravak samo 1 noćenje, slice će ostaviti samo start datum
-              const daysToBlock = interval.length > 1 ? interval.slice(0, -1) : interval;
-              
-              datesToDisable = [...datesToDisable, ...daysToBlock];
-            }
-          }
+          // Logika za hotel: Check-out dan (zadnji dan) je slobodan za novi check-in
+          const blockedDays = days.length > 1 ? days.slice(0, -1) : days;
+          
+          allDisabled.push(...blockedDays);
         });
 
-        setDisabledDates(datesToDisable);
+        setDisabledDates(allDisabled);
       } catch (err) {
         console.error("Error fetching occupied dates:", err);
       }
@@ -78,7 +71,7 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
     if (unit?.idUnit) {
       getDisabledDates();
     }
-  }, [unit]);
+  }, [unit.idUnit]); // Pratimo ID jedinice
 
   if (!token) {
     return (
@@ -169,7 +162,7 @@ const ReserveModal = ({ setOpenReserve, unit }) => {
       }
     } catch (err) {
       console.error("Reservation error:", err);
-      alert(err.response?.data || "Date is already taken.");
+      alert(err.response?.data || "These dates are already taken.");
     }
   };
 

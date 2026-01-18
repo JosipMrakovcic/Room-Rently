@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // DODAJ I OVDJE
 public class UnitReservation {
 
     @Id
@@ -32,13 +33,14 @@ public class UnitReservation {
     @Column
     private int children;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY) // Promijenjeno s EAGER
     @JoinColumn(name = "id_person", referencedColumnName = "id", nullable = false)
     @JsonIgnoreProperties("unitReservations")
     private Person person;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY) // Promijenjeno s EAGER
     @JoinColumn(name = "id_unit", referencedColumnName = "id_unit", nullable = false)
+    @JsonIgnoreProperties({"unitReservations", "listOfRooms", "parentUnit", "images"})
     private Unit unit;
 
     @Column(columnDefinition = "text") // Koristimo text da možemo spremiti duži popis

@@ -101,49 +101,65 @@ const AdminDashboard = () => {
       });
 
       if (response.ok) {
-        alert("Adresa uspješno ažurirana u bazi!");
+        alert("Address successfully updated in the database!");
       } else if (response.status === 401) {
-        alert("Greška 401: Niste autorizirani. Ponovno se prijavite.");
+        alert("Error 401: You are not authorized. Please log in again.");
       } else {
-        alert("Neuspješno spremanje adrese.");
+        alert("Failed to save the address.");
       }
     } catch (err) {
       console.error("Error saving location:", err);
-      alert("Greška na serveru.");
+      alert("Server error occurred.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const fetchUnits = async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/unit/all`);
-      if (!response.ok) throw new Error("Failed to fetch units");
-      const data = await response.json();
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/unit/summary`);
+    if (!response.ok) throw new Error("Failed to fetch units");
+    
+    const data = await response.json();
 
-      setUnits(
-        data.map((u) => ({
-          id: u.idUnit,
-          name: u.unitName,
-          type: u.isApartment ? "Apartment" : "Room",
-        }))
-      );
-    } catch (err) {
-      console.error("Error fetching units:", err);
-    }
-  };
+    setUnits(
+      data.map((u) => ({
+        id: u.idUnit,
+        name: u.unitName,
+        // PROVJERI OBOJE (za svaki slučaj):
+        type: (u.apartment === true || u.isApartment === true) 
+              ? "Apartment" 
+              : `Room (${u.numSameRooms || 0} units)`,
+      }))
+    );
+  } catch (err) {
+    console.error("Error fetching units:", err);
+  }
+};
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/allPersons`);
+      // 1. Dohvati token iz localStorage-a
+      const token = localStorage.getItem("access_token");
+
+      // 2. Pošalji token u Authorization zaglavlju
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/allPersons`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+      });
+
       if (!response.ok) throw new Error("Failed to fetch users");
       const data = await response.json();
 
       setUsers(
         data.map((u) => {
           let role = "User";
-          if (u.is_admin) role = "Admin";
-          else if (u.is_owner) role = "Owner";
+          // Provjeravamo ispravna polja (isAdmin, isOwner) kako su definirana u Person modelu
+          if (u.admin) role = "Admin";
+          else if (u.owner) role = "Owner";
           return {
             id: u.id,
             name: u.name,
@@ -160,25 +176,33 @@ const AdminDashboard = () => {
   const handleEdit = (id) => navigate(`/form/${id}`);
 
   const handleDeleteUnit = async (id) => {
-    if (window.confirm("Are you sure you want to delete this unit?")) {
-      try {
-        const token = localStorage.getItem("access_token");
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/unit/delete/${id}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (response.ok) {
-          setUnits((prev) => prev.filter((unit) => unit.id !== id));
-        } else {
-          alert("Failed to delete unit.");
-        }
-      } catch (err) {
-        console.error("Error deleting unit:", err);
+  if (window.confirm("Are you sure you want to delete this unit and ALL its files from disk?")) {
+    try {
+      const token = localStorage.getItem("access_token");
+      
+      // PAŽNJA: Putanja je sada /unitImg/delete-full/ jer smo tako stavili u kontroler
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/unitImg/delete-full/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // Makni unit iz lokalnog state-a da nestane s ekrana bez refresha
+        setUnits((prev) => prev.filter((unit) => unit.id !== id));
+        alert("Unit and all files deleted successfully.");
+      } else {
+        const errorMsg = await response.text();
+        alert("Failed to delete unit: " + errorMsg);
       }
+    } catch (err) {
+      console.error("Error deleting unit:", err);
+      alert("An error occurred while deleting.");
     }
-  };
+  }
+};
+
 
   const handleDeleteUser = async (id, email) => {
     if (email === currentUser?.email) {
@@ -246,19 +270,19 @@ const AdminDashboard = () => {
               border: '1px solid #ddd'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ margin: 0 }}>📍 Globalna Lokacija Objekta</h3>
+                <h3 style={{ margin: 0 }}>📍 Global Property Location</h3>
                 <button 
                    onClick={() => setShowMap(!showMap)}
                    style={{ background: '#eee', border: '1px solid #ccc', cursor: 'pointer', padding: '5px 10px', borderRadius: '4px' }}
                 >
-                  {showMap ? "Sakrij mapu" : "Prikaži mapu"}
+                  {showMap ? "Hide Map" : "Show Map"}
                 </button>
               </div>
               
               <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
                 <input
                   type="text"
-                  placeholder="Unesite adresu (npr. Ilica 1, Zagreb)"
+                  placeholder="Enter address (e.g., Ilica 1, Zagreb)"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   style={{
@@ -280,7 +304,7 @@ const AdminDashboard = () => {
                     cursor: 'pointer'
                   }}
                 >
-                  {isLoading ? "Spremanje..." : "Ažuriraj Adresu"}
+                  {isLoading ? "Saving..." : "Update Address"}
                 </button>
               </div>
 
@@ -292,6 +316,8 @@ const AdminDashboard = () => {
                     style={{ border: 0, borderRadius: '4px' }}
                     loading="lazy"
                     allowFullScreen
+                    referrerPolicy="no-referrer-when-downgrade"
+                    /* Ovo je najstabilniji URL za embedanje prema adresi */
                     src={`https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                   ></iframe>
                 </div>

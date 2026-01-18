@@ -27,7 +27,18 @@ const UserReservations = () => {
           `${process.env.REACT_APP_API_URL}/unitReservation/my-reservations`, 
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setReservations(response.data);
+
+        // SORTIRANJE:
+        const sortedData = response.data.sort((a, b) => {
+          // Prvo gledamo status - želimo da 'Cancelled' bude na samom dnu
+          if (a.status === "Cancelled" && b.status !== "Cancelled") return 1;
+          if (a.status !== "Cancelled" && b.status === "Cancelled") return -1;
+
+          // Zatim unutar toga sortiramo po datumu (najbliži datumi prvi)
+          return new Date(a.startDate) - new Date(b.startDate);
+        });
+
+        setReservations(sortedData);
       } catch (err) {
         console.error("Greška pri dohvaćanju:", err);
       } finally {
@@ -46,15 +57,24 @@ const UserReservations = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setReservations((prev) =>
-        prev.map((r) => 
+      setReservations((prev) => {
+        // 1. Prvo ažuriramo status
+        const updated = prev.map((r) =>
           r.idUnitReservation === cancelModal ? { ...r, status: "Cancelled" } : r
-        )
-      );
+        );
+
+        // 2. Ponovno sortiramo da Cancelled ode na dno odmah!
+        return [...updated].sort((a, b) => {
+          if (a.status === "Cancelled" && b.status !== "Cancelled") return 1;
+          if (a.status !== "Cancelled" && b.status === "Cancelled") return -1;
+          return new Date(a.startDate) - new Date(b.startDate);
+        });
+      });
+
       setConfirmedCancel(cancelModal);
       setCancelModal(null);
     } catch (err) {
-      alert("Greška pri otkazivanju rezervacije.");
+      alert("Error cancelling the reservation.");
     }
   };
 
@@ -85,16 +105,17 @@ const UserReservations = () => {
 
   // Pomalo komplicirana provjera: je li status Completed, nije ocijenjeno i je li unutar 3 dana od endDate
   const canUserRate = (res) => {
+    // 1. Status mora biti "Completed" i ne smije već postojati ocjena
     if (res.status !== "Completed" || res.rating) return false;
     
     const endDate = new Date(res.endDate);
     const deadline = addDays(endDate, 3); // Datum završetka + 3 dana
     const now = new Date();
-    
+    // 2. Provjera je li trenutni trenutak unutar roka
     return !isAfter(now, deadline); // Vraća true ako "sada" nije nakon "deadlinea"
   };
 
-  if (loading) return <div className="loading">Učitavanje...</div>;
+  if (loading) return <div className="loading">Loading...</div>;
 
   return (
     <div className="userReservationsPage">

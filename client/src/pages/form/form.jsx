@@ -6,6 +6,13 @@ const ApartmentForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const [images, setImages] = useState([]);
+  const [imagesToDelete, setImagesToDelete] = useState([]);
+  const [hasExistingImages, setHasExistingImages] = useState(false);
+  
+  // 🟢 Pratimo index slike koja je cover
+  const [coverIndex, setCoverIndex] = useState(0);
+
   const [formData, setFormData] = useState({
     unitName: "",
     mainDescriptionTitle: "",
@@ -16,8 +23,14 @@ const ApartmentForm = () => {
     capAdults: 2,
     capChildren: 0,
     numRooms: 1,
+    numSameRooms: 1,
     numBeds: 1,
     isApartment: true, 
+    view: {
+      sea: false,
+      lake: false,
+      village: false,
+    },
     amenities: {
       parking: false,
       wifi: false,
@@ -29,8 +42,6 @@ const ApartmentForm = () => {
       airConditioning: false,
     },
   });
-
-  const [images, setImages] = useState([]);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("googleUser");
@@ -55,8 +66,14 @@ const ApartmentForm = () => {
             capAdults: data.capAdults || 2,
             capChildren: data.capChildren || 0,
             numRooms: data.numRooms || 1,
+            numSameRooms: data.numSameRooms || 1,
             numBeds: data.numBeds || 1,
             isApartment: data.isApartment ?? true,
+            view: {
+              sea: data.seaView || false,
+              lake: data.lakeView || false,
+              village: data.villageView || false,
+            },
             amenities: {
               parking: data.hasParking || false,
               wifi: data.hasWifi || false,
@@ -68,6 +85,23 @@ const ApartmentForm = () => {
               airConditioning: data.hasAirConditioning || false,
             },
           });
+
+          setHasExistingImages((data.images?.length || 0) > 0);
+
+          if (data.images && data.images.length > 0) {
+            const existingImages = data.images.map((img, idx) => {
+              if (img.url.includes("/cover/")) {
+                setCoverIndex(idx);
+              }
+              return {
+                file: null,
+                // PROMJENA: Provjeravamo je li URL već potpun (Cloud) ili relativan (Stari lokalni)
+                url: img.url.startsWith("http") ? img.url : `${process.env.REACT_APP_API_URL}${img.url}`,
+                id: img.id
+              };
+            });
+            setImages(existingImages);
+          }
         })
         .catch((err) => console.error("Error fetching unit:", err));
     }
@@ -75,11 +109,27 @@ const ApartmentForm = () => {
 
   const handleChange = (e) => {
     const { name, value, checked } = e.target;
+    if (["price", "capAdults", "numRooms", "numSameRooms", "numBeds"].includes(name)) {
+      if (value !== "" && parseInt(value) < 1) return;
+    }
+    if (name === "capChildren" && value !== "" && parseInt(value) < 0) return;
+
     if (name in formData.amenities) {
       setFormData((prev) => ({
         ...prev,
         amenities: { ...prev.amenities, [name]: checked },
       }));
+    } else if (name in formData.view) {
+      setFormData((prev) => {
+        const resetViews = Object.keys(prev.view).reduce((acc, key) => {
+          acc[key] = false;
+          return acc;
+        }, {});
+        return {
+          ...prev,
+          view: { ...resetViews, [name]: checked },
+        };
+      });
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -90,16 +140,54 @@ const ApartmentForm = () => {
     const newImages = files.map((file) => ({
       file,
       url: URL.createObjectURL(file),
+      id: null,
     }));
     setImages((prev) => [...prev, ...newImages]);
   };
 
+  const handleSetCover = (index) => {
+    setCoverIndex(index);
+  };
+
+  const handleReplaceImage = (index, e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const imageToReplace = images[index];
+    if (imageToReplace.id) {
+      setImagesToDelete((prev) => [...prev, imageToReplace.id]);
+    } else if (imageToReplace.url.startsWith("blob:")) {
+      URL.revokeObjectURL(imageToReplace.url);
+    }
+    const newImage = { file, url: URL.createObjectURL(file), id: null };
+    setImages((prev) => {
+      const updated = [...prev];
+      updated[index] = newImage;
+      return updated;
+    });
+  };
+
   const removeImage = (index) => {
+    const imageToHandle = images[index];
+    if (imageToHandle.id) {
+      setImagesToDelete((prev) => [...prev, imageToHandle.id]);
+    } else if (imageToHandle.url.startsWith("blob:")) {
+      URL.revokeObjectURL(imageToHandle.url);
+    }
+    
+    if (index === coverIndex) {
+        setCoverIndex(0);
+    } else if (index < coverIndex) {
+        setCoverIndex(prev => prev - 1);
+    }
+
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 1. Dohvati token (isto kao u OwnerDashboard)
+    const token = localStorage.getItem("access_token");
 
     const unitPayload = {
       unitName: formData.unitName,
@@ -111,7 +199,11 @@ const ApartmentForm = () => {
       capAdults: parseInt(formData.capAdults),
       capChildren: parseInt(formData.capChildren),
       numRooms: formData.isApartment ? parseInt(formData.numRooms) : 1,
+      numSameRooms: !formData.isApartment ? parseInt(formData.numSameRooms) : 1,
       numBeds: parseInt(formData.numBeds),
+      seaView: formData.view.sea,
+      lakeView: formData.view.lake,
+      villageView: formData.view.village,
       hasParking: formData.amenities.parking,
       hasWifi: formData.amenities.wifi,
       hasBreakfast: formData.amenities.breakfast,
@@ -125,24 +217,73 @@ const ApartmentForm = () => {
       rating: 0,
     };
 
-    const url = id
-      ? `${process.env.REACT_APP_API_URL}/unit/update/${id}`
-      : `${process.env.REACT_APP_API_URL}/unit/add`;
+    const url = id ? `${process.env.REACT_APP_API_URL}/unit/update/${id}` : `${process.env.REACT_APP_API_URL}/unit/add`;
     const method = id ? "PUT" : "POST";
 
     try {
       const response = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}`},
+        
         body: JSON.stringify(unitPayload),
       });
 
+      if (!response.ok) {
+        const errorMessage = await response.text(); 
+        alert(errorMessage);
+        return; 
+      }
+
       if (response.ok) {
-        alert(id ? "Unit updated successfully!" : "Unit added successfully!");
-        navigate("/admin"); 
-      } else {
-        const errorText = await response.text();
-        alert("Error: " + errorText);
+        const savedUnit = await response.json();
+        const unitId = id || savedUnit.idUnit;
+
+        // 1. Prvo obriši slike koje su označene za brisanje
+        if (imagesToDelete.length > 0) {
+          for (const imgId of imagesToDelete) {
+            await fetch(`${process.env.REACT_APP_API_URL}/unitImg/delete/${imgId}`, { 
+              method: "DELETE", 
+              headers: { "Authorization": `Bearer ${token}` } 
+            });
+          }
+        }
+
+        // 2. Uploadaj NOVE datoteke (one koje imaju .file objekt)
+        let finalCoverImageId = null;
+
+        for (let i = 0; i < images.length; i++) {
+          const imageObj = images[i];
+          const isCover = (i === coverIndex);
+
+          if (imageObj.file) {
+            const imageFormData = new FormData();
+            imageFormData.append("file", imageObj.file);
+            imageFormData.append("isCover", isCover);
+            
+            const imgRes = await fetch(`${process.env.REACT_APP_API_URL}/unitImg/upload/${unitId}`, { 
+              method: "POST", 
+              body: imageFormData, 
+              headers: { "Authorization": `Bearer ${token}` },
+            });
+            
+            const uploadedImg = await imgRes.json();
+            if (isCover) finalCoverImageId = uploadedImg.id; // Spremi ID ako je to novi cover
+          } else if (imageObj.id && isCover) {
+            // Ako je slika već postojala i postala je cover
+            finalCoverImageId = imageObj.id;
+          }
+        }
+
+        // 3. NAJVAŽNIJE: Jedan poziv da potvrdiš tko je cover (pokreće tvoju pametnu logiku na backendu)
+        if (finalCoverImageId) {
+          await fetch(`${process.env.REACT_APP_API_URL}/unitImg/set-cover/${unitId}/${finalCoverImageId}`, {
+            method: "PUT",
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+        }
+
+        alert("Unit and images updated successfully!");
+        navigate("/admin");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -161,133 +302,92 @@ const ApartmentForm = () => {
       <h2>{id ? `Edit Unit #${id}` : "Create New Unit"}</h2>
       <form onSubmit={handleSubmit} className="apartment-form">
         <label>Unit Name</label>
-        <input
-          type="text"
-          name="unitName"
-          value={formData.unitName}
-          onChange={handleChange}
-          required
-        />
+        <input type="text" name="unitName" value={formData.unitName} onChange={handleChange} required />
 
         <label>Unit Type</label>
         <div className="radio-group with-rooms">
           <div className="radio-options">
             <label>
-              <input
-                type="radio"
-                name="isApartment"
-                checked={formData.isApartment === true}
-                onChange={() => setFormData({ ...formData, isApartment: true })}
-              />
+              <input type="radio" name="isApartment" checked={formData.isApartment === true} onChange={() => setFormData({ ...formData, isApartment: true })} />
               Apartment
             </label>
             <label>
-              <input
-                type="radio"
-                name="isApartment"
-                checked={formData.isApartment === false}
-                onChange={() => setFormData({ ...formData, isApartment: false })}
-              />
+              <input type="radio" name="isApartment" checked={formData.isApartment === false} onChange={() => setFormData({ ...formData, isApartment: false })} />
               Room
             </label>
           </div>
-
-          {formData.isApartment && (
+          {formData.isApartment ? (
             <div className="num-rooms-inline">
               <label>Rooms:</label>
-              <input
-                type="number"
-                name="numRooms"
-                value={formData.numRooms}
-                onChange={handleChange}
-                min="1"
-              />
+              <input type="number" name="numRooms" value={formData.numRooms} onChange={handleChange} min="1" />
+            </div>
+          ) : (
+            <div className="num-rooms-inline">
+              <label>Number of rooms:</label>
+              <input type="number" name="numSameRooms" value={formData.numSameRooms} onChange={handleChange} min="1" />
             </div>
           )}
         </div>
 
+        <div className="checkbox-section-view">
+          <h4>Views</h4>
+          {Object.keys(formData.view).map((option) => (
+            <label key={option} className="checkbox-label">
+              <input type="checkbox" name={option} checked={formData.view[option] === true} onChange={handleChange} />
+              {option.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
+            </label>
+          ))}
+        </div>
+
         <label>Capacity (Adults)</label>
-        <input
-          type="number"
-          name="capAdults"
-          value={formData.capAdults}
-          onChange={handleChange}
-          min="1"
-        />
+        <input type="number" name="capAdults" value={formData.capAdults} onChange={handleChange} min="1" />
 
         <label>Capacity (Children)</label>
-        <input
-          type="number"
-          name="capChildren"
-          value={formData.capChildren}
-          onChange={handleChange}
-          min="0"
-        />
+        <input type="number" name="capChildren" value={formData.capChildren} onChange={handleChange} min="0" />
 
         <label>Number of Beds</label>
-        <input
-          type="number"
-          name="numBeds"
-          value={formData.numBeds}
-          onChange={handleChange}
-          min="1"
-        />
+        <input type="number" name="numBeds" value={formData.numBeds} onChange={handleChange} min="1" />
 
         <label>Main Description Title</label>
-        <input
-          type="text"
-          name="mainDescriptionTitle"
-          value={formData.mainDescriptionTitle}
-          onChange={handleChange}
-        />
+        <input type="text" name="mainDescriptionTitle" value={formData.mainDescriptionTitle} onChange={handleChange} />
 
         <label>Main Description</label>
-        <textarea
-          name="mainDescription"
-          rows="3"
-          value={formData.mainDescription}
-          onChange={handleChange}
-        />
+        <textarea name="mainDescription" rows="3" value={formData.mainDescription} onChange={handleChange} />
 
         <label>Secondary Description Title</label>
-        <input
-          type="text"
-          name="secondaryDescriptionTitle"
-          value={formData.secondaryDescriptionTitle}
-          onChange={handleChange}
-        />
+        <input type="text" name="secondaryDescriptionTitle" value={formData.secondaryDescriptionTitle} onChange={handleChange} />
 
         <label>Secondary Description</label>
-        <textarea
-          name="secondaryDescription"
-          rows="3"
-          value={formData.secondaryDescription}
-          onChange={handleChange}
-        />
+        <textarea name="secondaryDescription" rows="3" value={formData.secondaryDescription} onChange={handleChange} />
 
         <label>Price (€)</label>
-        <input
-          type="number"
-          name="price"
-          value={formData.price}
-          onChange={handleChange}
-        />
+        <input type="number" name="price" value={formData.price} onChange={handleChange} min="1" required />
 
         <div className="image-upload">
           <label>Images</label>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleImageUpload}
-          />
+          <input type="file" multiple accept="image/*" onChange={handleImageUpload} />
+
           <div className="image-preview">
             {images.map((img, index) => (
               <div key={index} className="preview-item">
-                <img src={img.url} alt={`Image ${index + 1}`} />
-                <button type="button" onClick={() => removeImage(index)}>
-                  Remove
-                </button>
+                {index === coverIndex && <span className="cover-badge">COVER</span>}
+                
+                <img 
+                  src={img.url} 
+                  alt={`Image ${index}`} 
+                  onClick={() => handleSetCover(index)} 
+                  style={{ 
+                    cursor: "pointer", 
+                    border: index === coverIndex ? "3px solid #007bff" : "1px solid #ddd" 
+                  }} 
+                  title="Click to set as Cover"
+                />
+                
+                <div className="image-action-buttons">
+                  <button type="button" className="update-img-btn" onClick={() => document.getElementById(`replace-input-${index}`).click()}>Update</button>
+                  <input id={`replace-input-${index}`} type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => handleReplaceImage(index, e)} />
+                  <button type="button" className="remove-img-btn" onClick={() => removeImage(index)}>Remove</button>
+                </div>
               </div>
             ))}
           </div>
@@ -297,24 +397,15 @@ const ApartmentForm = () => {
           <h4>Amenities</h4>
           {Object.keys(formData.amenities).map((option) => (
             <label key={option} className="checkbox-label">
-              <input
-                type="checkbox"
-                name={option}
-                checked={formData.amenities[option]}
-                onChange={handleChange}
-              />
+              <input type="checkbox" name={option} checked={formData.amenities[option]} onChange={handleChange} />
               {option.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
             </label>
           ))}
         </div>
 
         <div className="button-row">
-          <button type="submit" className="submit-btn">
-            {id ? "Update" : "Submit"}
-          </button>
-          <button type="button" className="cancel-btn" onClick={handleCancel}>
-            Cancel
-          </button>
+          <button type="submit" className="submit-btn">{id ? "Update" : "Submit"}</button>
+          <button type="button" className="cancel-btn" onClick={handleCancel}>Cancel</button>
         </div>
       </form>
     </div>

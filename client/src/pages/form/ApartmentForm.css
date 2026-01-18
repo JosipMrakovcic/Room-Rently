@@ -65,7 +65,7 @@
   border: 2px solid #b5d5f5;
 }
 
-.preview-item button {
+/*.preview-item button {
   position: absolute;
   top: 5px;
   right: 5px;
@@ -77,11 +77,11 @@
   cursor: pointer;
   font-size: 12px;
   transition: background 0.2s;
-}
+}*/
 
-.preview-item button:hover {
-  background-color: #e74c3c;
-}
+/*.preview-item button:hover {
+  background-color: #5e3ce7;
+}*/
 
 .checkbox-section {
   margin-top: 20px;
@@ -89,6 +89,15 @@
 
 .checkbox-section h4 {
   margin-bottom: 10px;
+  color: #025c9a;
+}
+
+.checkbox-section-view{
+  margin-top: 0px;
+}
+
+.checkbox-section-view h4 {
+  margin-bottom: 5px;
   color: #025c9a;
 }
 
@@ -252,4 +261,167 @@
   .checkbox-label {
     font-size: 14px;
   }
+}
+
+
+/* --- Dodatak za COVER badge --- */
+
+.preview-item {
+  position: relative;
+  margin-top: 10px; /* Dovoljno prostora za bedž iznad slike */
+}
+
+.cover-badge {
+  position: absolute;
+  top: -30px; /* Podignuto da ne smeta Remove gumbu */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffffff;
+  color: #025c9a;
+  /* Boja i debljina bordera bedža */
+  border: 3px solid #4aa3ff; 
+  border-radius: 20px;
+  padding: 2px 12px;
+  font-size: 10px;
+  font-weight: bold;
+  z-index: 15;
+  text-transform: uppercase;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+}
+
+/* Stil za PRVU sliku (Cover slika) */
+.preview-item:first-child img {
+  /* Ista boja i debljina kao na bedžu */
+  border: 3px solid #4aa3ff; 
+  /* Jači sjaj da se dodatno istakne */
+  box-shadow: 0 0 10px rgba(74, 163, 255, 0.4); 
+}
+
+/* Stil za OSTALE slike (ne-cover) */
+.preview-item:not(:first-child) img {
+  /* Svjetlija boja za obične slike */
+  border: 2px solid #b5d5f5; 
+  box-shadow: none;
+}
+
+/* Osiguraj da image-preview ima mjesta za bedževe */
+.image-preview {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 30px; 
+  gap: 15px;
+}
+
+
+/* Kontejner za gumbe ispod slike */
+.image-action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+/* Stil za Update gumb (žuta/narančasta boja) */
+.update-img-btn {
+  background-color: #50a91c;
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.update-img-btn:hover {
+  background-color: #1f7705;
+}
+
+/* Stil za Remove gumb (crvena boja) */
+.remove-img-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.remove-img-btn:hover {
+  background-color: #7c141f;
+}
+
+/* Osiguraj da slika i gumbi budu centrirani u preview-itemu */
+.preview-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+
+/* ===================== */
+/* ✅ IMAGE MODAL (ZOOM) */
+/* ===================== */
+
+.image-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85); /* Tamna prozirna pozadina */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Mora biti iznad svega */
+  cursor: zoom-out;
+}
+
+.image-modal-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.full-res-image {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 8px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+  object-fit: contain;
+  background-color: #000;
+}
+
+.close-modal-btn {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  color: white;
+  font-size: 35px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.close-modal-btn:hover {
+  color: #4aa3ff;
+}
+
+/* Kursor na malim slikama da admin zna da se može kliknuti */
+.preview-item img {
+  cursor: zoom-in;
+  transition: transform 0.2s ease;
+}
+
+.preview-item img:hover {
+  transform: scale(1.05);
 }

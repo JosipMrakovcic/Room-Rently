@@ -1,48 +1,81 @@
+import { useNavigate } from "react-router-dom";
 import "./propertylist.css";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 const Propertylist = () => {
+  const navigate = useNavigate();
+  const API_URL = process.env.REACT_APP_API_URL;
+  // State za pohranu podataka o jedinicama (broj kreveta, broj jedinica, slika)
+  const [bedData, setBedData] = useState([]);
+  // Dohvaćanje statistike s backenda pri učitavanju komponente
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/unit/counts-by-beds`);
+        setBedData(res.data); // Prima listu [{beds, count, image}, ...]
+      } catch (err) {
+        console.error("Error fetching bed counts:", err);
+      }
+    };
+    fetchCounts();
+  }, [API_URL]);
+  // Funkcija za navigaciju na rezultate pretrage s unaprijed postavljenim brojem kreveta
+  const handleSearch = (numBeds) => {
+    navigate("/hotels", { 
+      state: { 
+        beds: numBeds,
+        date: [{ startDate: null, endDate: null, key: "selection" }] 
+      } 
+    });
+    window.scrollTo(0, 0);
+  };
+
+  // Pomoćna funkcija za izvlačenje podataka za određeni broj kreveta
+  // Propertylist.jsx - promijeni ovo:
+  const getDataForBeds = (num) => {
+    // backend šalje broj kreveta kao String u polju "label"
+    return bedData.find(item => item.label === String(num)) || { count: 0, image: null };
+  };
+
+  const bedCategories = [
+    { beds: 1, defaultImg: "20210710_085121.jpg" },
+    { beds: 2, defaultImg: "20210710_085154.jpg" },
+    { beds: 3, defaultImg: "20210710_085438.jpg" },
+    { beds: 4, defaultImg: "20210710_085443.jpg" },
+    { beds: 5, defaultImg: "20210710_084619.jpg" },
+  ];
+
   return (
     <div className="pList">
-      <div className="plistItem">
-        <img src="20210710_085121.jpg" alt="" className="plistimg" />
-        <div className="plisttitle">
-          <h1>1 Bed</h1>
-          <h2>69 Apartments</h2>
-        </div>
-      </div>
+      {bedCategories.map((item) => {
+        const data = getDataForBeds(item.beds);
+        // Provjeravamo je li slika s backenda (S3/Supabase) potpuni URL ili relativna putanja
+        const displayImg = data.image 
+          ? (data.image.startsWith("http") ? data.image : `${API_URL}${data.image}`) 
+          : item.defaultImg;
 
-      <div className="plistItem">
-        <img src="20210710_085154.jpg" alt="" className="plistimg" />
-        <div className="plisttitle">
-          <h1>2 Beds</h1>
-          <h2>21 Apartments</h2>
-        </div>
-      </div>
-
-      <div className="plistItem">
-        <img src="20210710_085438.jpg" alt="" className="plistimg" />
-        <div className="plisttitle">
-          <h1>3 Beds</h1>
-          <h2>67 Apartments</h2>
-        </div>
-      </div>
-
-      <div className="plistItem">
-        <img src="20210710_085443.jpg" alt="" className="plistimg" />
-        <div className="plisttitle">
-          <h1>4 Beds</h1>
-          <h2>420 Apartments</h2>
-        </div>
-      </div>
-
-      <div className="plistItem">
-        <img src="20210710_084619.jpg" alt="" className="plistimg" />
-        <div className="plisttitle">
-          <h1>5 Beds</h1>
-          <h2>41 Apartments</h2>
-        </div>
-      </div>
+        return (
+          <div 
+            key={item.beds} 
+            className="plistItem" 
+            onClick={() => handleSearch(item.beds)}
+          >
+            <img 
+              src={displayImg} 
+              alt={`${item.beds} beds`} 
+              className="plistimg" 
+              onError={(e) => { e.target.src = item.defaultImg; }}
+            />
+            <div className="plisttitle">
+              <h1>{item.beds} {item.beds === 1 ? "Bed" : "Beds"}</h1>
+              <h2>{data.count} Units</h2>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 };
+
 export default Propertylist;

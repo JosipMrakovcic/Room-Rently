@@ -15,7 +15,7 @@ public class UnitReservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id") // <--- PRISILNO MAPIRANJE: Ovo rješava "null value in column id"
+    @Column(name = "id")
     private Long idUnitReservation;
 
     @Column(nullable = false)
@@ -33,12 +33,12 @@ public class UnitReservation {
     @Column
     private int children;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Promijenjeno s EAGER
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_person", referencedColumnName = "id", nullable = false)
     @JsonIgnoreProperties("unitReservations")
     private Person person;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Promijenjeno s EAGER
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_unit", referencedColumnName = "id_unit", nullable = false)
     @JsonIgnoreProperties({"unitReservations", "listOfRooms", "parentUnit", "images"})
     private Unit unit;
@@ -46,7 +46,6 @@ public class UnitReservation {
     @Column(columnDefinition = "text") // Koristimo text da možemo spremiti duži popis
     private String selectedAmenities;
 
-    // Dodaj u UnitReservation.java unutar klase
     @Column
     private Integer rating; // Rating 1-10
 

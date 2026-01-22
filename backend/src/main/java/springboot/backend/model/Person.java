@@ -38,15 +38,12 @@ public class Person {
     @Column(columnDefinition = "text", nullable = false)
     private String name;
 
-    // NOVO POLJE
     @Column(columnDefinition = "text")
     private String country;
 
-    // NOVO POLJE
     @Column(columnDefinition = "text")
     private String city;
 
-    // Ažuriran konstruktor
     public Person(String email, boolean isAdmin, boolean isUser, boolean isOwner, String name, String country, String city) {
         this.email = email;
         this.isAdmin = isAdmin;

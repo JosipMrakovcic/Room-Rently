@@ -13,7 +13,6 @@ public class UnitFilterDTO {
     private String coverImage;
     private String location;
     private boolean apartment;
-    // DODAJ OVA POLJA DA BI FRONTEND RADIO:
     private Integer numRooms;
     private Integer numBeds;
     private Integer capAdults;

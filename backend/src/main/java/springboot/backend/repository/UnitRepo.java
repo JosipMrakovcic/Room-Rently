@@ -134,7 +134,7 @@ public interface UnitRepo extends JpaRepository<Unit, Long> {
     """)
     List<springboot.backend.dto.UnitTopRatedDTO> findTopRatedSimple(Pageable pageable);
 
-    // 2. BEDS IMAGE: Slika najbolje ocijenjenog apartmana s tim brojem kreveta
+    // BEDS IMAGE: Slika najbolje ocijenjenog apartmana s tim brojem kreveta
     @Query("""
         SELECT img.url FROM UnitImg img 
         WHERE img.unit.idUnit = (
@@ -147,7 +147,7 @@ public interface UnitRepo extends JpaRepository<Unit, Long> {
     """)
     String findFirstImageUrlByBeds(@Param("beds") int beds);
 
-    // 3. VIEW IMAGE: Slika najbolje ocijenjenog apartmana za određeni pogled
+    // VIEW IMAGE: Slika najbolje ocijenjenog apartmana za određeni pogled
     @Query("""
         SELECT img.url FROM UnitImg img 
         WHERE img.unit.idUnit = (
@@ -162,6 +162,7 @@ public interface UnitRepo extends JpaRepository<Unit, Long> {
         ORDER BY img.id ASC LIMIT 1
     """)
     String findFirstImageUrlByView(@Param("type") String type);
+
     @Modifying
     @Transactional
     @Query(value = """
@@ -176,6 +177,7 @@ public interface UnitRepo extends JpaRepository<Unit, Long> {
        OR u.id_unit = (SELECT parent_unit_id FROM unit WHERE id_unit = :unitId)
 """, nativeQuery = true)
     void refreshUnitRating(@Param("unitId") Long unitId);
+
     @Query("SELECT new springboot.backend.dto.UnitSummaryDTO(u.idUnit, u.unitName, u.apartment, u.numSameRooms) " +
             "FROM Unit u WHERE u.parentUnit IS NULL")
     List<UnitSummaryDTO> findAllSummaries();

@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "unit_img") // Promijenjeno u snake_case (standard za baze)
+@Table(name = "unit_img")
 @Getter
 @Setter
 public class UnitImg {

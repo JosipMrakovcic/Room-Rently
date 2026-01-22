@@ -29,7 +29,7 @@ public class LocationController {
     // Spremanje/Update adrese (POST)
     @PostMapping
     public ResponseEntity<?> saveLocation(@RequestBody LocationSettings settings, @AuthenticationPrincipal Jwt jwt) {
-        // FIX ZA 401: Provjeravamo je li token prisutan
+        // Provjeravamo je li token prisutan
         if (jwt == null) {
             return ResponseEntity.status(401).body("You are not authorized!");
         }

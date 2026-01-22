@@ -20,20 +20,16 @@ public class ReservationTask {
     @Scheduled(cron = "0 0 0 * * *")
     @Transactional
     public void autoCloseReservations() {
-        // PROMJENA: Koristimo LocalDate direktno, ne String
+
         LocalDate today = LocalDate.now();
 
-        // Pozivamo repo koji smo ranije definirali da prima LocalDate
         List<UnitReservation> expired = repo.findExpiredConfirmedReservations(today);
 
         if (!expired.isEmpty()) {
             for (UnitReservation res : expired) {
                 res.setStatus("Completed");
-                // Hibernate će automatski spremiti promjene zbog @Transactional,
-                // ali repo.save(res) je u redu radi jasnoće.
                 repo.save(res);
 
-                // Pazi: res.getUnit() radi jer smo unutar @Transactional
                 System.out.println("Sustav: Rezervacija #" + res.getIdUnitReservation() +
                         " je automatski dovršena.");
             }

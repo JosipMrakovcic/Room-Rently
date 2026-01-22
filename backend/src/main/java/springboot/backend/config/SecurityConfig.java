@@ -40,7 +40,7 @@ public class SecurityConfig {
                                 "/api/location" // GET metoda za adresu je javna
                         ).permitAll()
 
-                        // --- 2. KORISNIČKE RUTE (Potreban Login) ---
+                        // KORISNIČKE RUTE (Potreban Login) ---
                         .requestMatchers(
                                 "/addPerson",
                                 "/me",
@@ -51,7 +51,7 @@ public class SecurityConfig {
                                 "/unitReservation/rate/**"    // Korisnik ocjenjuje svoje
                         ).authenticated()
 
-                        // --- 3. ADMIN/OWNER RUTE (Potreban Login + provjera u kontroleru) ---
+                        // ADMIN/OWNER RUTE (Potreban Login + provjera u kontroleru) ---
                         .requestMatchers(
                                 "/unit/add",
                                 "/unit/update/**",
@@ -63,7 +63,7 @@ public class SecurityConfig {
                                 "/unitReservation/update-status/**" // Vlasnik potvrđuje
                         ).authenticated()
 
-                        // --- 4. DEFAULT ZAŠTITA ---
+                        // DEFAULT ZAŠTITA ---
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()));

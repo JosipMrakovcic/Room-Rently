@@ -64,17 +64,17 @@ public class UnitController {
 
     @PostMapping("/add")
     public ResponseEntity<?> addUnit(@RequestBody Unit unit, @AuthenticationPrincipal Jwt jwt) {
-        // 1. Provjera je li token tu
+        // Provjera je li token tu
         if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-        // 2. Izvlačenje emaila
+        // Izvlačenje emaila
         String email = jwt.getClaimAsString("email");
         if (email == null) return ResponseEntity.badRequest().body("No email in token.");
 
-        // 3. Traženje osobe u Person tablici pomoću personRepo-a
+        // Traženje osobe u Person tablici pomoću personRepo-a
         Optional<Person> caller = personRepo.findByEmail(email);
 
-        // 4. Provjera je li osoba admin
+        // Provjera je li osoba admin
         if (caller.isEmpty() || !caller.get().isAdmin()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admins can add units.");
         }
@@ -110,9 +110,6 @@ public class UnitController {
             }
         }
 
-        //repo.save(unit);
-        //return ResponseEntity.ok("Unit added successfully"); OVO JE PROMIJENJENO
-
         Unit savedUnit = repo.save(unit);
         return ResponseEntity.ok(savedUnit);
     }
@@ -123,14 +120,13 @@ public class UnitController {
     }
 
 
-
     @Transactional
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateUnit(@PathVariable Long id, @RequestBody Unit unitPayload, @AuthenticationPrincipal Jwt jwt) {
-        // --- DODAJ OVU PROVJERU ---
         if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         String email = jwt.getClaimAsString("email");
         Optional<Person> caller = personRepo.findByEmail(email);
+
         if (caller.isEmpty() || !caller.get().isAdmin()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Only admins can update units.");
         }
@@ -144,15 +140,14 @@ public class UnitController {
             String[] ignoreProperties = {"idUnit", "listOfRooms", "parentUnit", "images", "unitReservations"};
             List<String> activeStatuses = Arrays.asList("Pending", "Confirmed");
 
-            // 1. Ažuriraj roditelja
+            // Ažuriraj roditelja
             BeanUtils.copyProperties(unitPayload, existingUnit, ignoreProperties);
 
             if (!existingUnit.isApartment() && existingUnit.getNumSameRooms() != null) {
                 List<Unit> currentRooms = existingUnit.getListOfRooms();
                 int targetCount = existingUnit.getNumSameRooms();
-                int numOfSameRooms = currentRooms.size();
 
-                // A. BRISANJE
+                // BRISANJE
                 if (targetCount < currentRooms.size()) {
                     List<String> busyRooms = new ArrayList<>();
                     for (int i = currentRooms.size() - 1; i >= targetCount; i--) {
@@ -178,7 +173,7 @@ public class UnitController {
                     }
                 }
 
-                // B. DODAVANJE
+                // DODAVANJE
                 if (targetCount > currentRooms.size()) {
                     int toAdd = targetCount - currentRooms.size();
                     for (int i = 0; i < toAdd; i++) {
@@ -190,7 +185,7 @@ public class UnitController {
                     }
                 }
 
-                // C. SINKRONIZACIJA I NUMERIRANJE (Od 1 do N)
+                // SINKRONIZACIJA I NUMERIRANJE (Od 1 do N)
                 syncSubRoomsAndSort(existingUnit, ignoreProperties);
                 existingUnit.setNumSameRooms(currentRooms.size());
 
@@ -212,10 +207,9 @@ public class UnitController {
 
         for (int i = 0; i < rooms.size(); i++) {
             Unit room = rooms.get(i);
-            // 1. Kopiraj sve ostale podatke (cijenu, opis...)
+            // Kopiramo sve ostale podatke (cijenu, opis...)
             BeanUtils.copyProperties(parent, room, ignoreProperties);
 
-            // 2. Forsiraj ispravno ime prema redoslijedu (1, 2, 3...)
             // Formatiranje broja s vodećom nulom (npr. Soba 01) pomaže kod sortiranja u bazi
             String formattedIndex = String.format("%02d", i + 1);
             room.setUnitName(parent.getUnitName() + " - Soba " + formattedIndex);
@@ -258,7 +252,6 @@ public class UnitController {
     }
     @GetMapping("/summary")
     public ResponseEntity<List<UnitSummaryDTO>> getUnitSummaries() {
-        // Ovo će biti munjevito brzo jer prenosi minimalno bajtova
         return ResponseEntity.ok(repo.findAllSummaries());
     }
 
@@ -290,7 +283,6 @@ public class UnitController {
         BigDecimal bdMinPrice = minPrice != null ? BigDecimal.valueOf(minPrice) : null;
         BigDecimal bdMaxPrice = maxPrice != null ? BigDecimal.valueOf(maxPrice) : null;
 
-        // POZIVAMO NOVU METODU U SERVISU
         return unitService.filterUnitsDTO(
                 name,
                 adults,

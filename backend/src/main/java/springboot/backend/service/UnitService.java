@@ -16,7 +16,6 @@ public class UnitService {
     @Autowired
     private UnitRepo unitRepo;
 
-    // POVRATNI TIP JE SADA List<UnitFilterDTO>
     public List<UnitFilterDTO> filterUnitsDTO(
             String name, Integer adults, Integer children, Integer rooms,
             Integer beds,
@@ -30,9 +29,7 @@ public class UnitService {
 
         String searchName = StringUtils.hasText(name) ? name : null;
 
-        // Pozivamo novi, optimizirani upit iz repositoryja
-        // Više ne radimo ručni .stream().filter() jer SQL u Repositoryju
-        // već odrađuje "NOT EXISTS" za rezervacije i "parentUnit IS NULL".
+        // Pozivamo upit iz repositoryja
         return unitRepo.filterUnitsDTO(
                 searchName, adults, children, rooms, beds,
                 isApartment, seaView, lakeView, villageView, hasParking, hasWifi, hasBreakfast,

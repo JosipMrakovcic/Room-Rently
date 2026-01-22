@@ -153,7 +153,6 @@ public class PersonController {
             return ResponseEntity.badRequest().body("Invalid token: no email found.");
         }
 
-        // 2. Koristimo 'repo' (naziv koji si definirao na vrhu klase kod @Autowired)
         return repo.findByEmail(email).map(person -> {
             person.setCountry(country);
             person.setCity(city);

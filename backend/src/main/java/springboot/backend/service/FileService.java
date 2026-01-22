@@ -31,7 +31,7 @@ public class FileService {
             @Value("${supabase.s3.bucket}") String bucketName,
             @Value("${supabase.s3.region}") String region) {
 
-        // ======= SSL TRUSTSTORE DEBUGGING =======
+
         System.out.println("======= SSL TRUSTSTORE DEBUG =======");
         System.out.println("1. javax.net.ssl.trustStore: " + System.getProperty("javax.net.ssl.trustStore"));
         System.out.println("2. javax.net.ssl.trustStorePassword: " + (System.getProperty("javax.net.ssl.trustStorePassword") != null ? "*****" : "null"));
@@ -54,7 +54,7 @@ public class FileService {
         }
         System.out.println("====================================");
 
-        // ISPIS KONFIGURACIJE ZA DEBUGGING
+
         System.out.println("======= S3 DEBUG CONFIGURATION =======");
         System.out.println("S3 ENDPOINT: " + endpoint);
         System.out.println("S3 REGION: " + region);

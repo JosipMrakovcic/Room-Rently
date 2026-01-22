@@ -20,7 +20,7 @@ public class EmailService {
     private String apiKey;
 
     @Value("${BREVO_SENDER_EMAIL}")
-    private String senderEmail; // DODANO: Ovo povlači tvoj verified mail s Rendera
+    private String senderEmail; // Ovo povlači verified mail s Rendera
 
     @Autowired
     private PdfService pdfService;
@@ -28,26 +28,17 @@ public class EmailService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final String BREVO_URL = "https://api.brevo.com/v3/smtp/email";
 
-    /**
-     * Initial inquiry confirmation
-     */
     @Async
     public void sendEmailWithPdf(UnitReservation res) {
         sendInternal(res, "Reservation Inquiry Received",
                 "Your reservation request has been successfully received and is currently PENDING. The owner will review your request shortly.");
     }
 
-    /**
-     * Status updates (Confirmed, Rejected, etc.)
-     */
     @Async
     public void sendStatusUpdateEmail(UnitReservation res, String subject, String messageText) {
         sendInternal(res, subject, messageText);
     }
 
-    /**
-     * CORE LOGIC: Replaced SMTP with Brevo API
-     */
     private void sendInternal(UnitReservation res, String subject, String messageText) {
         System.out.println(">>> [LOG] Pokrećem sendInternal za: " + res.getPerson().getEmail());
 
@@ -59,7 +50,7 @@ public class EmailService {
         }
 
         try {
-            // Tvoj HTML Template (ostaje nepromijenjen)
+            // HTML Template
             String emailBody =
                     "<div style='font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif; color: #333; max-width: 600px; border: 1px solid #eee; padding: 20px;'>" +
                             "<h2 style='color: #2c3e50;'>Dear " + res.getPerson().getName() + ",</h2>" +
@@ -93,7 +84,6 @@ public class EmailService {
 
             // Kreiranje JSON-a za Brevo
             Map<String, Object> payload = new HashMap<>();
-            // ZAMJENJENO: sender koristi tvoju novu varijablu
             payload.put("sender", Map.of("name", "Room Rently", "email", senderEmail));
             payload.put("to", List.of(Map.of("email", res.getPerson().getEmail(), "name", res.getPerson().getName())));
             payload.put("subject", subject + " | " + res.getUnit().getUnitName());
@@ -122,7 +112,6 @@ public class EmailService {
             }
 
         } catch (HttpClientErrorException e) {
-            // Ovo će ispisati TOČAN razlog zašto je 401 (npr. "Invalid API Key")
             System.err.println(">>> [LOG] BREVO API GREŠKA (4xx): " + e.getStatusCode());
             System.err.println(">>> [LOG] DETALJI ODGOVORA: " + e.getResponseBodyAsString());
         } catch (Exception e) {
@@ -131,9 +120,6 @@ public class EmailService {
         }
     }
 
-    /**
-     * Simple notifications
-     */
     @Async
     public void sendSimpleStatusEmail(UnitReservation res, String subject, String messageText) {
         System.out.println(">>> [LOG] Pokrećem sendSimpleStatusEmail za: " + res.getPerson().getEmail());
@@ -147,7 +133,6 @@ public class EmailService {
                             "</div>";
 
             Map<String, Object> payload = new HashMap<>();
-            // ZAMJENJENO: sender koristi tvoju novu varijablu
             payload.put("sender", Map.of("name", "Room Rently", "email", senderEmail));
             payload.put("to", List.of(Map.of("email", res.getPerson().getEmail(), "name", res.getPerson().getName())));
             payload.put("subject", subject);

@@ -123,7 +123,7 @@ public class UnitImgController {
             @PathVariable Long imgId,
             @AuthenticationPrincipal Jwt jwt) {
 
-        // 1. PROVJERA ADMINA
+        // PROVJERA ADMINA
         if (jwt == null) return ResponseEntity.status(401).build();
         String email = jwt.getClaimAsString("email");
         Optional<Person> caller = personRepo.findByEmail(email);
@@ -153,7 +153,6 @@ public class UnitImgController {
         }
     }
 
-    // 1. OVA METODA JE ZA VANJSKI POZIV (API)
     @PutMapping("/update-status/{imgId}")
     @Transactional
     public ResponseEntity<?> updateImageStatusApi(@PathVariable Long imgId, @RequestParam boolean isCover, @AuthenticationPrincipal Jwt jwt) {
@@ -180,19 +179,19 @@ public class UnitImgController {
         // Koristimo dosljedno 'targetSubFolder'
         String targetSubFolder = isCover ? "cover/" : "other/";
 
-        // 1. ISPRAVLJENA PROVJERA: Provjeravamo točnu varijablu
+        // Provjeravamo točnu varijablu
         if (currentUrl.contains("/" + targetSubFolder)) {
             System.out.println(">>> S3 SKIP: Slika ID " + imgId + " je već u folderu: " + targetSubFolder);
             return;
         }
 
-        // 2. Izdvajanje imena datoteke
+        // Izdvajanje imena datoteke
         String fileName = currentUrl.substring(currentUrl.lastIndexOf("/") + 1);
 
-        // 3. Generiranje nove putanje
+        // Generiranje nove putanje
         String newS3Path = BASE_S3_DIR + img.getUnit().getIdUnit() + "/" + targetSubFolder + fileName;
 
-        // 4. Cloud premještanje
+        // Cloud premještanje
         System.out.println(">>> S3 MOVING: Iz " + currentUrl + " u " + newS3Path);
         String newUrl = fileService.moveFile(currentUrl, newS3Path);
 
@@ -215,7 +214,6 @@ public class UnitImgController {
                 .orElseThrow(() -> new RuntimeException("Unit not found with ID: " + id));
 
         try {
-            // --- VRACEENA TVOJA KOMPLETNA LOGIKA ---
             List<Unit> allUnits = new ArrayList<>();
             allUnits.add(unit);
             if (unit.getListOfRooms() != null) {
@@ -234,7 +232,6 @@ public class UnitImgController {
                         "We regret to inform you that the property '" + unit.getUnitName() + "' is no longer available. Your reservation has been cancelled."
                 );
             }
-            // --- KRAJ TVOJE LOGIKE ---
 
             unitRepo.delete(unit);
             unitRepo.flush();

@@ -12,16 +12,12 @@ import java.util.List;
 
 public interface UnitReservationRepo extends JpaRepository<UnitReservation, Long> {
 
-    // 1. KLJUČNO ZA OWNER DASHBOARD: EntityGraph rješava LazyInitialization i 500 Error
     @Override
     @EntityGraph(attributePaths = {"unit", "person", "unit.images"})
     List<UnitReservation> findAll();
 
-    // 2. KLJUČNO ZA USER PROFILE: Da korisnik vidi slike smještaja uz rezervaciju
     @EntityGraph(attributePaths = {"unit", "unit.images"})
     List<UnitReservation> findByPersonEmail(String email);
-
-    List<UnitReservation> findByUnitInAndStatusInAndEndDateAfter(List<Unit> units, List<String> statuses, LocalDate date);
 
     List<UnitReservation> findByUnitInAndStatusIn(List<Unit> units, List<String> statuses);
 

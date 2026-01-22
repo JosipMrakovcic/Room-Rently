@@ -37,8 +37,6 @@ public class UnitControllerComponentTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // --- DODAVANJE JEDINICE ---
-
     @Test
     @DisplayName("Redovni: Uspješno dodavanje sobe s generiranjem pod-soba")
     public void testAddUnit_Success() throws Exception {
@@ -90,8 +88,6 @@ public class UnitControllerComponentTest {
                 .andExpect(content().string("Price must be a positive number."));
     }
 
-    // --- AŽURIRANJE JEDINICE ---
-
     @Test
     @DisplayName("Redovni: Uspješno ažuriranje cijene")
     public void testUpdateUnit_Success() throws Exception {
@@ -116,7 +112,7 @@ public class UnitControllerComponentTest {
     @Test
     @DisplayName("Rubni: Smanjenje broja soba blokirano rezervacijom")
     public void testUpdateUnit_RoomsWithReservations() throws Exception {
-        // 1. Pripremamo postojeću jedinicu koja ima 5 soba u bazi
+        // Pripremamo postojeću jedinicu koja ima 5 soba u bazi
         Unit existingUnit = new Unit();
         existingUnit.setIdUnit(1L);
         existingUnit.setNumSameRooms(5);
@@ -131,12 +127,12 @@ public class UnitControllerComponentTest {
         }
         existingUnit.setListOfRooms(rooms);
 
-        // 2. Payload koji šaljemo (želimo smanjiti na 2 sobe)
+        // Payload koji šaljemo (želimo smanjiti na 2 sobe)
         Unit payload = new Unit();
         payload.setNumSameRooms(2);
         payload.setApartment(false);
 
-        // 3. Mockiranje
+        //  Mockiranje
         Mockito.when(unitRepo.findById(1L)).thenReturn(Optional.of(existingUnit));
 
         // Simuliramo da postoji aktivna rezervacija za sobu koju pokušavamo obrisati

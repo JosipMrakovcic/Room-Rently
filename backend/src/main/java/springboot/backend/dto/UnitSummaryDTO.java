@@ -6,10 +6,10 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor // Dobra praksa je imati i prazan konstruktor za serijalizaciju
+@NoArgsConstructor
 public class UnitSummaryDTO {
     private Long idUnit;
     private String unitName;
-    private boolean apartment; // Promijenjeno iz isApartment u apartment
+    private boolean apartment;
     private Integer numSameRooms;
 }

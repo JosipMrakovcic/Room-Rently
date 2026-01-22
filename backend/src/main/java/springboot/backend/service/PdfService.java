@@ -31,14 +31,14 @@ public class PdfService {
             PdfWriter.getInstance(document, outputStream);
             document.open();
 
-            // Fonts (Tvoji originalni fontovi)
+            // Fonts
             Font fontBrand = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22, Color.DARK_GRAY);
             Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16);
             Font fontSubtitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.GRAY);
             Font fontNormal = FontFactory.getFont(FontFactory.HELVETICA, 11);
             Font fontBold = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11);
 
-            // 1. HEADER
+            // HEADER
             Paragraph brand = new Paragraph("ROOM RENTLY", fontBrand);
             brand.setAlignment(Element.ALIGN_RIGHT);
             document.add(brand);
@@ -51,7 +51,7 @@ public class PdfService {
             document.add(new LineSeparator());
             document.add(new Paragraph("\n"));
 
-            // 2. RESERVATION INFO
+            // RESERVATION INFO
             Paragraph title = new Paragraph("RESERVATION SUMMARY", fontTitle);
             title.setSpacingAfter(15);
             document.add(title);
@@ -63,7 +63,7 @@ public class PdfService {
 
             document.add(new Paragraph("\n"));
 
-            // 3. DATES
+            // DATES
             long nights = ChronoUnit.DAYS.between(res.getStartDate(), res.getEndDate());
             document.add(new Paragraph("STAY DETAILS", fontSubtitle));
             document.add(new LineSeparator());
@@ -73,7 +73,7 @@ public class PdfService {
 
             document.add(new Paragraph("\n"));
 
-            // 4. AMENITIES
+            // AMENITIES
             document.add(new Paragraph("INCLUDED SERVICES", fontSubtitle));
             document.add(new LineSeparator());
             if (res.getSelectedAmenities() != null && !res.getSelectedAmenities().isEmpty()) {
@@ -88,7 +88,7 @@ public class PdfService {
 
             document.add(new Paragraph("\n"));
 
-            // 5. PRICE
+            // PRICE
             document.add(new Paragraph("FINANCIAL OVERVIEW", fontSubtitle));
             document.add(new LineSeparator());
             double pricePerNight = res.getUnit().getPrice();
@@ -109,7 +109,7 @@ public class PdfService {
         } catch (DocumentException e) {
             throw new IOException("Greška pri kreiranju PDF strukture: " + e.getMessage());
         } finally {
-            // KLJUČNO ZA RENDER: Uvijek zatvori dokument da oslobodiš memoriju
+            // Uvijek zatvori dokument da se oslobodi memorija
             if (document.isOpen()) {
                 document.close();
             }

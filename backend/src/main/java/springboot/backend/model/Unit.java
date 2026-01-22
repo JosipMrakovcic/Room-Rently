@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "unit")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // DODAJ OVO
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Unit {
 
     @Id
@@ -53,9 +53,8 @@ public class Unit {
     private Integer numBeds;
 
     @Column(name = "average_rating")
-    private Double averageRating = 0.0; // Stvarni stupac u bazi
+    private Double averageRating = 0.0;
 
-    // Ovu metodu ostavljamo za Jackson (JSON), ali sada čita iz polja, ne računa ništa
     @JsonProperty("rating")
     public Double getRating() {
         if (averageRating == null || averageRating == 0.0) return null;

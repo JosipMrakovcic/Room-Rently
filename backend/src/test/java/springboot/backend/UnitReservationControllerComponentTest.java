@@ -40,8 +40,6 @@ public class UnitReservationControllerComponentTest {
     @MockitoBean private UnitRepo unitRepo;
     @MockitoBean private EmailService emailService;
 
-    // --- KREIRANJE REZERVACIJE (POST /add) ---
-
     @Test
     @DisplayName("Redovni: Uspješno kreiranje rezervacije za običnog korisnika")
     public void testAddReservation_Success() throws Exception {
@@ -52,10 +50,10 @@ public class UnitReservationControllerComponentTest {
         req.setEndDate(LocalDate.now().plusDays(10));
         req.setAdults(2);
 
-        // Postavljamo Person prema tvom modelu
+        // Postavljamo Person
         Person gost = new Person();
         gost.setEmail(email);
-        gost.setUser(true); // Ključno za prolaz if(person.isUser())
+        gost.setUser(true);
         gost.setOwner(false);
         gost.setName("Gost Korisnik");
 
@@ -85,7 +83,7 @@ public class UnitReservationControllerComponentTest {
 
         Person vlasnik = new Person();
         vlasnik.setEmail(email);
-        vlasnik.setUser(false); // Owner nije "regular user" u tvom kontroleru
+        vlasnik.setUser(false);
         vlasnik.setOwner(true);
 
         Mockito.when(personRepo.findByEmail(email)).thenReturn(Optional.of(vlasnik));
@@ -122,7 +120,6 @@ public class UnitReservationControllerComponentTest {
                 .andExpect(content().string("Departure date must be at least one day after arrival."));
     }
 
-    // --- DOHVAT VLASTITIH REZERVACIJA ---
 
     @Test
     @DisplayName("Redovni: Uspješan dohvat liste rezervacija")
@@ -158,7 +155,6 @@ public class UnitReservationControllerComponentTest {
     @Test
     @DisplayName("Izazivanje pogreške: Pristup bez prijave")
     public void testGetMyReservations_NoJwt() throws Exception {
-        // Ne dodajemo .with(jwt())
         mockMvc.perform(get("/unitReservation/my-reservations"))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());

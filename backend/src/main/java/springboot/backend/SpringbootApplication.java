@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@EnableAsync // <-- Dodaj ovo za pozadinsko slanje mailova
+@EnableAsync // pozadinsko slanje mailova
 public class SpringbootApplication {
 
 	public static void main(String[] args) {

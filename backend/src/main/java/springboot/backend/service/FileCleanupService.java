@@ -26,7 +26,7 @@ public class FileCleanupService {
         // Koristimo novi Thread kako bi main thread mogao završiti start aplikacije
         new Thread(() -> {
             try {
-                // Dajemo serveru 10 sekundi da "udahne" prije nego krene S3 provjera
+                // Dajemo serveru 10 sekundi prije nego krene S3 provjera
                 Thread.sleep(10000);
                 System.out.println(">>> [Supabase Cleanup] Pokrećem provjeru u pozadini...");
                 runFullCleanup();
@@ -38,7 +38,7 @@ public class FileCleanupService {
 
     public void runFullCleanup() {
         try {
-            // 1. Listamo SVE u bucketu (jer su ID-ovi u korijenu)
+            // Listamo SVE u bucketu (jer su ID-ovi u korijenu)
             // Šaljemo prazan string "" kao prefix da dobijemo sve iz bucketa "units"
             List<S3Object> objects = fileService.listAllObjects("");
 
@@ -47,7 +47,7 @@ public class FileCleanupService {
                 return;
             }
 
-            // 2. Izvlačimo unitId iz prve komponente putanje (npr. "15/cover/img.jpg" -> 15)
+            // Izvlačimo unitId iz prve komponente putanje (npr. "15/cover/img.jpg" -> 15)
             Set<Long> unitIdsInCloud = objects.stream()
                     .map(obj -> {
                         try {
@@ -65,7 +65,7 @@ public class FileCleanupService {
 
             System.out.println(">>> [Cleanup] Pronađeno unit foldera na cloudu: " + unitIdsInCloud);
 
-            // 3. Provjera i brisanje
+            // Provjera i brisanje
             for (Long unitId : unitIdsInCloud) {
                 if (!unitRepo.existsById(unitId)) {
                     System.out.println(">>> [Cleanup] Unit " + unitId + " ne postoji u bazi. Brišem SVE podatke...");

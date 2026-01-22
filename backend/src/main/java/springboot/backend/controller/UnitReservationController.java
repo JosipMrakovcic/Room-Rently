@@ -89,7 +89,7 @@ public class UnitReservationController {
 
             repo.save(res);
 
-            // 🟢 ASINKRONO: Inquiry email (Status: Pending)
+            // ASINKRONO: Inquiry email (Status: Pending)
             emailService.sendEmailWithPdf(res);
 
             return ResponseEntity.ok("Reservation successfully created. A confirmation inquiry has been sent to: " + email);
@@ -98,7 +98,7 @@ public class UnitReservationController {
         }
     }
 
-    @Transactional(readOnly = true) // Sada radi jer koristimo Spring import
+    @Transactional(readOnly = true)
     @GetMapping("/all")
     public ResponseEntity<?> getAll(@AuthenticationPrincipal Jwt jwt) {
         if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -113,7 +113,7 @@ public class UnitReservationController {
         return ResponseEntity.ok(repo.findAll());
     }
 
-    @Transactional(readOnly = true) // Dodajemo i ovdje da popravimo 500 Error
+    @Transactional(readOnly = true)
     @GetMapping("/my-reservations")
     public ResponseEntity<List<UnitReservation>> getMyReservations(@AuthenticationPrincipal Jwt jwt) {
         if (jwt == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -134,10 +134,6 @@ public class UnitReservationController {
 
             res.setStatus("Cancelled");
             repo.save(res);
-
-            // OVO JE TRIK: Prisilno učitaj unit ime dok si unutar @Transactional
-            // To puni "proxy" objekt podacima pa Async dretva neće imati problem
-            String dummy = res.getUnit().getUnitName();
 
             emailService.sendSimpleStatusEmail(res, "Booking Cancelled",
                     "Your reservation #" + id + " has been successfully cancelled.");
@@ -167,7 +163,6 @@ public class UnitReservationController {
             res.setStatus(newStatus);
             repo.save(res);
 
-            // 🟢 PAMETNO SLANJE:
             if ("Confirmed".equalsIgnoreCase(newStatus)) {
                 emailService.sendStatusUpdateEmail(res, "Booking Confirmed",
                         "Excellent news! Your reservation has been confirmed by the host. We look forward to seeing you.");
@@ -194,13 +189,12 @@ public class UnitReservationController {
             if (!"Completed".equalsIgnoreCase(res.getStatus())) return ResponseEntity.badRequest().body("Not completed.");
             if (res.getRating() != null) return ResponseEntity.badRequest().body("Already rated.");
 
-            // 1. Spremi ocjenu u rezervaciju
+            // Spremi ocjenu u rezervaciju
             res.setRating(rating);
             res.setRatingDate(LocalDate.now());
             repo.save(res);
 
-            // 2. KLJUČNI DIO: Osvježi stupac average_rating u tablici UNIT
-            // Ovo radi onaj brzi SQL koji smo ranije definirali u UnitRepo
+            // Osvježi stupac average_rating u tablici UNIT
             unitRepo.refreshUnitRating(res.getUnit().getIdUnit());
 
             return ResponseEntity.ok("Rated!");
@@ -210,7 +204,7 @@ public class UnitReservationController {
     @Transactional(readOnly = true)
     @GetMapping("/occupied-dates/{unitId}")
     public ResponseEntity<List<OccupiedDateDTO>> getOccupiedDates(@PathVariable Long unitId) {
-        // 1. Dohvati glavni Unit da znamo koliki mu je kapacitet (broj soba)
+        // Dohvati glavni Unit da znamo koliki mu je kapacitet (broj soba)
         Unit unit = unitRepo.findById(unitId)
                 .orElseThrow(() -> new RuntimeException("Unit not found"));
 
@@ -219,10 +213,10 @@ public class UnitReservationController {
                 ? 1
                 : unit.getNumSameRooms();
 
-        // 2. Dohvati sve rezervacije za taj tip smještaja (tvoja postojeća metoda u Repo)
+        // Dohvatiti sve rezervacije za taj tip smještaja
         List<UnitReservation> reservations = repo.findOccupiedDatesByUnitId(unitId);
 
-        // 3. Izbroji zauzetost po danima (ovo je munjevito brzo)
+        // Izbroji zauzetost po danima
         java.util.Map<LocalDate, Integer> dailyCount = new java.util.HashMap<>();
         for (UnitReservation res : reservations) {
             LocalDate current = res.getStartDate();
@@ -233,11 +227,10 @@ public class UnitReservationController {
             }
         }
 
-        // 4. Kreiraj listu samo za one dane koji su STVARNO puni
+        // Kreiraj listu samo za one dane koji su puni
         List<OccupiedDateDTO> fullyOccupied = new ArrayList<>();
         for (java.util.Map.Entry<LocalDate, Integer> entry : dailyCount.entrySet()) {
             if (entry.getValue() >= totalCapacity) {
-                // Šaljemo dan kao interval [dan, dan+1] jer to React DateRange najbolje razumije
                 fullyOccupied.add(new OccupiedDateDTO(entry.getKey(), entry.getKey().plusDays(1)));
             }
         }

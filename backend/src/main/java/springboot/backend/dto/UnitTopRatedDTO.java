@@ -7,5 +7,5 @@ public record UnitTopRatedDTO(
         String unitName,
         Integer price,
         String imageUrl,
-        Double rating // DODANO
+        Double rating
 ) {}
